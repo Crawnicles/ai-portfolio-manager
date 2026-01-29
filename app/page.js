@@ -1,18 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock } from 'lucide-react';
 
-// Popular stocks for quick access
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
-// Demo data
-const DEMO_ACCOUNT = {
-  equity: '127450.32',
-  buying_power: '48230.15',
-  last_equity: '125890.50',
-};
+const DEMO_ACCOUNT = { equity: '127450.32', buying_power: '48230.15', last_equity: '125890.50' };
 
 const DEMO_POSITIONS = [
   { symbol: 'AAPL', qty: '25', avg_entry_price: '178.50', current_price: '192.30', market_value: '4807.50', unrealized_pl: '345.00', unrealized_plpc: '0.0772' },
@@ -38,6 +32,8 @@ const generateAIAnalysis = (preferences, positions) => {
     'XOM': { sector: 'Energy', industry: 'Oil & Gas', beta: 0.98 },
     'META': { sector: 'Technology', industry: 'Social Media', beta: 1.35 },
     'AMD': { sector: 'Technology', industry: 'Semiconductors', beta: 1.82 },
+    'PG': { sector: 'Consumer Defensive', industry: 'Household Products', beta: 0.42 },
+    'UNH': { sector: 'Healthcare', industry: 'Health Plans', beta: 0.73 },
   };
 
   const suggestions = [];
@@ -53,8 +49,8 @@ const generateAIAnalysis = (preferences, positions) => {
                       (riskTolerance === 'moderate' && data.beta >= 0.7 && data.beta <= 1.3) ||
                       (riskTolerance === 'aggressive' && data.beta > 1.0);
 
-    if (sectorMatch && betaMatch && Math.random() > 0.5) {
-      const confidence = Math.floor(70 + Math.random() * 25);
+    if (sectorMatch && betaMatch && Math.random() > 0.4) {
+      const confidence = Math.floor(65 + Math.random() * 30);
       const basePrice = 100 + Math.random() * 400;
       suggestions.push({
         symbol, action: 'BUY', confidence,
@@ -83,7 +79,7 @@ const generateAIAnalysis = (preferences, positions) => {
       suggestions.push({
         symbol: pos.symbol,
         action: unrealizedPct > 15 ? 'TAKE_PROFIT' : 'STOP_LOSS',
-        confidence: Math.floor(60 + Math.random() * 30),
+        confidence: Math.floor(70 + Math.random() * 25),
         suggestedQty: Math.ceil(parseFloat(pos.qty) * 0.5),
         currentPrice: parseFloat(pos.current_price),
         sector: data.sector, industry: data.industry,
@@ -100,7 +96,7 @@ const generateAIAnalysis = (preferences, positions) => {
     }
   });
 
-  return suggestions.sort((a, b) => b.confidence - a.confidence).slice(0, 6);
+  return suggestions.sort((a, b) => b.confidence - a.confidence).slice(0, 8);
 };
 
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
@@ -125,6 +121,21 @@ export default function AIPortfolioManager() {
   const [tradeQty, setTradeQty] = useState(1);
   const [tradeSide, setTradeSide] = useState('buy');
   const [showTradePanel, setShowTradePanel] = useState(false);
+
+  // Trade History
+  const [tradeHistory, setTradeHistory] = useState([]);
+
+  // Auto-Trading Settings
+  const [autoTradeSettings, setAutoTradeSettings] = useState({
+    enabled: false,
+    confidenceThreshold: 85,
+    maxPositionPercent: 5,
+    dailyLossLimit: 3,
+    maxTradesPerDay: 10,
+  });
+  const [dailyPL, setDailyPL] = useState(0);
+  const [tradesToday, setTradesToday] = useState(0);
+  const [circuitBreakerTripped, setCircuitBreakerTripped] = useState(false);
 
   const [preferences, setPreferences] = useState({
     tradingStyle: 'balanced',
@@ -164,16 +175,14 @@ export default function AIPortfolioManager() {
     setError('');
     try {
       const accountRes = await fetch('/api/alpaca/account', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, secretKey }),
       });
       if (!accountRes.ok) throw new Error('Invalid API credentials');
       const accountData = await accountRes.json();
 
       const positionsRes = await fetch('/api/alpaca/positions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, secretKey }),
       });
       const positionsData = positionsRes.ok ? await positionsRes.json() : [];
@@ -207,14 +216,56 @@ export default function AIPortfolioManager() {
     }
   };
 
+  // Check circuit breaker conditions
+  const checkCircuitBreaker = () => {
+    if (!account) return false;
+    const dailyLossPct = (dailyPL / parseFloat(account.equity)) * 100;
+    if (dailyLossPct < -autoTradeSettings.dailyLossLimit) {
+      setCircuitBreakerTripped(true);
+      return true;
+    }
+    if (tradesToday >= autoTradeSettings.maxTradesPerDay) {
+      return true;
+    }
+    return false;
+  };
+
+  // Auto-execute trade
+  const autoExecuteTrade = async (suggestion) => {
+    if (checkCircuitBreaker()) return;
+    if (suggestion.confidence < autoTradeSettings.confidenceThreshold) return;
+
+    // Check position size limit
+    if (account) {
+      const maxValue = parseFloat(account.equity) * (autoTradeSettings.maxPositionPercent / 100);
+      const tradeValue = suggestion.suggestedQty * suggestion.currentPrice;
+      if (tradeValue > maxValue) {
+        suggestion.suggestedQty = Math.floor(maxValue / suggestion.currentPrice);
+        if (suggestion.suggestedQty < 1) return;
+      }
+    }
+
+    await executeTrade(suggestion, true);
+  };
+
+  // Run AI Analysis with optional auto-execution
   const runAIAnalysis = async () => {
     setAnalyzingMarket(true);
     await new Promise(resolve => setTimeout(resolve, 2000));
-    setSuggestions(generateAIAnalysis(preferences, positions));
+    const newSuggestions = generateAIAnalysis(preferences, positions);
+    setSuggestions(newSuggestions);
     setAnalyzingMarket(false);
+
+    // Auto-execute if enabled and not circuit-broken
+    if (autoTradeSettings.enabled && !circuitBreakerTripped) {
+      for (const suggestion of newSuggestions) {
+        if (suggestion.confidence >= autoTradeSettings.confidenceThreshold) {
+          await autoExecuteTrade(suggestion);
+        }
+      }
+    }
   };
 
-  // Quick Trade Functions
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
     setTradeSide(side);
@@ -223,61 +274,98 @@ export default function AIPortfolioManager() {
     setSearchQuery('');
   };
 
-  const executeQuickTrade = async () => {
-    if (!selectedStock || tradeQty < 1) return;
-    setExecutingTrade(selectedStock);
+  const executeTrade = async (suggestion, isAuto = false) => {
+    const symbol = suggestion.symbol || selectedStock;
+    const qty = suggestion.suggestedQty || tradeQty;
+    const side = suggestion.action === 'BUY' ? 'buy' : (suggestion.action ? 'sell' : tradeSide);
+
+    setExecutingTrade(symbol);
+
+    const tradeRecord = {
+      id: Date.now(),
+      symbol,
+      side,
+      qty,
+      price: suggestion.currentPrice || 150,
+      timestamp: new Date().toISOString(),
+      auto: isAuto,
+      confidence: suggestion.confidence,
+      status: 'pending'
+    };
 
     if (mode === 'demo') {
       await new Promise(resolve => setTimeout(resolve, 1000));
-      if (tradeSide === 'buy') {
-        const mockPrice = 150 + Math.random() * 100;
+      const mockPrice = suggestion.currentPrice || (150 + Math.random() * 100);
+
+      if (side === 'buy') {
         setPositions(prev => {
-          const existing = prev.find(p => p.symbol === selectedStock);
+          const existing = prev.find(p => p.symbol === symbol);
           if (existing) {
-            const newQty = parseFloat(existing.qty) + tradeQty;
-            return prev.map(p => p.symbol === selectedStock ? { ...p, qty: String(newQty) } : p);
+            const newQty = parseFloat(existing.qty) + qty;
+            return prev.map(p => p.symbol === symbol ? { ...p, qty: String(newQty) } : p);
           }
           return [...prev, {
-            symbol: selectedStock, qty: String(tradeQty),
+            symbol, qty: String(qty),
             avg_entry_price: mockPrice.toFixed(2), current_price: mockPrice.toFixed(2),
-            market_value: (tradeQty * mockPrice).toFixed(2), unrealized_pl: '0.00', unrealized_plpc: '0'
+            market_value: (qty * mockPrice).toFixed(2), unrealized_pl: '0.00', unrealized_plpc: '0'
           }];
         });
       } else {
         setPositions(prev => prev.map(p => {
-          if (p.symbol === selectedStock) {
-            const newQty = Math.max(0, parseFloat(p.qty) - tradeQty);
+          if (p.symbol === symbol) {
+            const newQty = Math.max(0, parseFloat(p.qty) - qty);
             return newQty > 0 ? { ...p, qty: String(newQty) } : null;
           }
           return p;
         }).filter(Boolean));
       }
-      setTradeConfirmation({ success: true, message: `Demo: ${tradeSide.toUpperCase()} ${tradeQty} shares of ${selectedStock}` });
+
+      tradeRecord.status = 'filled';
+      tradeRecord.price = mockPrice;
+      setTradeHistory(prev => [tradeRecord, ...prev].slice(0, 50));
+      setTradesToday(prev => prev + 1);
+
+      if (!isAuto) {
+        setTradeConfirmation({ success: true, message: `Demo: ${side.toUpperCase()} ${qty} shares of ${symbol}` });
+      }
+      setSuggestions(prev => prev.filter(s => s.symbol !== symbol));
     } else {
       try {
         const res = await fetch('/api/alpaca/trade', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey, secretKey, symbol: selectedStock, qty: tradeQty, side: tradeSide }),
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, secretKey, symbol, qty, side }),
         });
         if (!res.ok) {
           const err = await res.json();
           throw new Error(err.error || 'Trade failed');
         }
-        setTradeConfirmation({ success: true, message: `${tradeSide.toUpperCase()} order placed: ${tradeQty} shares of ${selectedStock}` });
+
+        tradeRecord.status = 'filled';
+        setTradeHistory(prev => [tradeRecord, ...prev].slice(0, 50));
+        setTradesToday(prev => prev + 1);
+
+        if (!isAuto) {
+          setTradeConfirmation({ success: true, message: `${side.toUpperCase()} order placed: ${qty} shares of ${symbol}` });
+        }
+        setSuggestions(prev => prev.filter(s => s.symbol !== symbol));
         await refreshData();
       } catch (err) {
-        setTradeConfirmation({ success: false, message: err.message });
+        tradeRecord.status = 'failed';
+        tradeRecord.error = err.message;
+        setTradeHistory(prev => [tradeRecord, ...prev].slice(0, 50));
+        if (!isAuto) {
+          setTradeConfirmation({ success: false, message: err.message });
+        }
       }
     }
 
     setExecutingTrade(null);
-    setShowTradePanel(false);
+    if (!isAuto) setShowTradePanel(false);
   };
 
-  const filteredStocks = searchQuery.length > 0
-    ? POPULAR_STOCKS.filter(s => s.includes(searchQuery.toUpperCase()))
-    : POPULAR_STOCKS;
+  const executeQuickTrade = () => executeTrade({ suggestedQty: tradeQty, action: tradeSide === 'buy' ? 'BUY' : 'SELL' });
+
+  const filteredStocks = searchQuery.length > 0 ? POPULAR_STOCKS.filter(s => s.includes(searchQuery.toUpperCase())) : POPULAR_STOCKS;
 
   const portfolioMetrics = account ? {
     totalValue: parseFloat(account.equity),
@@ -288,7 +376,7 @@ export default function AIPortfolioManager() {
   } : null;
 
   const sectorAllocation = positions.reduce((acc, pos) => {
-    const sectorMap = { 'AAPL': 'Tech', 'MSFT': 'Tech', 'GOOGL': 'Tech', 'NVDA': 'Tech', 'JPM': 'Finance', 'JNJ': 'Health' };
+    const sectorMap = { 'AAPL': 'Tech', 'MSFT': 'Tech', 'GOOGL': 'Tech', 'NVDA': 'Tech', 'JPM': 'Finance', 'JNJ': 'Health', 'META': 'Tech', 'AMD': 'Tech' };
     const sector = sectorMap[pos.symbol] || 'Other';
     acc[sector] = (acc[sector] || 0) + parseFloat(pos.market_value);
     return acc;
@@ -305,7 +393,7 @@ export default function AIPortfolioManager() {
               <Brain className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
-            <p className="text-slate-400">Intelligent trading powered by AI</p>
+            <p className="text-slate-400">Autonomous trading powered by AI</p>
           </div>
 
           <div className="space-y-4">
@@ -337,10 +425,6 @@ export default function AIPortfolioManager() {
                 {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />} Connect Paper Trading
               </button>
             </div>
-
-            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3">
-              <p className="text-amber-300 text-xs text-center">Paper Trading only — no real money at risk</p>
-            </div>
           </div>
         </div>
       </div>
@@ -359,14 +443,21 @@ export default function AIPortfolioManager() {
               </div>
               <div>
                 <h1 className="text-lg font-bold text-white">AI Portfolio Manager</h1>
-                <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
-                  {mode === 'demo' ? 'Demo' : 'Live Paper'}
-                </span>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
+                    {mode === 'demo' ? 'Demo' : 'Live Paper'}
+                  </span>
+                  {autoTradeSettings.enabled && (
+                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 ${circuitBreakerTripped ? 'bg-red-500/20 text-red-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                      <Bot className="w-3 h-3" /> {circuitBreakerTripped ? 'Stopped' : 'Auto'}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 
             <nav className="flex gap-1">
-              {['dashboard', 'trade', 'suggestions', 'preferences'].map((tab) => (
+              {['dashboard', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                   {tab}
                 </button>
@@ -386,84 +477,15 @@ export default function AIPortfolioManager() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* TRADE TAB - New! */}
-        {activeTab === 'trade' && (
-          <div className="space-y-6">
-            {/* Search Bar */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <Search className="w-5 h-5 text-blue-400" /> Quick Trade
-              </h2>
-
-              <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
-                  onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery) openTradePanel(searchQuery); }}
-                  placeholder="Search stock symbol (e.g., AAPL, TSLA)..."
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-xl pl-12 pr-4 py-4 text-white text-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                {searchQuery && (
-                  <button onClick={() => openTradePanel(searchQuery)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                    Trade {searchQuery}
-                  </button>
-                )}
-              </div>
-
-              {/* Popular Stocks */}
-              <div>
-                <p className="text-slate-400 text-sm mb-3">Popular Stocks</p>
-                <div className="flex flex-wrap gap-2">
-                  {filteredStocks.map(symbol => (
-                    <button key={symbol} onClick={() => openTradePanel(symbol)} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-medium transition-all">
-                      {symbol}
-                    </button>
-                  ))}
-                </div>
-              </div>
+        {/* Circuit Breaker Warning */}
+        {circuitBreakerTripped && (
+          <div className="mb-6 bg-red-500/20 border border-red-500/50 rounded-xl p-4 flex items-center gap-4">
+            <AlertTriangle className="w-8 h-8 text-red-400" />
+            <div className="flex-1">
+              <h3 className="font-bold text-red-400">Circuit Breaker Triggered</h3>
+              <p className="text-red-300 text-sm">Auto-trading has been paused due to exceeding daily loss limit.</p>
             </div>
-
-            {/* Current Positions with Quick Sell */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-green-400" /> Your Positions - Click to Trade
-                </h3>
-              </div>
-              <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {positions.length > 0 ? positions.map((pos) => {
-                  const pl = parseFloat(pos.unrealized_pl);
-                  const plPct = parseFloat(pos.unrealized_plpc) * 100;
-                  return (
-                    <div key={pos.symbol} className="bg-slate-700/30 rounded-xl p-4 hover:bg-slate-700/50 transition-all">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-lg font-bold text-white">{pos.symbol}</span>
-                        <span className={`text-sm ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                          {pl >= 0 ? '+' : ''}{plPct.toFixed(1)}%
-                        </span>
-                      </div>
-                      <div className="text-slate-400 text-sm mb-3">
-                        {parseFloat(pos.qty).toFixed(0)} shares @ ${parseFloat(pos.current_price).toFixed(2)}
-                      </div>
-                      <div className="flex gap-2">
-                        <button onClick={() => openTradePanel(pos.symbol, 'buy')} className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
-                          <ArrowUpCircle className="w-4 h-4" /> Buy
-                        </button>
-                        <button onClick={() => openTradePanel(pos.symbol, 'sell')} className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
-                          <ArrowDownCircle className="w-4 h-4" /> Sell
-                        </button>
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <div className="col-span-full text-center py-8 text-slate-400">
-                    No positions yet. Search for a stock above to make your first trade!
-                  </div>
-                )}
-              </div>
-            </div>
+            <button onClick={() => setCircuitBreakerTripped(false)} className="px-4 py-2 bg-red-500/30 hover:bg-red-500/50 text-red-300 rounded-lg text-sm">Reset</button>
           </div>
         )}
 
@@ -493,10 +515,10 @@ export default function AIPortfolioManager() {
 
               <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-500/20 rounded-lg"><Briefcase className="w-5 h-5 text-purple-400" /></div>
-                  <span className="text-slate-400 text-sm">Positions</span>
+                  <div className="p-2 bg-purple-500/20 rounded-lg"><Bot className="w-5 h-5 text-purple-400" /></div>
+                  <span className="text-slate-400 text-sm">Trades Today</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{portfolioMetrics.totalPositions}</p>
+                <p className="text-2xl font-bold text-white">{tradesToday} <span className="text-sm text-slate-400">/ {autoTradeSettings.maxTradesPerDay}</span></p>
               </div>
 
               <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
@@ -510,9 +532,7 @@ export default function AIPortfolioManager() {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-400" /> Performance
-                </h3>
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-blue-400" /> Performance</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={portfolioHistory}>
@@ -532,9 +552,7 @@ export default function AIPortfolioManager() {
               </div>
 
               <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <Circle className="w-5 h-5 text-purple-400" /> Allocation
-                </h3>
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Circle className="w-5 h-5 text-purple-400" /> Allocation</h3>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -556,12 +574,10 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
-            {/* Holdings Table */}
+            {/* Holdings */}
             <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
               <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Briefcase className="w-5 h-5 text-green-400" /> Holdings
-                </h3>
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Holdings</h3>
                 <button onClick={() => setActiveTab('trade')} className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                   <ShoppingCart className="w-4 h-4" /> Trade
                 </button>
@@ -604,6 +620,64 @@ export default function AIPortfolioManager() {
           </div>
         )}
 
+        {/* TRADE TAB */}
+        {activeTab === 'trade' && (
+          <div className="space-y-6">
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Search className="w-5 h-5 text-blue-400" /> Quick Trade</h2>
+              <div className="relative mb-4">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery) openTradePanel(searchQuery); }} placeholder="Search stock symbol..." className="w-full bg-slate-700/50 border border-slate-600 rounded-xl pl-12 pr-4 py-4 text-white text-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                {searchQuery && (
+                  <button onClick={() => openTradePanel(searchQuery)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Trade {searchQuery}
+                  </button>
+                )}
+              </div>
+              <div>
+                <p className="text-slate-400 text-sm mb-3">Popular Stocks</p>
+                <div className="flex flex-wrap gap-2">
+                  {filteredStocks.map(symbol => (
+                    <button key={symbol} onClick={() => openTradePanel(symbol)} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-medium transition-all">
+                      {symbol}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Your Positions</h3>
+              </div>
+              <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {positions.length > 0 ? positions.map((pos) => {
+                  const plPct = parseFloat(pos.unrealized_plpc) * 100;
+                  return (
+                    <div key={pos.symbol} className="bg-slate-700/30 rounded-xl p-4 hover:bg-slate-700/50 transition-all">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-lg font-bold text-white">{pos.symbol}</span>
+                        <span className={`text-sm ${plPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>{plPct >= 0 ? '+' : ''}{plPct.toFixed(1)}%</span>
+                      </div>
+                      <div className="text-slate-400 text-sm mb-3">{parseFloat(pos.qty).toFixed(0)} @ ${parseFloat(pos.current_price).toFixed(2)}</div>
+                      <div className="flex gap-2">
+                        <button onClick={() => openTradePanel(pos.symbol, 'buy')} className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+                          <ArrowUpCircle className="w-4 h-4" /> Buy
+                        </button>
+                        <button onClick={() => openTradePanel(pos.symbol, 'sell')} className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+                          <ArrowDownCircle className="w-4 h-4" /> Sell
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }) : (
+                  <div className="col-span-full text-center py-8 text-slate-400">No positions yet</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* SUGGESTIONS TAB */}
         {activeTab === 'suggestions' && (
           <div className="space-y-6">
@@ -615,7 +689,11 @@ export default function AIPortfolioManager() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">AI Trade Suggestions</h2>
-                    <p className="text-slate-400">Based on your preferences</p>
+                    <p className="text-slate-400 text-sm">
+                      {autoTradeSettings.enabled
+                        ? `Auto-execute when confidence ≥ ${autoTradeSettings.confidenceThreshold}%`
+                        : 'Auto-trading disabled'}
+                    </p>
                   </div>
                 </div>
                 <button onClick={runAIAnalysis} disabled={analyzingMarket} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50">
@@ -627,7 +705,7 @@ export default function AIPortfolioManager() {
             {suggestions.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {suggestions.map((s, i) => (
-                  <div key={i} className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                  <div key={i} className={`bg-slate-800/50 rounded-xl border overflow-hidden ${s.confidence >= autoTradeSettings.confidenceThreshold && autoTradeSettings.enabled ? 'border-purple-500/50' : 'border-slate-700'}`}>
                     <div className="p-5 border-b border-slate-700">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
@@ -635,8 +713,18 @@ export default function AIPortfolioManager() {
                             {s.action.replace('_', ' ')}
                           </span>
                           <span className="text-xl font-bold text-white">{s.symbol}</span>
+                          {s.confidence >= autoTradeSettings.confidenceThreshold && autoTradeSettings.enabled && (
+                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full flex items-center gap-1">
+                              <Bot className="w-3 h-3" /> Auto
+                            </span>
+                          )}
                         </div>
-                        <span className="text-white font-medium">{s.confidence}%</span>
+                        <div className="flex items-center gap-2">
+                          <Gauge className="w-4 h-4 text-slate-400" />
+                          <span className={`font-bold ${s.confidence >= 85 ? 'text-green-400' : s.confidence >= 70 ? 'text-amber-400' : 'text-slate-400'}`}>
+                            {s.confidence}%
+                          </span>
+                        </div>
                       </div>
                       <div className="text-sm text-slate-400">{s.sector} • {s.industry}</div>
                     </div>
@@ -650,6 +738,10 @@ export default function AIPortfolioManager() {
                       </ul>
                     </div>
                     <div className="p-5 bg-slate-900/30">
+                      <div className="flex justify-between mb-3 text-sm">
+                        <span className="text-slate-400">Qty: <span className="text-white font-medium">{s.suggestedQty}</span></span>
+                        <span className="text-slate-400">Price: <span className="text-white font-medium">${s.currentPrice?.toFixed(2)}</span></span>
+                      </div>
                       <button onClick={() => openTradePanel(s.symbol, s.action === 'BUY' ? 'buy' : 'sell')} className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${s.action === 'BUY' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
                         <Zap className="w-5 h-5" /> Execute {s.action.replace('_', ' ')}
                       </button>
@@ -670,11 +762,165 @@ export default function AIPortfolioManager() {
           </div>
         )}
 
-        {/* PREFERENCES TAB */}
-        {activeTab === 'preferences' && (
+        {/* HISTORY TAB */}
+        {activeTab === 'history' && (
+          <div className="space-y-6">
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <History className="w-5 h-5 text-blue-400" /> Trade History
+                </h3>
+              </div>
+              {tradeHistory.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-slate-900/50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Time</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Symbol</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Side</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Qty</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Price</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">Type</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700">
+                      {tradeHistory.map((trade) => (
+                        <tr key={trade.id} className="hover:bg-slate-700/30">
+                          <td className="px-6 py-4 text-slate-300 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-slate-500" />
+                              {new Date(trade.timestamp).toLocaleTimeString()}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 font-medium text-white">{trade.symbol}</td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${trade.side === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                              {trade.side.toUpperCase()}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right text-slate-300">{trade.qty}</td>
+                          <td className="px-6 py-4 text-right text-slate-300">${trade.price?.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-center">
+                            {trade.auto ? (
+                              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs flex items-center justify-center gap-1">
+                                <Bot className="w-3 h-3" /> Auto
+                              </span>
+                            ) : (
+                              <span className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs">Manual</span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`px-2 py-1 rounded text-xs ${trade.status === 'filled' ? 'bg-green-500/20 text-green-400' : trade.status === 'failed' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                              {trade.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-12 text-center text-slate-400">
+                  <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>No trades yet. Execute some trades to see history here.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* SETTINGS TAB */}
+        {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-blue-400" /> Preferences</h2>
+            {/* Auto-Trading Settings */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                <Bot className="w-5 h-5 text-purple-400" /> Auto-Trading
+              </h2>
+
+              <div className="space-y-6">
+                {/* Enable Toggle */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-white">Enable Auto-Trading</h3>
+                    <p className="text-sm text-slate-400">Automatically execute high-confidence trades</p>
+                  </div>
+                  <button
+                    onClick={() => setAutoTradeSettings(s => ({ ...s, enabled: !s.enabled }))}
+                    className={`w-14 h-8 rounded-full transition-all flex items-center ${autoTradeSettings.enabled ? 'bg-purple-500 justify-end' : 'bg-slate-600 justify-start'}`}
+                  >
+                    <div className="w-6 h-6 bg-white rounded-full mx-1 shadow-md flex items-center justify-center">
+                      <Power className={`w-3 h-3 ${autoTradeSettings.enabled ? 'text-purple-500' : 'text-slate-400'}`} />
+                    </div>
+                  </button>
+                </div>
+
+                {/* Confidence Threshold */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-300">Confidence Threshold</label>
+                    <span className="text-sm font-bold text-purple-400">{autoTradeSettings.confidenceThreshold}%</span>
+                  </div>
+                  <input
+                    type="range" min="60" max="95" step="5"
+                    value={autoTradeSettings.confidenceThreshold}
+                    onChange={(e) => setAutoTradeSettings(s => ({ ...s, confidenceThreshold: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Only auto-execute trades above this confidence level</p>
+                </div>
+
+                {/* Max Position Size */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-300">Max Position Size</label>
+                    <span className="text-sm font-bold text-blue-400">{autoTradeSettings.maxPositionPercent}%</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="20" step="1"
+                    value={autoTradeSettings.maxPositionPercent}
+                    onChange={(e) => setAutoTradeSettings(s => ({ ...s, maxPositionPercent: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Maximum % of portfolio per auto-trade</p>
+                </div>
+
+                {/* Daily Loss Limit */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-300">Daily Loss Limit (Circuit Breaker)</label>
+                    <span className="text-sm font-bold text-red-400">{autoTradeSettings.dailyLossLimit}%</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="10" step="1"
+                    value={autoTradeSettings.dailyLossLimit}
+                    onChange={(e) => setAutoTradeSettings(s => ({ ...s, dailyLossLimit: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500"
+                  />
+                  <p className="text-xs text-slate-500 mt-1">Stop auto-trading if daily loss exceeds this %</p>
+                </div>
+
+                {/* Max Trades Per Day */}
+                <div>
+                  <div className="flex justify-between mb-2">
+                    <label className="text-sm font-medium text-slate-300">Max Trades Per Day</label>
+                    <span className="text-sm font-bold text-amber-400">{autoTradeSettings.maxTradesPerDay}</span>
+                  </div>
+                  <input
+                    type="range" min="1" max="50" step="1"
+                    value={autoTradeSettings.maxTradesPerDay}
+                    onChange={(e) => setAutoTradeSettings(s => ({ ...s, maxTradesPerDay: parseInt(e.target.value) }))}
+                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Trading Preferences */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-blue-400" /> Trading Preferences</h2>
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-3">Trading Style</label>
@@ -704,10 +950,16 @@ export default function AIPortfolioManager() {
                 </div>
               </div>
             </div>
-            <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 p-6">
-              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-green-400" /> Profile</h3>
-              <p className="text-slate-300">
-                <strong className="text-white">{preferences.tradingStyle}</strong> trader, <strong className="text-white">{preferences.riskTolerance}</strong> risk, focused on <strong className="text-white">{preferences.sectors.join(', ') || 'all'}</strong>.
+
+            {/* Profile Summary */}
+            <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl border border-purple-500/30 p-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-purple-400" /> Configuration Summary</h3>
+              <p className="text-slate-300 text-sm">
+                <strong className="text-white">{preferences.tradingStyle}</strong> trader with <strong className="text-white">{preferences.riskTolerance}</strong> risk.
+                Auto-trading is <strong className={autoTradeSettings.enabled ? 'text-purple-400' : 'text-slate-400'}>{autoTradeSettings.enabled ? 'ON' : 'OFF'}</strong>
+                {autoTradeSettings.enabled && <> at <strong className="text-purple-400">{autoTradeSettings.confidenceThreshold}%</strong> confidence threshold</>}.
+                Max <strong className="text-blue-400">{autoTradeSettings.maxPositionPercent}%</strong> per position,
+                circuit breaker at <strong className="text-red-400">{autoTradeSettings.dailyLossLimit}%</strong> daily loss.
               </p>
             </div>
           </div>
@@ -720,13 +972,9 @@ export default function AIPortfolioManager() {
           <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">Trade {selectedStock}</h3>
-              <button onClick={() => setShowTradePanel(false)} className="text-slate-400 hover:text-white">
-                <X className="w-6 h-6" />
-              </button>
+              <button onClick={() => setShowTradePanel(false)} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
             </div>
-
             <div className="space-y-4">
-              {/* Buy/Sell Toggle */}
               <div className="flex gap-2">
                 <button onClick={() => setTradeSide('buy')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
                   <ArrowUpCircle className="w-5 h-5" /> Buy
@@ -735,8 +983,6 @@ export default function AIPortfolioManager() {
                   <ArrowDownCircle className="w-5 h-5" /> Sell
                 </button>
               </div>
-
-              {/* Quantity */}
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Quantity</label>
                 <div className="flex items-center gap-3">
@@ -745,21 +991,16 @@ export default function AIPortfolioManager() {
                   <button onClick={() => setTradeQty(tradeQty + 1)} className="w-12 h-12 bg-slate-700 hover:bg-slate-600 rounded-xl text-white text-xl">+</button>
                 </div>
               </div>
-
-              {/* Quick Qty Buttons */}
               <div className="flex gap-2">
                 {[1, 5, 10, 25, 50, 100].map(q => (
                   <button key={q} onClick={() => setTradeQty(q)} className={`flex-1 py-2 rounded-lg text-sm font-medium ${tradeQty === q ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300'}`}>{q}</button>
                 ))}
               </div>
-
-              {/* Execute Button */}
               <button onClick={executeQuickTrade} disabled={executingTrade} className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white disabled:opacity-50`}>
                 {executingTrade ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
                 {tradeSide === 'buy' ? 'Buy' : 'Sell'} {tradeQty} {selectedStock}
               </button>
-
-              <p className="text-slate-400 text-xs text-center">Market order • {mode === 'demo' ? 'Demo Mode' : 'Paper Trading'}</p>
+              <p className="text-slate-400 text-xs text-center">Market order • {mode === 'demo' ? 'Demo' : 'Paper Trading'}</p>
             </div>
           </div>
         </div>
