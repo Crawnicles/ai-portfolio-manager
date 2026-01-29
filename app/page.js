@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
-import { LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Info, Lock, Eye, EyeOff } from 'lucide-react';
+import React, { useState } from 'react';
+import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+
+// Popular stocks for quick access
+const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
 // Demo data
 const DEMO_ACCOUNT = {
@@ -33,11 +36,8 @@ const generateAIAnalysis = (preferences, positions) => {
     'JNJ': { sector: 'Healthcare', industry: 'Pharmaceuticals', beta: 0.56 },
     'V': { sector: 'Financial', industry: 'Credit Services', beta: 0.94 },
     'XOM': { sector: 'Energy', industry: 'Oil & Gas', beta: 0.98 },
-    'PG': { sector: 'Consumer Defensive', industry: 'Household Products', beta: 0.42 },
-    'HD': { sector: 'Consumer Cyclical', industry: 'Home Improvement', beta: 1.05 },
-    'UNH': { sector: 'Healthcare', industry: 'Health Plans', beta: 0.73 },
-    'MA': { sector: 'Financial', industry: 'Credit Services', beta: 1.08 },
-    'DIS': { sector: 'Communication', industry: 'Entertainment', beta: 1.25 },
+    'META': { sector: 'Technology', industry: 'Social Media', beta: 1.35 },
+    'AMD': { sector: 'Technology', industry: 'Semiconductors', beta: 1.82 },
   };
 
   const suggestions = [];
@@ -48,7 +48,6 @@ const generateAIAnalysis = (preferences, positions) => {
 
   Object.entries(sectors).forEach(([symbol, data]) => {
     if (currentSymbols.includes(symbol)) return;
-
     const sectorMatch = preferredSectors.length === 0 || preferredSectors.includes(data.sector);
     const betaMatch = (riskTolerance === 'conservative' && data.beta < 0.8) ||
                       (riskTolerance === 'moderate' && data.beta >= 0.7 && data.beta <= 1.3) ||
@@ -56,29 +55,21 @@ const generateAIAnalysis = (preferences, positions) => {
 
     if (sectorMatch && betaMatch && Math.random() > 0.5) {
       const confidence = Math.floor(70 + Math.random() * 25);
-      const momentum = (Math.random() - 0.3) * 20;
       const basePrice = 100 + Math.random() * 400;
-
       suggestions.push({
-        symbol,
-        action: 'BUY',
-        confidence,
+        symbol, action: 'BUY', confidence,
         suggestedQty: Math.ceil(5 * riskMultiplier),
         currentPrice: basePrice,
-        targetPrice: basePrice * (1 + Math.random() * 0.15),
-        sector: data.sector,
-        industry: data.industry,
-        beta: data.beta,
+        sector: data.sector, industry: data.industry, beta: data.beta,
         analysis: {
           technicalScore: Math.floor(60 + Math.random() * 35),
           fundamentalScore: Math.floor(55 + Math.random() * 40),
           sentimentScore: Math.floor(50 + Math.random() * 45),
           riskScore: Math.floor(100 - data.beta * 40),
           reasons: [
-            `Strong ${data.sector} sector momentum with favorable market conditions`,
-            `${momentum > 0 ? 'Positive' : 'Neutral'} price trend over the last 30 days`,
-            `Beta of ${data.beta.toFixed(2)} aligns with your ${riskTolerance} risk profile`,
-            `${data.industry} industry showing resilient fundamentals`
+            `Strong ${data.sector} sector momentum`,
+            `Beta of ${data.beta.toFixed(2)} fits your ${riskTolerance} profile`,
+            `${data.industry} showing solid fundamentals`
           ]
         }
       });
@@ -88,7 +79,6 @@ const generateAIAnalysis = (preferences, positions) => {
   positions.forEach(pos => {
     const unrealizedPct = parseFloat(pos.unrealized_plpc) * 100;
     const data = sectors[pos.symbol] || { sector: 'Unknown', industry: 'Unknown', beta: 1.0 };
-
     if (unrealizedPct > 15 || unrealizedPct < -10) {
       suggestions.push({
         symbol: pos.symbol,
@@ -96,17 +86,15 @@ const generateAIAnalysis = (preferences, positions) => {
         confidence: Math.floor(60 + Math.random() * 30),
         suggestedQty: Math.ceil(parseFloat(pos.qty) * 0.5),
         currentPrice: parseFloat(pos.current_price),
-        unrealizedPct,
-        sector: data.sector,
-        industry: data.industry,
+        sector: data.sector, industry: data.industry,
         analysis: {
           technicalScore: Math.floor(40 + Math.random() * 30),
           fundamentalScore: Math.floor(50 + Math.random() * 30),
           sentimentScore: Math.floor(45 + Math.random() * 30),
           riskScore: unrealizedPct < 0 ? 30 : 70,
           reasons: unrealizedPct > 15
-            ? [`Position up ${unrealizedPct.toFixed(1)}% - consider taking profits`, `Market volatility suggests locking in gains`, `Rebalancing opportunity`]
-            : [`Position down ${Math.abs(unrealizedPct).toFixed(1)}% - approaching stop loss`, `Review investment thesis`, `Consider cutting losses`]
+            ? [`Up ${unrealizedPct.toFixed(1)}% - take profits`, `Lock in gains`]
+            : [`Down ${Math.abs(unrealizedPct).toFixed(1)}%`, `Consider cutting losses`]
         }
       });
     }
@@ -115,10 +103,10 @@ const generateAIAnalysis = (preferences, positions) => {
   return suggestions.sort((a, b) => b.confidence - a.confidence).slice(0, 6);
 };
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export default function AIPortfolioManager() {
-  const [mode, setMode] = useState(null); // 'demo' | 'live'
+  const [mode, setMode] = useState(null);
   const [apiKey, setApiKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
   const [showSecret, setShowSecret] = useState(false);
@@ -131,13 +119,18 @@ export default function AIPortfolioManager() {
   const [positions, setPositions] = useState([]);
   const [portfolioHistory, setPortfolioHistory] = useState([]);
 
+  // Quick Trade State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [tradeQty, setTradeQty] = useState(1);
+  const [tradeSide, setTradeSide] = useState('buy');
+  const [showTradePanel, setShowTradePanel] = useState(false);
+
   const [preferences, setPreferences] = useState({
     tradingStyle: 'balanced',
     riskTolerance: 'moderate',
     sectors: ['Technology', 'Healthcare'],
     maxPositionSize: 10,
-    stopLossPercent: 8,
-    takeProfitPercent: 15
   });
 
   const [suggestions, setSuggestions] = useState([]);
@@ -152,10 +145,7 @@ export default function AIPortfolioManager() {
       const date = new Date();
       date.setDate(date.getDate() - i);
       value *= (1 + (Math.random() - 0.48) * 0.03);
-      history.push({
-        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        value: Math.round(value)
-      });
+      history.push({ date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), value: Math.round(value) });
     }
     return history;
   };
@@ -169,21 +159,15 @@ export default function AIPortfolioManager() {
   };
 
   const connectLive = async () => {
-    if (!apiKey || !secretKey) {
-      setError('Please enter both API Key and Secret Key');
-      return;
-    }
-
+    if (!apiKey || !secretKey) { setError('Please enter both API Key and Secret Key'); return; }
     setLoading(true);
     setError('');
-
     try {
       const accountRes = await fetch('/api/alpaca/account', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, secretKey }),
       });
-
       if (!accountRes.ok) throw new Error('Invalid API credentials');
       const accountData = await accountRes.json();
 
@@ -192,7 +176,6 @@ export default function AIPortfolioManager() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ apiKey, secretKey }),
       });
-
       const positionsData = positionsRes.ok ? await positionsRes.json() : [];
 
       setMode('live');
@@ -210,21 +193,11 @@ export default function AIPortfolioManager() {
   const refreshData = async () => {
     if (mode !== 'live') return;
     setLoading(true);
-
     try {
       const [accountRes, positionsRes] = await Promise.all([
-        fetch('/api/alpaca/account', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey, secretKey }),
-        }),
-        fetch('/api/alpaca/positions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ apiKey, secretKey }),
-        }),
+        fetch('/api/alpaca/account', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey, secretKey }) }),
+        fetch('/api/alpaca/positions', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ apiKey, secretKey }) }),
       ]);
-
       if (accountRes.ok) setAccount(await accountRes.json());
       if (positionsRes.ok) setPositions(await positionsRes.json());
     } catch (err) {
@@ -241,41 +214,57 @@ export default function AIPortfolioManager() {
     setAnalyzingMarket(false);
   };
 
-  const executeTrade = async (suggestion) => {
-    setExecutingTrade(suggestion.symbol);
+  // Quick Trade Functions
+  const openTradePanel = (symbol, side = 'buy') => {
+    setSelectedStock(symbol.toUpperCase());
+    setTradeSide(side);
+    setTradeQty(1);
+    setShowTradePanel(true);
+    setSearchQuery('');
+  };
+
+  const executeQuickTrade = async () => {
+    if (!selectedStock || tradeQty < 1) return;
+    setExecutingTrade(selectedStock);
 
     if (mode === 'demo') {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      if (suggestion.action === 'BUY') {
-        setPositions(prev => [...prev, {
-          symbol: suggestion.symbol,
-          qty: String(suggestion.suggestedQty),
-          avg_entry_price: suggestion.currentPrice.toFixed(2),
-          current_price: suggestion.currentPrice.toFixed(2),
-          market_value: (suggestion.suggestedQty * suggestion.currentPrice).toFixed(2),
-          unrealized_pl: '0.00',
-          unrealized_plpc: '0'
-        }]);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (tradeSide === 'buy') {
+        const mockPrice = 150 + Math.random() * 100;
+        setPositions(prev => {
+          const existing = prev.find(p => p.symbol === selectedStock);
+          if (existing) {
+            const newQty = parseFloat(existing.qty) + tradeQty;
+            return prev.map(p => p.symbol === selectedStock ? { ...p, qty: String(newQty) } : p);
+          }
+          return [...prev, {
+            symbol: selectedStock, qty: String(tradeQty),
+            avg_entry_price: mockPrice.toFixed(2), current_price: mockPrice.toFixed(2),
+            market_value: (tradeQty * mockPrice).toFixed(2), unrealized_pl: '0.00', unrealized_plpc: '0'
+          }];
+        });
+      } else {
+        setPositions(prev => prev.map(p => {
+          if (p.symbol === selectedStock) {
+            const newQty = Math.max(0, parseFloat(p.qty) - tradeQty);
+            return newQty > 0 ? { ...p, qty: String(newQty) } : null;
+          }
+          return p;
+        }).filter(Boolean));
       }
-      setTradeConfirmation({ success: true, message: `Demo: ${suggestion.action} order for ${suggestion.suggestedQty} shares of ${suggestion.symbol}` });
-      setSuggestions(prev => prev.filter(s => s.symbol !== suggestion.symbol));
+      setTradeConfirmation({ success: true, message: `Demo: ${tradeSide.toUpperCase()} ${tradeQty} shares of ${selectedStock}` });
     } else {
       try {
         const res = await fetch('/api/alpaca/trade', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            apiKey,
-            secretKey,
-            symbol: suggestion.symbol,
-            qty: suggestion.suggestedQty,
-            side: suggestion.action === 'BUY' ? 'buy' : 'sell',
-          }),
+          body: JSON.stringify({ apiKey, secretKey, symbol: selectedStock, qty: tradeQty, side: tradeSide }),
         });
-
-        if (!res.ok) throw new Error('Trade failed');
-        setTradeConfirmation({ success: true, message: `${suggestion.action} order placed for ${suggestion.suggestedQty} shares of ${suggestion.symbol}` });
-        setSuggestions(prev => prev.filter(s => s.symbol !== suggestion.symbol));
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.error || 'Trade failed');
+        }
+        setTradeConfirmation({ success: true, message: `${tradeSide.toUpperCase()} order placed: ${tradeQty} shares of ${selectedStock}` });
         await refreshData();
       } catch (err) {
         setTradeConfirmation({ success: false, message: err.message });
@@ -283,7 +272,12 @@ export default function AIPortfolioManager() {
     }
 
     setExecutingTrade(null);
+    setShowTradePanel(false);
   };
+
+  const filteredStocks = searchQuery.length > 0
+    ? POPULAR_STOCKS.filter(s => s.includes(searchQuery.toUpperCase()))
+    : POPULAR_STOCKS;
 
   const portfolioMetrics = account ? {
     totalValue: parseFloat(account.equity),
@@ -294,15 +288,14 @@ export default function AIPortfolioManager() {
   } : null;
 
   const sectorAllocation = positions.reduce((acc, pos) => {
-    const sectorMap = { 'AAPL': 'Technology', 'MSFT': 'Technology', 'GOOGL': 'Technology', 'NVDA': 'Technology', 'JPM': 'Financial', 'JNJ': 'Healthcare' };
+    const sectorMap = { 'AAPL': 'Tech', 'MSFT': 'Tech', 'GOOGL': 'Tech', 'NVDA': 'Tech', 'JPM': 'Finance', 'JNJ': 'Health' };
     const sector = sectorMap[pos.symbol] || 'Other';
     acc[sector] = (acc[sector] || 0) + parseFloat(pos.market_value);
     return acc;
   }, {});
-
   const pieData = Object.entries(sectorAllocation).map(([name, value]) => ({ name, value }));
 
-  // Landing / Connection Screen
+  // Connection Screen
   if (!connected) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
@@ -312,78 +305,41 @@ export default function AIPortfolioManager() {
               <Brain className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
-            <p className="text-slate-400">Intelligent trading powered by AI analysis</p>
+            <p className="text-slate-400">Intelligent trading powered by AI</p>
           </div>
 
           <div className="space-y-4">
-            <button
-              onClick={startDemoMode}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl transition-all flex items-center justify-center gap-3"
-            >
-              <Play className="w-5 h-5" />
-              Launch Demo Mode
+            <button onClick={startDemoMode} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-3">
+              <Play className="w-5 h-5" /> Launch Demo Mode
             </button>
 
             <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-slate-600"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-4 bg-slate-800 text-slate-400 text-sm">or connect Alpaca</span>
-              </div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-600"></div></div>
+              <div className="relative flex justify-center"><span className="px-4 bg-slate-800 text-slate-400 text-sm">or connect Alpaca</span></div>
             </div>
 
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">API Key ID</label>
-                <input
-                  type="text"
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="PK..."
-                />
+                <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="PK..." />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Secret Key</label>
                 <div className="relative">
-                  <input
-                    type={showSecret ? 'text' : 'password'}
-                    value={secretKey}
-                    onChange={(e) => setSecretKey(e.target.value)}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Your secret key"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowSecret(!showSecret)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
-                  >
+                  <input type={showSecret ? 'text' : 'password'} value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your secret key" />
+                  <button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
                     {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
-
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-300 text-sm">
-                  {error}
-                </div>
-              )}
-
-              <button
-                onClick={connectLive}
-                disabled={loading}
-                className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
-                Connect Paper Trading
+              {error && <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-300 text-sm">{error}</div>}
+              <button onClick={connectLive} disabled={loading} className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />} Connect Paper Trading
               </button>
             </div>
 
             <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3">
-              <p className="text-amber-300 text-xs text-center">
-                Paper Trading only — no real money at risk
-              </p>
+              <p className="text-amber-300 text-xs text-center">Paper Trading only — no real money at risk</p>
             </div>
           </div>
         </div>
@@ -394,7 +350,7 @@ export default function AIPortfolioManager() {
   // Main App
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <header className="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700 sticky top-0 z-50">
+      <header className="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -404,18 +360,14 @@ export default function AIPortfolioManager() {
               <div>
                 <h1 className="text-lg font-bold text-white">AI Portfolio Manager</h1>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
-                  {mode === 'demo' ? 'Demo Mode' : 'Live Paper Trading'}
+                  {mode === 'demo' ? 'Demo' : 'Live Paper'}
                 </span>
               </div>
             </div>
 
             <nav className="flex gap-1">
-              {['dashboard', 'suggestions', 'preferences'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
-                >
+              {['dashboard', 'trade', 'suggestions', 'preferences'].map((tab) => (
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                   {tab}
                 </button>
               ))}
@@ -427,15 +379,95 @@ export default function AIPortfolioManager() {
                   <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                 </button>
               )}
-              <button onClick={() => { setConnected(false); setMode(null); }} className="px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm">
-                Disconnect
-              </button>
+              <button onClick={() => { setConnected(false); setMode(null); }} className="px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm">Disconnect</button>
             </div>
           </div>
         </div>
       </header>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* TRADE TAB - New! */}
+        {activeTab === 'trade' && (
+          <div className="space-y-6">
+            {/* Search Bar */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <Search className="w-5 h-5 text-blue-400" /> Quick Trade
+              </h2>
+
+              <div className="relative mb-4">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery) openTradePanel(searchQuery); }}
+                  placeholder="Search stock symbol (e.g., AAPL, TSLA)..."
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-xl pl-12 pr-4 py-4 text-white text-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                {searchQuery && (
+                  <button onClick={() => openTradePanel(searchQuery)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                    Trade {searchQuery}
+                  </button>
+                )}
+              </div>
+
+              {/* Popular Stocks */}
+              <div>
+                <p className="text-slate-400 text-sm mb-3">Popular Stocks</p>
+                <div className="flex flex-wrap gap-2">
+                  {filteredStocks.map(symbol => (
+                    <button key={symbol} onClick={() => openTradePanel(symbol)} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-medium transition-all">
+                      {symbol}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Current Positions with Quick Sell */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-green-400" /> Your Positions - Click to Trade
+                </h3>
+              </div>
+              <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {positions.length > 0 ? positions.map((pos) => {
+                  const pl = parseFloat(pos.unrealized_pl);
+                  const plPct = parseFloat(pos.unrealized_plpc) * 100;
+                  return (
+                    <div key={pos.symbol} className="bg-slate-700/30 rounded-xl p-4 hover:bg-slate-700/50 transition-all">
+                      <div className="flex justify-between items-start mb-2">
+                        <span className="text-lg font-bold text-white">{pos.symbol}</span>
+                        <span className={`text-sm ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {pl >= 0 ? '+' : ''}{plPct.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="text-slate-400 text-sm mb-3">
+                        {parseFloat(pos.qty).toFixed(0)} shares @ ${parseFloat(pos.current_price).toFixed(2)}
+                      </div>
+                      <div className="flex gap-2">
+                        <button onClick={() => openTradePanel(pos.symbol, 'buy')} className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+                          <ArrowUpCircle className="w-4 h-4" /> Buy
+                        </button>
+                        <button onClick={() => openTradePanel(pos.symbol, 'sell')} className="flex-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+                          <ArrowDownCircle className="w-4 h-4" /> Sell
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }) : (
+                  <div className="col-span-full text-center py-8 text-slate-400">
+                    No positions yet. Search for a stock above to make your first trade!
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* DASHBOARD TAB */}
         {activeTab === 'dashboard' && portfolioMetrics && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -455,7 +487,7 @@ export default function AIPortfolioManager() {
                   <span className="text-slate-400 text-sm">Today's P&L</span>
                 </div>
                 <p className={`text-2xl font-bold ${portfolioMetrics.dayPL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                  {portfolioMetrics.dayPL >= 0 ? '+' : ''}${portfolioMetrics.dayPL.toFixed(2)} <span className="text-sm">({portfolioMetrics.dayPLPercent.toFixed(2)}%)</span>
+                  {portfolioMetrics.dayPL >= 0 ? '+' : ''}${portfolioMetrics.dayPL.toFixed(2)}
                 </p>
               </div>
 
@@ -479,7 +511,7 @@ export default function AIPortfolioManager() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
                 <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-400" /> Portfolio Performance
+                  <BarChart3 className="w-5 h-5 text-blue-400" /> Performance
                 </h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
@@ -507,7 +539,7 @@ export default function AIPortfolioManager() {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="value">
-                        {pieData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                        {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
                       <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} formatter={(value) => [`$${value.toLocaleString()}`, 'Value']} />
                     </PieChart>
@@ -524,11 +556,15 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
+            {/* Holdings Table */}
             <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700">
+              <div className="p-6 border-b border-slate-700 flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-white flex items-center gap-2">
                   <Briefcase className="w-5 h-5 text-green-400" /> Holdings
                 </h3>
+                <button onClick={() => setActiveTab('trade')} className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4" /> Trade
+                </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -536,10 +572,10 @@ export default function AIPortfolioManager() {
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Symbol</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Qty</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Avg Cost</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Current</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Price</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Value</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">P&L</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700">
@@ -550,11 +586,13 @@ export default function AIPortfolioManager() {
                         <tr key={pos.symbol} className="hover:bg-slate-700/30">
                           <td className="px-6 py-4 font-medium text-white">{pos.symbol}</td>
                           <td className="px-6 py-4 text-right text-slate-300">{parseFloat(pos.qty).toFixed(0)}</td>
-                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.avg_entry_price).toFixed(2)}</td>
                           <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.current_price).toFixed(2)}</td>
                           <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.market_value).toLocaleString()}</td>
                           <td className={`px-6 py-4 text-right ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {pl >= 0 ? '+' : ''}${pl.toFixed(2)} ({plPct.toFixed(1)}%)
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <button onClick={() => openTradePanel(pos.symbol, 'sell')} className="text-red-400 hover:text-red-300 text-sm font-medium">Sell</button>
                           </td>
                         </tr>
                       );
@@ -566,6 +604,7 @@ export default function AIPortfolioManager() {
           </div>
         )}
 
+        {/* SUGGESTIONS TAB */}
         {activeTab === 'suggestions' && (
           <div className="space-y-6">
             <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/30 p-6">
@@ -580,7 +619,7 @@ export default function AIPortfolioManager() {
                   </div>
                 </div>
                 <button onClick={runAIAnalysis} disabled={analyzingMarket} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50">
-                  {analyzingMarket ? <><RefreshCw className="w-5 h-5 animate-spin" /> Analyzing...</> : <><Brain className="w-5 h-5" /> Run AI Analysis</>}
+                  {analyzingMarket ? <><RefreshCw className="w-5 h-5 animate-spin" /> Analyzing...</> : <><Brain className="w-5 h-5" /> Run Analysis</>}
                 </button>
               </div>
             </div>
@@ -590,55 +629,29 @@ export default function AIPortfolioManager() {
                 {suggestions.map((s, i) => (
                   <div key={i} className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
                     <div className="p-5 border-b border-slate-700">
-                      <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${s.action === 'BUY' ? 'bg-green-500/20 text-green-400' : s.action === 'TAKE_PROFIT' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}`}>
+                          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${s.action === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                             {s.action.replace('_', ' ')}
                           </span>
                           <span className="text-xl font-bold text-white">{s.symbol}</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500" style={{ width: `${s.confidence}%` }} />
-                          </div>
-                          <span className="text-white text-sm">{s.confidence}%</span>
-                        </div>
+                        <span className="text-white font-medium">{s.confidence}%</span>
                       </div>
                       <div className="text-sm text-slate-400">{s.sector} • {s.industry}</div>
                     </div>
-
-                    <div className="p-5 border-b border-slate-700 grid grid-cols-4 gap-3">
-                      {[
-                        { l: 'Technical', s: s.analysis.technicalScore, c: 'text-blue-400' },
-                        { l: 'Fundamental', s: s.analysis.fundamentalScore, c: 'text-green-400' },
-                        { l: 'Sentiment', s: s.analysis.sentimentScore, c: 'text-purple-400' },
-                        { l: 'Risk', s: s.analysis.riskScore, c: 'text-amber-400' },
-                      ].map(m => (
-                        <div key={m.l} className="text-center">
-                          <div className={`text-xl font-bold ${m.c}`}>{m.s}</div>
-                          <div className="text-xs text-slate-400">{m.l}</div>
-                        </div>
-                      ))}
-                    </div>
-
                     <div className="p-5 border-b border-slate-700">
-                      <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2"><Brain className="w-4 h-4" /> Analysis</h4>
-                      <ul className="space-y-2">
+                      <ul className="space-y-1">
                         {s.analysis.reasons.map((r, j) => (
                           <li key={j} className="flex items-start gap-2 text-sm text-slate-400">
-                            <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />{r}
+                            <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0" />{r}
                           </li>
                         ))}
                       </ul>
                     </div>
-
                     <div className="p-5 bg-slate-900/30">
-                      <div className="flex justify-between mb-4">
-                        <div><div className="text-sm text-slate-400">Qty</div><div className="text-lg font-bold text-white">{s.suggestedQty}</div></div>
-                        <div className="text-right"><div className="text-sm text-slate-400">Price</div><div className="text-lg font-bold text-white">${s.currentPrice?.toFixed(2)}</div></div>
-                      </div>
-                      <button onClick={() => executeTrade(s)} disabled={executingTrade === s.symbol} className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${s.action === 'BUY' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white disabled:opacity-50`}>
-                        {executingTrade === s.symbol ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5" /> Execute {s.action.replace('_', ' ')}</>}
+                      <button onClick={() => openTradePanel(s.symbol, s.action === 'BUY' ? 'buy' : 'sell')} className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${s.action === 'BUY' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
+                        <Zap className="w-5 h-5" /> Execute {s.action.replace('_', ' ')}
                       </button>
                     </div>
                   </div>
@@ -650,69 +663,109 @@ export default function AIPortfolioManager() {
                 <h3 className="text-xl font-semibold text-white mb-2">No Suggestions Yet</h3>
                 <p className="text-slate-400 mb-6">Run AI analysis to get recommendations</p>
                 <button onClick={runAIAnalysis} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl inline-flex items-center gap-2">
-                  <Brain className="w-5 h-5" /> Run AI Analysis
+                  <Brain className="w-5 h-5" /> Run Analysis
                 </button>
               </div>
             )}
           </div>
         )}
 
+        {/* PREFERENCES TAB */}
         {activeTab === 'preferences' && (
           <div className="max-w-2xl mx-auto space-y-6">
             <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-blue-400" /> Preferences</h2>
-
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-3">Trading Style</label>
                   <div className="grid grid-cols-3 gap-3">
                     {['conservative', 'balanced', 'aggressive'].map(s => (
-                      <button key={s} onClick={() => setPreferences(p => ({ ...p, tradingStyle: s }))} className={`p-4 rounded-xl border capitalize ${preferences.tradingStyle === s ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>
-                        {s}
-                      </button>
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, tradingStyle: s }))} className={`p-4 rounded-xl border capitalize ${preferences.tradingStyle === s ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>{s}</button>
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-3">Risk Tolerance</label>
                   <div className="grid grid-cols-3 gap-3">
-                    {[{ v: 'conservative', i: Shield, l: 'Low' }, { v: 'moderate', i: Target, l: 'Moderate' }, { v: 'aggressive', i: Zap, l: 'High' }].map(({ v, i: Icon, l }) => (
+                    {[{ v: 'conservative', i: Shield, l: 'Low' }, { v: 'moderate', i: Target, l: 'Med' }, { v: 'aggressive', i: Zap, l: 'High' }].map(({ v, i: Icon, l }) => (
                       <button key={v} onClick={() => setPreferences(p => ({ ...p, riskTolerance: v }))} className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${preferences.riskTolerance === v ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>
                         <Icon className="w-6 h-6" /><span className="text-sm">{l}</span>
                       </button>
                     ))}
                   </div>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-slate-300 mb-3">Sectors</label>
                   <div className="flex flex-wrap gap-2">
-                    {['Technology', 'Healthcare', 'Financial', 'Consumer', 'Energy', 'Communication'].map(s => (
-                      <button key={s} onClick={() => setPreferences(p => ({ ...p, sectors: p.sectors.includes(s) ? p.sectors.filter(x => x !== s) : [...p.sectors, s] }))} className={`px-4 py-2 rounded-lg text-sm font-medium ${preferences.sectors.includes(s) ? 'bg-blue-500 text-white' : 'bg-slate-700/50 text-slate-300'}`}>
-                        {s}
-                      </button>
+                    {['Technology', 'Healthcare', 'Financial', 'Consumer', 'Energy'].map(s => (
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, sectors: p.sectors.includes(s) ? p.sectors.filter(x => x !== s) : [...p.sectors, s] }))} className={`px-4 py-2 rounded-lg text-sm font-medium ${preferences.sectors.includes(s) ? 'bg-blue-500 text-white' : 'bg-slate-700/50 text-slate-300'}`}>{s}</button>
                     ))}
                   </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-3">Max Position: {preferences.maxPositionSize}%</label>
-                  <input type="range" min="5" max="25" value={preferences.maxPositionSize} onChange={(e) => setPreferences(p => ({ ...p, maxPositionSize: parseInt(e.target.value) }))} className="w-full" />
-                </div>
               </div>
             </div>
-
             <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 p-6">
-              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-green-400" /> Profile Summary</h3>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-green-400" /> Profile</h3>
               <p className="text-slate-300">
-                <strong className="text-white">{preferences.tradingStyle}</strong> trader, <strong className="text-white">{preferences.riskTolerance}</strong> risk, focused on <strong className="text-white">{preferences.sectors.join(', ') || 'all sectors'}</strong>.
+                <strong className="text-white">{preferences.tradingStyle}</strong> trader, <strong className="text-white">{preferences.riskTolerance}</strong> risk, focused on <strong className="text-white">{preferences.sectors.join(', ') || 'all'}</strong>.
               </p>
             </div>
           </div>
         )}
       </main>
 
+      {/* Trade Panel Modal */}
+      {showTradePanel && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">Trade {selectedStock}</h3>
+              <button onClick={() => setShowTradePanel(false)} className="text-slate-400 hover:text-white">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Buy/Sell Toggle */}
+              <div className="flex gap-2">
+                <button onClick={() => setTradeSide('buy')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                  <ArrowUpCircle className="w-5 h-5" /> Buy
+                </button>
+                <button onClick={() => setTradeSide('sell')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'sell' ? 'bg-red-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                  <ArrowDownCircle className="w-5 h-5" /> Sell
+                </button>
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Quantity</label>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => setTradeQty(Math.max(1, tradeQty - 1))} className="w-12 h-12 bg-slate-700 hover:bg-slate-600 rounded-xl text-white text-xl">-</button>
+                  <input type="number" value={tradeQty} onChange={(e) => setTradeQty(Math.max(1, parseInt(e.target.value) || 1))} className="flex-1 bg-slate-700/50 border border-slate-600 rounded-xl px-4 py-3 text-white text-center text-xl font-bold" />
+                  <button onClick={() => setTradeQty(tradeQty + 1)} className="w-12 h-12 bg-slate-700 hover:bg-slate-600 rounded-xl text-white text-xl">+</button>
+                </div>
+              </div>
+
+              {/* Quick Qty Buttons */}
+              <div className="flex gap-2">
+                {[1, 5, 10, 25, 50, 100].map(q => (
+                  <button key={q} onClick={() => setTradeQty(q)} className={`flex-1 py-2 rounded-lg text-sm font-medium ${tradeQty === q ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300'}`}>{q}</button>
+                ))}
+              </div>
+
+              {/* Execute Button */}
+              <button onClick={executeQuickTrade} disabled={executingTrade} className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white disabled:opacity-50`}>
+                {executingTrade ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                {tradeSide === 'buy' ? 'Buy' : 'Sell'} {tradeQty} {selectedStock}
+              </button>
+
+              <p className="text-slate-400 text-xs text-center">Market order • {mode === 'demo' ? 'Demo Mode' : 'Paper Trading'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Trade Confirmation Modal */}
       {tradeConfirmation && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
