@@ -1,0 +1,732 @@
+'use client';
+
+import React, { useState, useCallback } from 'react';
+import { LineChart, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Info, Lock, Eye, EyeOff } from 'lucide-react';
+
+// Demo data
+const DEMO_ACCOUNT = {
+  equity: '127450.32',
+  buying_power: '48230.15',
+  last_equity: '125890.50',
+};
+
+const DEMO_POSITIONS = [
+  { symbol: 'AAPL', qty: '25', avg_entry_price: '178.50', current_price: '192.30', market_value: '4807.50', unrealized_pl: '345.00', unrealized_plpc: '0.0772' },
+  { symbol: 'MSFT', qty: '15', avg_entry_price: '378.20', current_price: '415.80', market_value: '6237.00', unrealized_pl: '564.00', unrealized_plpc: '0.0994' },
+  { symbol: 'NVDA', qty: '10', avg_entry_price: '725.00', current_price: '875.40', market_value: '8754.00', unrealized_pl: '1504.00', unrealized_plpc: '0.2074' },
+  { symbol: 'GOOGL', qty: '20', avg_entry_price: '141.30', current_price: '152.80', market_value: '3056.00', unrealized_pl: '230.00', unrealized_plpc: '0.0814' },
+  { symbol: 'JPM', qty: '30', avg_entry_price: '185.40', current_price: '198.20', market_value: '5946.00', unrealized_pl: '384.00', unrealized_plpc: '0.0690' },
+  { symbol: 'JNJ', qty: '18', avg_entry_price: '158.90', current_price: '162.45', market_value: '2924.10', unrealized_pl: '63.90', unrealized_plpc: '0.0223' },
+];
+
+// AI Analysis Engine
+const generateAIAnalysis = (preferences, positions) => {
+  const sectors = {
+    'AAPL': { sector: 'Technology', industry: 'Consumer Electronics', beta: 1.28 },
+    'MSFT': { sector: 'Technology', industry: 'Software', beta: 0.93 },
+    'GOOGL': { sector: 'Technology', industry: 'Internet Services', beta: 1.06 },
+    'AMZN': { sector: 'Consumer Cyclical', industry: 'E-Commerce', beta: 1.24 },
+    'NVDA': { sector: 'Technology', industry: 'Semiconductors', beta: 1.71 },
+    'TSLA': { sector: 'Consumer Cyclical', industry: 'Auto Manufacturers', beta: 2.05 },
+    'JPM': { sector: 'Financial', industry: 'Banks', beta: 1.12 },
+    'JNJ': { sector: 'Healthcare', industry: 'Pharmaceuticals', beta: 0.56 },
+    'V': { sector: 'Financial', industry: 'Credit Services', beta: 0.94 },
+    'XOM': { sector: 'Energy', industry: 'Oil & Gas', beta: 0.98 },
+    'PG': { sector: 'Consumer Defensive', industry: 'Household Products', beta: 0.42 },
+    'HD': { sector: 'Consumer Cyclical', industry: 'Home Improvement', beta: 1.05 },
+    'UNH': { sector: 'Healthcare', industry: 'Health Plans', beta: 0.73 },
+    'MA': { sector: 'Financial', industry: 'Credit Services', beta: 1.08 },
+    'DIS': { sector: 'Communication', industry: 'Entertainment', beta: 1.25 },
+  };
+
+  const suggestions = [];
+  const preferredSectors = preferences.sectors || [];
+  const riskTolerance = preferences.riskTolerance || 'moderate';
+  const riskMultiplier = { conservative: 0.5, moderate: 1.0, aggressive: 1.5 }[riskTolerance];
+  const currentSymbols = positions.map(p => p.symbol);
+
+  Object.entries(sectors).forEach(([symbol, data]) => {
+    if (currentSymbols.includes(symbol)) return;
+
+    const sectorMatch = preferredSectors.length === 0 || preferredSectors.includes(data.sector);
+    const betaMatch = (riskTolerance === 'conservative' && data.beta < 0.8) ||
+                      (riskTolerance === 'moderate' && data.beta >= 0.7 && data.beta <= 1.3) ||
+                      (riskTolerance === 'aggressive' && data.beta > 1.0);
+
+    if (sectorMatch && betaMatch && Math.random() > 0.5) {
+      const confidence = Math.floor(70 + Math.random() * 25);
+      const momentum = (Math.random() - 0.3) * 20;
+      const basePrice = 100 + Math.random() * 400;
+
+      suggestions.push({
+        symbol,
+        action: 'BUY',
+        confidence,
+        suggestedQty: Math.ceil(5 * riskMultiplier),
+        currentPrice: basePrice,
+        targetPrice: basePrice * (1 + Math.random() * 0.15),
+        sector: data.sector,
+        industry: data.industry,
+        beta: data.beta,
+        analysis: {
+          technicalScore: Math.floor(60 + Math.random() * 35),
+          fundamentalScore: Math.floor(55 + Math.random() * 40),
+          sentimentScore: Math.floor(50 + Math.random() * 45),
+          riskScore: Math.floor(100 - data.beta * 40),
+          reasons: [
+            `Strong ${data.sector} sector momentum with favorable market conditions`,
+            `${momentum > 0 ? 'Positive' : 'Neutral'} price trend over the last 30 days`,
+            `Beta of ${data.beta.toFixed(2)} aligns with your ${riskTolerance} risk profile`,
+            `${data.industry} industry showing resilient fundamentals`
+          ]
+        }
+      });
+    }
+  });
+
+  positions.forEach(pos => {
+    const unrealizedPct = parseFloat(pos.unrealized_plpc) * 100;
+    const data = sectors[pos.symbol] || { sector: 'Unknown', industry: 'Unknown', beta: 1.0 };
+
+    if (unrealizedPct > 15 || unrealizedPct < -10) {
+      suggestions.push({
+        symbol: pos.symbol,
+        action: unrealizedPct > 15 ? 'TAKE_PROFIT' : 'STOP_LOSS',
+        confidence: Math.floor(60 + Math.random() * 30),
+        suggestedQty: Math.ceil(parseFloat(pos.qty) * 0.5),
+        currentPrice: parseFloat(pos.current_price),
+        unrealizedPct,
+        sector: data.sector,
+        industry: data.industry,
+        analysis: {
+          technicalScore: Math.floor(40 + Math.random() * 30),
+          fundamentalScore: Math.floor(50 + Math.random() * 30),
+          sentimentScore: Math.floor(45 + Math.random() * 30),
+          riskScore: unrealizedPct < 0 ? 30 : 70,
+          reasons: unrealizedPct > 15
+            ? [`Position up ${unrealizedPct.toFixed(1)}% - consider taking profits`, `Market volatility suggests locking in gains`, `Rebalancing opportunity`]
+            : [`Position down ${Math.abs(unrealizedPct).toFixed(1)}% - approaching stop loss`, `Review investment thesis`, `Consider cutting losses`]
+        }
+      });
+    }
+  });
+
+  return suggestions.sort((a, b) => b.confidence - a.confidence).slice(0, 6);
+};
+
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16'];
+
+export default function AIPortfolioManager() {
+  const [mode, setMode] = useState(null); // 'demo' | 'live'
+  const [apiKey, setApiKey] = useState('');
+  const [secretKey, setSecretKey] = useState('');
+  const [showSecret, setShowSecret] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  const [account, setAccount] = useState(null);
+  const [positions, setPositions] = useState([]);
+  const [portfolioHistory, setPortfolioHistory] = useState([]);
+
+  const [preferences, setPreferences] = useState({
+    tradingStyle: 'balanced',
+    riskTolerance: 'moderate',
+    sectors: ['Technology', 'Healthcare'],
+    maxPositionSize: 10,
+    stopLossPercent: 8,
+    takeProfitPercent: 15
+  });
+
+  const [suggestions, setSuggestions] = useState([]);
+  const [analyzingMarket, setAnalyzingMarket] = useState(false);
+  const [executingTrade, setExecutingTrade] = useState(null);
+  const [tradeConfirmation, setTradeConfirmation] = useState(null);
+
+  const generateHistory = (equity) => {
+    const history = [];
+    let value = parseFloat(equity) * 0.85;
+    for (let i = 30; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      value *= (1 + (Math.random() - 0.48) * 0.03);
+      history.push({
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        value: Math.round(value)
+      });
+    }
+    return history;
+  };
+
+  const startDemoMode = () => {
+    setMode('demo');
+    setConnected(true);
+    setAccount(DEMO_ACCOUNT);
+    setPositions(DEMO_POSITIONS);
+    setPortfolioHistory(generateHistory(DEMO_ACCOUNT.equity));
+  };
+
+  const connectLive = async () => {
+    if (!apiKey || !secretKey) {
+      setError('Please enter both API Key and Secret Key');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const accountRes = await fetch('/api/alpaca/account', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, secretKey }),
+      });
+
+      if (!accountRes.ok) throw new Error('Invalid API credentials');
+      const accountData = await accountRes.json();
+
+      const positionsRes = await fetch('/api/alpaca/positions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, secretKey }),
+      });
+
+      const positionsData = positionsRes.ok ? await positionsRes.json() : [];
+
+      setMode('live');
+      setConnected(true);
+      setAccount(accountData);
+      setPositions(positionsData);
+      setPortfolioHistory(generateHistory(accountData.equity));
+    } catch (err) {
+      setError(err.message || 'Failed to connect');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const refreshData = async () => {
+    if (mode !== 'live') return;
+    setLoading(true);
+
+    try {
+      const [accountRes, positionsRes] = await Promise.all([
+        fetch('/api/alpaca/account', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, secretKey }),
+        }),
+        fetch('/api/alpaca/positions', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiKey, secretKey }),
+        }),
+      ]);
+
+      if (accountRes.ok) setAccount(await accountRes.json());
+      if (positionsRes.ok) setPositions(await positionsRes.json());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const runAIAnalysis = async () => {
+    setAnalyzingMarket(true);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    setSuggestions(generateAIAnalysis(preferences, positions));
+    setAnalyzingMarket(false);
+  };
+
+  const executeTrade = async (suggestion) => {
+    setExecutingTrade(suggestion.symbol);
+
+    if (mode === 'demo') {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      if (suggestion.action === 'BUY') {
+        setPositions(prev => [...prev, {
+          symbol: suggestion.symbol,
+          qty: String(suggestion.suggestedQty),
+          avg_entry_price: suggestion.currentPrice.toFixed(2),
+          current_price: suggestion.currentPrice.toFixed(2),
+          market_value: (suggestion.suggestedQty * suggestion.currentPrice).toFixed(2),
+          unrealized_pl: '0.00',
+          unrealized_plpc: '0'
+        }]);
+      }
+      setTradeConfirmation({ success: true, message: `Demo: ${suggestion.action} order for ${suggestion.suggestedQty} shares of ${suggestion.symbol}` });
+      setSuggestions(prev => prev.filter(s => s.symbol !== suggestion.symbol));
+    } else {
+      try {
+        const res = await fetch('/api/alpaca/trade', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            apiKey,
+            secretKey,
+            symbol: suggestion.symbol,
+            qty: suggestion.suggestedQty,
+            side: suggestion.action === 'BUY' ? 'buy' : 'sell',
+          }),
+        });
+
+        if (!res.ok) throw new Error('Trade failed');
+        setTradeConfirmation({ success: true, message: `${suggestion.action} order placed for ${suggestion.suggestedQty} shares of ${suggestion.symbol}` });
+        setSuggestions(prev => prev.filter(s => s.symbol !== suggestion.symbol));
+        await refreshData();
+      } catch (err) {
+        setTradeConfirmation({ success: false, message: err.message });
+      }
+    }
+
+    setExecutingTrade(null);
+  };
+
+  const portfolioMetrics = account ? {
+    totalValue: parseFloat(account.equity),
+    buyingPower: parseFloat(account.buying_power),
+    dayPL: parseFloat(account.equity) - parseFloat(account.last_equity),
+    dayPLPercent: ((parseFloat(account.equity) - parseFloat(account.last_equity)) / parseFloat(account.last_equity)) * 100,
+    totalPositions: positions.length,
+  } : null;
+
+  const sectorAllocation = positions.reduce((acc, pos) => {
+    const sectorMap = { 'AAPL': 'Technology', 'MSFT': 'Technology', 'GOOGL': 'Technology', 'NVDA': 'Technology', 'JPM': 'Financial', 'JNJ': 'Healthcare' };
+    const sector = sectorMap[pos.symbol] || 'Other';
+    acc[sector] = (acc[sector] || 0) + parseFloat(pos.market_value);
+    return acc;
+  }, {});
+
+  const pieData = Object.entries(sectorAllocation).map(([name, value]) => ({ name, value }));
+
+  // Landing / Connection Screen
+  if (!connected) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-8 max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
+            <p className="text-slate-400">Intelligent trading powered by AI analysis</p>
+          </div>
+
+          <div className="space-y-4">
+            <button
+              onClick={startDemoMode}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl transition-all flex items-center justify-center gap-3"
+            >
+              <Play className="w-5 h-5" />
+              Launch Demo Mode
+            </button>
+
+            <div className="relative py-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-600"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-4 bg-slate-800 text-slate-400 text-sm">or connect Alpaca</span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">API Key ID</label>
+                <input
+                  type="text"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="PK..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Secret Key</label>
+                <div className="relative">
+                  <input
+                    type={showSecret ? 'text' : 'password'}
+                    value={secretKey}
+                    onChange={(e) => setSecretKey(e.target.value)}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Your secret key"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSecret(!showSecret)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-300 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={connectLive}
+                disabled={loading}
+                className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />}
+                Connect Paper Trading
+              </button>
+            </div>
+
+            <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg px-4 py-3">
+              <p className="text-amber-300 text-xs text-center">
+                Paper Trading only — no real money at risk
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Main App
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <header className="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                <Brain className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-white">AI Portfolio Manager</h1>
+                <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
+                  {mode === 'demo' ? 'Demo Mode' : 'Live Paper Trading'}
+                </span>
+              </div>
+            </div>
+
+            <nav className="flex gap-1">
+              {['dashboard', 'suggestions', 'preferences'].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </nav>
+
+            <div className="flex items-center gap-2">
+              {mode === 'live' && (
+                <button onClick={refreshData} disabled={loading} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300">
+                  <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
+                </button>
+              )}
+              <button onClick={() => { setConnected(false); setMode(null); }} className="px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm">
+                Disconnect
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-7xl mx-auto px-4 py-6">
+        {activeTab === 'dashboard' && portfolioMetrics && (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-blue-500/20 rounded-lg"><DollarSign className="w-5 h-5 text-blue-400" /></div>
+                  <span className="text-slate-400 text-sm">Portfolio Value</span>
+                </div>
+                <p className="text-2xl font-bold text-white">${portfolioMetrics.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`p-2 rounded-lg ${portfolioMetrics.dayPL >= 0 ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                    {portfolioMetrics.dayPL >= 0 ? <TrendingUp className="w-5 h-5 text-green-400" /> : <TrendingDown className="w-5 h-5 text-red-400" />}
+                  </div>
+                  <span className="text-slate-400 text-sm">Today's P&L</span>
+                </div>
+                <p className={`text-2xl font-bold ${portfolioMetrics.dayPL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                  {portfolioMetrics.dayPL >= 0 ? '+' : ''}${portfolioMetrics.dayPL.toFixed(2)} <span className="text-sm">({portfolioMetrics.dayPLPercent.toFixed(2)}%)</span>
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-purple-500/20 rounded-lg"><Briefcase className="w-5 h-5 text-purple-400" /></div>
+                  <span className="text-slate-400 text-sm">Positions</span>
+                </div>
+                <p className="text-2xl font-bold text-white">{portfolioMetrics.totalPositions}</p>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 bg-amber-500/20 rounded-lg"><Zap className="w-5 h-5 text-amber-400" /></div>
+                  <span className="text-slate-400 text-sm">Buying Power</span>
+                </div>
+                <p className="text-2xl font-bold text-white">${portfolioMetrics.buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-400" /> Portfolio Performance
+                </h3>
+                <div className="h-64">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={portfolioHistory}>
+                      <defs>
+                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="date" stroke="#64748b" fontSize={12} />
+                      <YAxis stroke="#64748b" fontSize={12} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} formatter={(value) => [`$${value.toLocaleString()}`, 'Value']} />
+                      <Area type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={2} fill="url(#colorValue)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Circle className="w-5 h-5 text-purple-400" /> Allocation
+                </h3>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie data={pieData} cx="50%" cy="50%" innerRadius={40} outerRadius={70} paddingAngle={2} dataKey="value">
+                        {pieData.map((entry, index) => <Cell key={index} fill={COLORS[index % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} formatter={(value) => [`$${value.toLocaleString()}`, 'Value']} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {pieData.map((entry, i) => (
+                    <div key={entry.name} className="flex items-center gap-1 text-xs">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
+                      <span className="text-slate-400">{entry.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Briefcase className="w-5 h-5 text-green-400" /> Holdings
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-900/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Symbol</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Qty</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Avg Cost</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Current</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Value</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">P&L</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-700">
+                    {positions.map((pos) => {
+                      const pl = parseFloat(pos.unrealized_pl);
+                      const plPct = parseFloat(pos.unrealized_plpc) * 100;
+                      return (
+                        <tr key={pos.symbol} className="hover:bg-slate-700/30">
+                          <td className="px-6 py-4 font-medium text-white">{pos.symbol}</td>
+                          <td className="px-6 py-4 text-right text-slate-300">{parseFloat(pos.qty).toFixed(0)}</td>
+                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.avg_entry_price).toFixed(2)}</td>
+                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.current_price).toFixed(2)}</td>
+                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.market_value).toLocaleString()}</td>
+                          <td className={`px-6 py-4 text-right ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {pl >= 0 ? '+' : ''}${pl.toFixed(2)} ({plPct.toFixed(1)}%)
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'suggestions' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">AI Trade Suggestions</h2>
+                    <p className="text-slate-400">Based on your preferences</p>
+                  </div>
+                </div>
+                <button onClick={runAIAnalysis} disabled={analyzingMarket} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50">
+                  {analyzingMarket ? <><RefreshCw className="w-5 h-5 animate-spin" /> Analyzing...</> : <><Brain className="w-5 h-5" /> Run AI Analysis</>}
+                </button>
+              </div>
+            </div>
+
+            {suggestions.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {suggestions.map((s, i) => (
+                  <div key={i} className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                    <div className="p-5 border-b border-slate-700">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${s.action === 'BUY' ? 'bg-green-500/20 text-green-400' : s.action === 'TAKE_PROFIT' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}`}>
+                            {s.action.replace('_', ' ')}
+                          </span>
+                          <span className="text-xl font-bold text-white">{s.symbol}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500" style={{ width: `${s.confidence}%` }} />
+                          </div>
+                          <span className="text-white text-sm">{s.confidence}%</span>
+                        </div>
+                      </div>
+                      <div className="text-sm text-slate-400">{s.sector} • {s.industry}</div>
+                    </div>
+
+                    <div className="p-5 border-b border-slate-700 grid grid-cols-4 gap-3">
+                      {[
+                        { l: 'Technical', s: s.analysis.technicalScore, c: 'text-blue-400' },
+                        { l: 'Fundamental', s: s.analysis.fundamentalScore, c: 'text-green-400' },
+                        { l: 'Sentiment', s: s.analysis.sentimentScore, c: 'text-purple-400' },
+                        { l: 'Risk', s: s.analysis.riskScore, c: 'text-amber-400' },
+                      ].map(m => (
+                        <div key={m.l} className="text-center">
+                          <div className={`text-xl font-bold ${m.c}`}>{m.s}</div>
+                          <div className="text-xs text-slate-400">{m.l}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="p-5 border-b border-slate-700">
+                      <h4 className="text-sm font-medium text-slate-300 mb-3 flex items-center gap-2"><Brain className="w-4 h-4" /> Analysis</h4>
+                      <ul className="space-y-2">
+                        {s.analysis.reasons.map((r, j) => (
+                          <li key={j} className="flex items-start gap-2 text-sm text-slate-400">
+                            <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />{r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="p-5 bg-slate-900/30">
+                      <div className="flex justify-between mb-4">
+                        <div><div className="text-sm text-slate-400">Qty</div><div className="text-lg font-bold text-white">{s.suggestedQty}</div></div>
+                        <div className="text-right"><div className="text-sm text-slate-400">Price</div><div className="text-lg font-bold text-white">${s.currentPrice?.toFixed(2)}</div></div>
+                      </div>
+                      <button onClick={() => executeTrade(s)} disabled={executingTrade === s.symbol} className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${s.action === 'BUY' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white disabled:opacity-50`}>
+                        {executingTrade === s.symbol ? <RefreshCw className="w-5 h-5 animate-spin" /> : <><Zap className="w-5 h-5" /> Execute {s.action.replace('_', ' ')}</>}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Suggestions Yet</h3>
+                <p className="text-slate-400 mb-6">Run AI analysis to get recommendations</p>
+                <button onClick={runAIAnalysis} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl inline-flex items-center gap-2">
+                  <Brain className="w-5 h-5" /> Run AI Analysis
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'preferences' && (
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-blue-400" /> Preferences</h2>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-3">Trading Style</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {['conservative', 'balanced', 'aggressive'].map(s => (
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, tradingStyle: s }))} className={`p-4 rounded-xl border capitalize ${preferences.tradingStyle === s ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-3">Risk Tolerance</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[{ v: 'conservative', i: Shield, l: 'Low' }, { v: 'moderate', i: Target, l: 'Moderate' }, { v: 'aggressive', i: Zap, l: 'High' }].map(({ v, i: Icon, l }) => (
+                      <button key={v} onClick={() => setPreferences(p => ({ ...p, riskTolerance: v }))} className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${preferences.riskTolerance === v ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>
+                        <Icon className="w-6 h-6" /><span className="text-sm">{l}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-3">Sectors</label>
+                  <div className="flex flex-wrap gap-2">
+                    {['Technology', 'Healthcare', 'Financial', 'Consumer', 'Energy', 'Communication'].map(s => (
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, sectors: p.sectors.includes(s) ? p.sectors.filter(x => x !== s) : [...p.sectors, s] }))} className={`px-4 py-2 rounded-lg text-sm font-medium ${preferences.sectors.includes(s) ? 'bg-blue-500 text-white' : 'bg-slate-700/50 text-slate-300'}`}>
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-3">Max Position: {preferences.maxPositionSize}%</label>
+                  <input type="range" min="5" max="25" value={preferences.maxPositionSize} onChange={(e) => setPreferences(p => ({ ...p, maxPositionSize: parseInt(e.target.value) }))} className="w-full" />
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 p-6">
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-green-400" /> Profile Summary</h3>
+              <p className="text-slate-300">
+                <strong className="text-white">{preferences.tradingStyle}</strong> trader, <strong className="text-white">{preferences.riskTolerance}</strong> risk, focused on <strong className="text-white">{preferences.sectors.join(', ') || 'all sectors'}</strong>.
+              </p>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {tradeConfirmation && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${tradeConfirmation.success ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+              <Check className={`w-6 h-6 ${tradeConfirmation.success ? 'text-green-400' : 'text-red-400'}`} />
+            </div>
+            <h3 className={`text-xl font-bold text-center mb-2 ${tradeConfirmation.success ? 'text-green-400' : 'text-red-400'}`}>
+              {tradeConfirmation.success ? 'Order Placed!' : 'Failed'}
+            </h3>
+            <p className="text-slate-300 text-center mb-6">{tradeConfirmation.message}</p>
+            <button onClick={() => setTradeConfirmation(null)} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl">Close</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
