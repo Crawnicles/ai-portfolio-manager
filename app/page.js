@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail } from 'lucide-react';
 
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
@@ -156,6 +156,19 @@ export default function AIPortfolioManager() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [researchLoading, setResearchLoading] = useState(false);
   const [lastResearchUpdate, setLastResearchUpdate] = useState(null);
+
+  // Phase 3: Manual Accounts & Digests
+  const [manualAccounts, setManualAccounts] = useState([
+    { id: 1, name: 'Roth IRA', type: 'retirement', institution: 'Fidelity', balance: 45000, lastUpdated: new Date().toISOString() },
+    { id: 2, name: 'Checking', type: 'checking', institution: 'Chase', balance: 8500, lastUpdated: new Date().toISOString() },
+    { id: 3, name: 'Savings', type: 'savings', institution: 'Marcus', balance: 15000, lastUpdated: new Date().toISOString() },
+  ]);
+  const [showAddAccount, setShowAddAccount] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [newAccount, setNewAccount] = useState({ name: '', type: 'checking', institution: '', balance: '' });
+  const [digest, setDigest] = useState(null);
+  const [digestPeriod, setDigestPeriod] = useState('weekly');
+  const [digestLoading, setDigestLoading] = useState(false);
 
   const generateHistory = (equity) => {
     const history = [];
@@ -319,6 +332,85 @@ export default function AIPortfolioManager() {
       runResearchPipeline();
     }
   }, [connected, positions.length]);
+
+  // Phase 3: Account Management Functions
+  const addAccount = () => {
+    if (!newAccount.name || !newAccount.balance) return;
+    const account = {
+      id: Date.now(),
+      ...newAccount,
+      balance: parseFloat(newAccount.balance),
+      lastUpdated: new Date().toISOString()
+    };
+    setManualAccounts(prev => [...prev, account]);
+    setNewAccount({ name: '', type: 'checking', institution: '', balance: '' });
+    setShowAddAccount(false);
+  };
+
+  const updateAccount = (id, updates) => {
+    setManualAccounts(prev => prev.map(acc =>
+      acc.id === id ? { ...acc, ...updates, lastUpdated: new Date().toISOString() } : acc
+    ));
+    setEditingAccount(null);
+  };
+
+  const deleteAccount = (id) => {
+    setManualAccounts(prev => prev.filter(acc => acc.id !== id));
+  };
+
+  const calculateNetWorth = () => {
+    const manualTotal = manualAccounts.reduce((sum, acc) => sum + acc.balance, 0);
+    const portfolioTotal = account ? parseFloat(account.equity) : 0;
+    return manualTotal + portfolioTotal;
+  };
+
+  // Generate Digest
+  const generateDigest = async () => {
+    setDigestLoading(true);
+    try {
+      const res = await fetch('/api/alpaca/digest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          period: digestPeriod,
+          accounts: manualAccounts,
+          positions,
+          tradeHistory,
+          preferences
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setDigest(data);
+      }
+    } catch (err) {
+      console.error('Digest generation error:', err);
+    } finally {
+      setDigestLoading(false);
+    }
+  };
+
+  const getAccountIcon = (type) => {
+    const icons = {
+      retirement: PiggyBank,
+      investment: BarChart3,
+      checking: Building2,
+      savings: Wallet,
+      credit: CreditCard,
+    };
+    return icons[type] || Wallet;
+  };
+
+  const getAccountColor = (type) => {
+    const colors = {
+      retirement: 'text-purple-400 bg-purple-500/20',
+      investment: 'text-blue-400 bg-blue-500/20',
+      checking: 'text-green-400 bg-green-500/20',
+      savings: 'text-amber-400 bg-amber-500/20',
+      credit: 'text-red-400 bg-red-500/20',
+    };
+    return colors[type] || 'text-slate-400 bg-slate-500/20';
+  };
 
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
@@ -510,9 +602,9 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
-            <nav className="flex gap-1">
-              {['dashboard', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+            <nav className="flex gap-1 overflow-x-auto">
+              {['overview', 'dashboard', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                   {tab}
                 </button>
               ))}
@@ -540,6 +632,260 @@ export default function AIPortfolioManager() {
               <p className="text-red-300 text-sm">Auto-trading has been paused due to exceeding daily loss limit.</p>
             </div>
             <button onClick={() => setCircuitBreakerTripped(false)} className="px-4 py-2 bg-red-500/30 hover:bg-red-500/50 text-red-300 rounded-lg text-sm">Reset</button>
+          </div>
+        )}
+
+        {/* OVERVIEW TAB - Phase 3: Net Worth & All Accounts */}
+        {activeTab === 'overview' && (
+          <div className="space-y-6">
+            {/* Net Worth Header */}
+            <div className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl border border-indigo-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <p className="text-slate-400 text-sm mb-1">Total Net Worth</p>
+                  <p className="text-4xl font-bold text-white">
+                    ${calculateNetWorth().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-sm text-slate-400 mt-2">
+                    Across {manualAccounts.length + (account ? 1 : 0)} accounts
+                  </p>
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={digestPeriod}
+                    onChange={(e) => setDigestPeriod(e.target.value)}
+                    className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm"
+                  >
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                  </select>
+                  <button
+                    onClick={generateDigest}
+                    disabled={digestLoading}
+                    className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {digestLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+                    Generate Digest
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Digest Display */}
+            {digest && (
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-indigo-400" /> {digest.periodLabel} Digest
+                  </h3>
+                  <span className="text-xs text-slate-500">{new Date(digest.generatedAt).toLocaleString()}</span>
+                </div>
+                <div className="p-6 space-y-6">
+                  {/* Summary Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-slate-700/30 rounded-lg p-4">
+                      <p className="text-slate-400 text-xs mb-1">Net Worth Change</p>
+                      <p className={`text-xl font-bold ${digest.summary.netWorthChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {digest.summary.netWorthChange >= 0 ? '+' : ''}${digest.summary.netWorthChange.toFixed(2)}
+                      </p>
+                      <p className={`text-xs ${digest.summary.netWorthChangePct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {digest.summary.netWorthChangePct >= 0 ? '+' : ''}{digest.summary.netWorthChangePct.toFixed(2)}%
+                      </p>
+                    </div>
+                    <div className="bg-slate-700/30 rounded-lg p-4">
+                      <p className="text-slate-400 text-xs mb-1">Portfolio P&L</p>
+                      <p className={`text-xl font-bold ${digest.summary.portfolioPL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {digest.summary.portfolioPL >= 0 ? '+' : ''}${digest.summary.portfolioPL.toFixed(2)}
+                      </p>
+                    </div>
+                    <div className="bg-slate-700/30 rounded-lg p-4">
+                      <p className="text-slate-400 text-xs mb-1">Total Accounts</p>
+                      <p className="text-xl font-bold text-white">{digest.summary.totalAccounts}</p>
+                    </div>
+                    <div className="bg-slate-700/30 rounded-lg p-4">
+                      <p className="text-slate-400 text-xs mb-1">Positions</p>
+                      <p className="text-xl font-bold text-white">{digest.summary.totalPositions}</p>
+                    </div>
+                  </div>
+
+                  {/* Insights */}
+                  {digest.insights && digest.insights.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-300 mb-3">Key Insights</h4>
+                      <div className="space-y-2">
+                        {digest.insights.map((insight, i) => (
+                          <div key={i} className={`p-3 rounded-lg border ${
+                            insight.type === 'positive' ? 'bg-green-500/10 border-green-500/30' :
+                            insight.type === 'warning' ? 'bg-red-500/10 border-red-500/30' :
+                            insight.type === 'info' ? 'bg-blue-500/10 border-blue-500/30' :
+                            'bg-slate-700/30 border-slate-600'
+                          }`}>
+                            <div className="flex items-start gap-3">
+                              {insight.type === 'positive' ? <TrendingUp className="w-5 h-5 text-green-400 mt-0.5" /> :
+                               insight.type === 'warning' ? <TrendingDown className="w-5 h-5 text-red-400 mt-0.5" /> :
+                               insight.type === 'info' ? <Activity className="w-5 h-5 text-blue-400 mt-0.5" /> :
+                               <Minus className="w-5 h-5 text-slate-400 mt-0.5" />}
+                              <div>
+                                <p className="font-medium text-white text-sm">{insight.title}</p>
+                                <p className="text-slate-400 text-xs mt-1">{insight.description}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action Items */}
+                  {digest.actionItems && digest.actionItems.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-300 mb-3">Action Items</h4>
+                      <div className="space-y-2">
+                        {digest.actionItems.map((item, i) => (
+                          <div key={i} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
+                            <div className={`w-2 h-2 rounded-full ${
+                              item.priority === 'high' ? 'bg-red-400' :
+                              item.priority === 'medium' ? 'bg-amber-400' : 'bg-slate-400'
+                            }`} />
+                            <span className="text-sm text-slate-300">{item.description}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Top Movers */}
+                  {digest.topMovers && (digest.topMovers.gainers?.length > 0 || digest.topMovers.losers?.length > 0) && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <h4 className="text-sm font-medium text-green-400 mb-2">Top Gainers</h4>
+                        {digest.topMovers.gainers?.map((g, i) => (
+                          <div key={i} className="flex justify-between text-sm py-1">
+                            <span className="text-white">{g.symbol}</span>
+                            <span className="text-green-400">+{g.change}%</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-medium text-red-400 mb-2">Underperformers</h4>
+                        {digest.topMovers.losers?.map((l, i) => (
+                          <div key={i} className="flex justify-between text-sm py-1">
+                            <span className="text-white">{l.symbol}</span>
+                            <span className="text-red-400">{l.change}%</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Accounts Grid */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Wallet className="w-5 h-5 text-amber-400" /> All Accounts
+                </h3>
+                <button
+                  onClick={() => setShowAddAccount(true)}
+                  className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Account
+                </button>
+              </div>
+              <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {/* Alpaca Paper Trading Account */}
+                {account && (
+                  <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/50 p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="p-2 bg-blue-500/20 rounded-lg">
+                        <BarChart3 className="w-5 h-5 text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-white">Alpaca Paper Trading</p>
+                        <p className="text-xs text-slate-400">Investment • Alpaca</p>
+                      </div>
+                    </div>
+                    <p className="text-2xl font-bold text-white">
+                      ${parseFloat(account.equity).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-2">Connected via API</p>
+                  </div>
+                )}
+
+                {/* Manual Accounts */}
+                {manualAccounts.map((acc) => {
+                  const IconComponent = getAccountIcon(acc.type);
+                  const colorClass = getAccountColor(acc.type);
+
+                  return (
+                    <div
+                      key={acc.id}
+                      className="bg-slate-700/30 rounded-xl border border-slate-600 p-4 group relative"
+                    >
+                      <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                        <button
+                          onClick={() => setEditingAccount(acc)}
+                          className="p-1.5 bg-slate-600 hover:bg-slate-500 rounded text-slate-300"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                        </button>
+                        <button
+                          onClick={() => deleteAccount(acc.id)}
+                          className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-lg ${colorClass}`}>
+                          <IconComponent className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-white">{acc.name}</p>
+                          <p className="text-xs text-slate-400 capitalize">{acc.type} • {acc.institution}</p>
+                        </div>
+                      </div>
+                      <p className="text-2xl font-bold text-white">
+                        ${acc.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-2">
+                        Updated {new Date(acc.lastUpdated).toLocaleDateString()}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Account Breakdown by Type */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {['retirement', 'investment', 'checking', 'savings'].map(type => {
+                const total = manualAccounts
+                  .filter(a => a.type === type)
+                  .reduce((sum, a) => sum + a.balance, 0) +
+                  (type === 'investment' && account ? parseFloat(account.equity) : 0);
+                const IconComponent = getAccountIcon(type);
+                const colorClass = getAccountColor(type);
+
+                return (
+                  <div key={type} className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className={`p-1.5 rounded ${colorClass}`}>
+                        <IconComponent className="w-4 h-4" />
+                      </div>
+                      <span className="text-slate-400 text-sm capitalize">{type}</span>
+                    </div>
+                    <p className="text-xl font-bold text-white">
+                      ${total.toLocaleString(undefined, { minimumFractionDigits: 0 })}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -1328,6 +1674,98 @@ export default function AIPortfolioManager() {
                 {tradeSide === 'buy' ? 'Buy' : 'Sell'} {tradeQty} {selectedStock}
               </button>
               <p className="text-slate-400 text-xs text-center">Market order • {mode === 'demo' ? 'Demo' : 'Paper Trading'}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Account Modal */}
+      {(showAddAccount || editingAccount) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">
+                {editingAccount ? 'Edit Account' : 'Add Account'}
+              </h3>
+              <button
+                onClick={() => { setShowAddAccount(false); setEditingAccount(null); }}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Account Name</label>
+                <input
+                  type="text"
+                  value={editingAccount ? editingAccount.name : newAccount.name}
+                  onChange={(e) => editingAccount
+                    ? setEditingAccount({ ...editingAccount, name: e.target.value })
+                    : setNewAccount({ ...newAccount, name: e.target.value })
+                  }
+                  placeholder="e.g., Roth IRA, Checking"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Account Type</label>
+                <select
+                  value={editingAccount ? editingAccount.type : newAccount.type}
+                  onChange={(e) => editingAccount
+                    ? setEditingAccount({ ...editingAccount, type: e.target.value })
+                    : setNewAccount({ ...newAccount, type: e.target.value })
+                  }
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="checking">Checking</option>
+                  <option value="savings">Savings</option>
+                  <option value="investment">Investment</option>
+                  <option value="retirement">Retirement (IRA/401k)</option>
+                  <option value="credit">Credit Card</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Institution</label>
+                <input
+                  type="text"
+                  value={editingAccount ? editingAccount.institution : newAccount.institution}
+                  onChange={(e) => editingAccount
+                    ? setEditingAccount({ ...editingAccount, institution: e.target.value })
+                    : setNewAccount({ ...newAccount, institution: e.target.value })
+                  }
+                  placeholder="e.g., Fidelity, Chase"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Balance</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <input
+                    type="number"
+                    value={editingAccount ? editingAccount.balance : newAccount.balance}
+                    onChange={(e) => editingAccount
+                      ? setEditingAccount({ ...editingAccount, balance: parseFloat(e.target.value) || 0 })
+                      : setNewAccount({ ...newAccount, balance: e.target.value })
+                    }
+                    placeholder="0.00"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (editingAccount) {
+                    updateAccount(editingAccount.id, editingAccount);
+                  } else {
+                    addAccount();
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 rounded-xl"
+              >
+                {editingAccount ? 'Save Changes' : 'Add Account'}
+              </button>
             </div>
           </div>
         </div>
