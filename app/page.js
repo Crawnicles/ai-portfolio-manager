@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers } from 'lucide-react';
 
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
@@ -149,6 +149,14 @@ export default function AIPortfolioManager() {
   const [executingTrade, setExecutingTrade] = useState(null);
   const [tradeConfirmation, setTradeConfirmation] = useState(null);
 
+  // Research Agent State (Phase 2)
+  const [researchData, setResearchData] = useState(null);
+  const [holdingsRatings, setHoldingsRatings] = useState({});
+  const [newsFeed, setNewsFeed] = useState([]);
+  const [upcomingEvents, setUpcomingEvents] = useState([]);
+  const [researchLoading, setResearchLoading] = useState(false);
+  const [lastResearchUpdate, setLastResearchUpdate] = useState(null);
+
   const generateHistory = (equity) => {
     const history = [];
     let value = parseFloat(equity) * 0.85;
@@ -265,6 +273,52 @@ export default function AIPortfolioManager() {
       }
     }
   };
+
+  // Research Agent Pipeline (Phase 2)
+  const runResearchPipeline = async () => {
+    setResearchLoading(true);
+    try {
+      const symbols = positions.map(p => p.symbol);
+
+      // Fetch research data through multi-agent pipeline
+      const res = await fetch('/api/alpaca/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ symbols, positions, preferences }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setResearchData(data);
+        setHoldingsRatings(data.decisions || {});
+        setLastResearchUpdate(new Date());
+      }
+
+      // Fetch news separately
+      const newsRes = await fetch('/api/alpaca/news', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey, secretKey, symbols }),
+      });
+
+      if (newsRes.ok) {
+        const newsData = await newsRes.json();
+        setNewsFeed(newsData.news || []);
+        setUpcomingEvents(newsData.events || []);
+      }
+    } catch (err) {
+      console.error('Research pipeline error:', err);
+    } finally {
+      setResearchLoading(false);
+    }
+  };
+
+  // Auto-refresh research on position changes
+  useEffect(() => {
+    if (connected && positions.length > 0 && !researchData) {
+      runResearchPipeline();
+    }
+  }, [connected, positions.length]);
 
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
@@ -457,7 +511,7 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1">
-              {['dashboard', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['dashboard', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-medium transition-all capitalize ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                   {tab}
                 </button>
@@ -617,6 +671,279 @@ export default function AIPortfolioManager() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* RESEARCH TAB - Phase 2 */}
+        {activeTab === 'research' && (
+          <div className="space-y-6">
+            {/* Research Header */}
+            <div className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 rounded-xl border border-emerald-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                    <Layers className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Research Center</h2>
+                    <p className="text-slate-400 text-sm">
+                      {lastResearchUpdate
+                        ? `Last updated ${lastResearchUpdate.toLocaleTimeString()}`
+                        : 'Multi-agent analysis pipeline'}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={runResearchPipeline}
+                  disabled={researchLoading}
+                  className="bg-gradient-to-r from-emerald-500 to-cyan-600 hover:from-emerald-600 hover:to-cyan-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50"
+                >
+                  {researchLoading ? (
+                    <><RefreshCw className="w-5 h-5 animate-spin" /> Analyzing...</>
+                  ) : (
+                    <><Radio className="w-5 h-5" /> Run Research</>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Holdings Ratings */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-emerald-400" /> Holdings Analysis
+                </h3>
+                <p className="text-slate-400 text-sm mt-1">AI-generated buy/sell/hold ratings for your positions</p>
+              </div>
+              <div className="p-4">
+                {Object.keys(holdingsRatings).length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {positions.map((pos) => {
+                      const rating = holdingsRatings[pos.symbol];
+                      if (!rating) return null;
+
+                      const ratingColors = {
+                        BUY: 'from-green-500/20 to-emerald-500/20 border-green-500/50',
+                        SELL: 'from-red-500/20 to-rose-500/20 border-red-500/50',
+                        HOLD: 'from-amber-500/20 to-yellow-500/20 border-amber-500/50'
+                      };
+                      const ratingTextColors = {
+                        BUY: 'text-green-400',
+                        SELL: 'text-red-400',
+                        HOLD: 'text-amber-400'
+                      };
+                      const RatingIcon = rating.rating === 'BUY' ? ThumbsUp : rating.rating === 'SELL' ? ThumbsDown : Minus;
+
+                      return (
+                        <div
+                          key={pos.symbol}
+                          className={`bg-gradient-to-br ${ratingColors[rating.rating]} rounded-xl border p-4`}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <span className="text-lg font-bold text-white">{pos.symbol}</span>
+                              <div className="flex items-center gap-2 mt-1">
+                                <RatingIcon className={`w-4 h-4 ${ratingTextColors[rating.rating]}`} />
+                                <span className={`font-semibold ${ratingTextColors[rating.rating]}`}>
+                                  {rating.rating}
+                                </span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-sm text-slate-400">Confidence</div>
+                              <div className={`text-lg font-bold ${rating.confidence >= 80 ? 'text-green-400' : rating.confidence >= 60 ? 'text-amber-400' : 'text-slate-400'}`}>
+                                {rating.confidence}%
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Score bars */}
+                          <div className="space-y-2 mb-3">
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400 w-16">Sentiment</span>
+                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${rating.scores?.sentiment > 0 ? 'bg-green-400' : 'bg-red-400'}`}
+                                  style={{ width: `${Math.abs(rating.scores?.sentiment || 0) * 50 + 50}%` }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400 w-16">Technical</span>
+                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-blue-400 rounded-full"
+                                  style={{ width: `${rating.scores?.technical || 0}%` }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs text-slate-400 w-16">Risk</span>
+                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                <div
+                                  className="h-full bg-purple-400 rounded-full"
+                                  style={{ width: `${rating.scores?.risk || 0}%` }}
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Key reasoning */}
+                          {rating.reasoning && rating.reasoning.length > 0 && (
+                            <div className="text-xs text-slate-300 border-t border-slate-600/50 pt-2 mt-2">
+                              {rating.reasoning[0]}
+                            </div>
+                          )}
+
+                          {/* Action button */}
+                          <button
+                            onClick={() => openTradePanel(pos.symbol, rating.rating === 'BUY' ? 'buy' : 'sell')}
+                            className={`w-full mt-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 ${
+                              rating.rating === 'BUY' ? 'bg-green-500/30 hover:bg-green-500/50 text-green-300' :
+                              rating.rating === 'SELL' ? 'bg-red-500/30 hover:bg-red-500/50 text-red-300' :
+                              'bg-slate-600/30 hover:bg-slate-600/50 text-slate-300'
+                            }`}
+                          >
+                            <Zap className="w-4 h-4" />
+                            {rating.action || rating.rating}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-400">
+                    <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>Run research pipeline to get holdings analysis</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* News Feed & Events Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* News Feed */}
+              <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-6 border-b border-slate-700">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Newspaper className="w-5 h-5 text-blue-400" /> Latest News
+                  </h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {newsFeed.length > 0 ? (
+                    <div className="divide-y divide-slate-700">
+                      {newsFeed.map((item) => (
+                        <div key={item.id} className="p-4 hover:bg-slate-700/30 transition-colors">
+                          <div className="flex items-start gap-3">
+                            <div className={`mt-1 p-1.5 rounded ${
+                              item.sentiment === 'positive' ? 'bg-green-500/20' :
+                              item.sentiment === 'negative' ? 'bg-red-500/20' : 'bg-slate-500/20'
+                            }`}>
+                              {item.sentiment === 'positive' ? (
+                                <TrendingUp className="w-4 h-4 text-green-400" />
+                              ) : item.sentiment === 'negative' ? (
+                                <TrendingDown className="w-4 h-4 text-red-400" />
+                              ) : (
+                                <Minus className="w-4 h-4 text-slate-400" />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="text-xs font-medium px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">
+                                  {item.symbol}
+                                </span>
+                                <span className="text-xs text-slate-500">{item.source}</span>
+                                <span className="text-xs text-slate-500">
+                                  {new Date(item.timestamp).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <p className="text-sm text-slate-200 line-clamp-2">{item.headline}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-slate-400">
+                      <Newspaper className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Run research to load news feed</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Upcoming Events */}
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-6 border-b border-slate-700">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-purple-400" /> Upcoming Events
+                  </h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  {upcomingEvents.length > 0 ? (
+                    <div className="divide-y divide-slate-700">
+                      {upcomingEvents.map((event, i) => (
+                        <div key={i} className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              event.type === 'earnings' ? 'bg-amber-500/20' :
+                              event.type === 'dividend' ? 'bg-green-500/20' : 'bg-blue-500/20'
+                            }`}>
+                              {event.type === 'earnings' ? (
+                                <FileText className={`w-4 h-4 text-amber-400`} />
+                              ) : event.type === 'dividend' ? (
+                                <DollarSign className="w-4 h-4 text-green-400" />
+                              ) : (
+                                <Users className="w-4 h-4 text-blue-400" />
+                              )}
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-medium px-2 py-0.5 bg-slate-600 text-slate-300 rounded">
+                                  {event.symbol}
+                                </span>
+                              </div>
+                              <p className="text-sm text-white mt-1">{event.title}</p>
+                              <p className="text-xs text-slate-400 mt-1">
+                                In {event.daysUntil} days
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-slate-400">
+                      <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>No upcoming events</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Research Pipeline Status */}
+            {researchData && (
+              <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <span className="text-slate-400 text-sm">Pipeline Status:</span>
+                    <div className="flex items-center gap-2">
+                      {['Research', 'Analysis', 'Decision'].map((stage, i) => (
+                        <div key={stage} className="flex items-center gap-1">
+                          <div className="w-2 h-2 bg-green-400 rounded-full" />
+                          <span className="text-xs text-slate-300">{stage}</span>
+                          {i < 2 && <ChevronRight className="w-3 h-3 text-slate-500" />}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <span className="text-xs text-slate-500">
+                    {researchData.pipeline?.completedAt && new Date(researchData.pipeline.completedAt).toLocaleTimeString()}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
