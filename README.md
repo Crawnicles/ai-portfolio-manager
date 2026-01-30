@@ -141,7 +141,8 @@ app/
     ├── research/route.js      # Multi-agent research pipeline
     ├── digest/route.js        # Periodic digest generation
     ├── advisor/route.js       # AI financial advisor
-    └── ai-competition/route.js # AI arena competition
+    ├── ai-competition/route.js # AI arena competition
+    └── partnership/route.js   # Partnership dashboard API
 ```
 
 ## Roadmap
@@ -151,7 +152,7 @@ app/
 - [x] Phase 3: Net worth overview & digests
 - [x] Phase 4: Crypto, partnerships, debts, AI advisor
 - [x] Phase 5: Multi-model AI arena
-- [ ] Phase 6: Partnership dashboard (quarterly reports)
+- [x] Phase 6: Partnership dashboard (quarterly reports)
 - [ ] Phase 7: Read-only bank integrations (Plaid)
 - [ ] Phase 8: Podcast/transcript analysis for investment ideas
 
