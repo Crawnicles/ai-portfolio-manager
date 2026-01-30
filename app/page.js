@@ -192,6 +192,21 @@ export default function AIPortfolioManager() {
   const [competitionRunning, setCompetitionRunning] = useState(false);
   const [leaderboard, setLeaderboard] = useState([]);
 
+  // Phase 6: Partnership Dashboard
+  const [partnershipData, setPartnershipData] = useState({
+    name: 'Investment Partnership',
+    ownershipPct: 1.8,
+    quarterlyReports: [],
+  });
+  const [showAddReport, setShowAddReport] = useState(false);
+  const [newReport, setNewReport] = useState({
+    quarter: 4, year: 2025, totalNav: '', navPerUnit: '',
+    grossReturn: '', netReturn: '', distributions: '', capitalCalls: '',
+    managementFee: '', performanceFee: '', notes: ''
+  });
+  const [partnershipMetrics, setPartnershipMetrics] = useState(null);
+  const [reportAnalysis, setReportAnalysis] = useState(null);
+
   const generateHistory = (equity) => {
     const history = [];
     let value = parseFloat(equity) * 0.85;
@@ -625,6 +640,98 @@ export default function AIPortfolioManager() {
     setAiDecisions({});
   };
 
+  // Partnership Functions
+  const addQuarterlyReport = () => {
+    const report = {
+      id: Date.now(),
+      ...newReport,
+      totalNav: parseFloat(newReport.totalNav) || 0,
+      navPerUnit: parseFloat(newReport.navPerUnit) || 0,
+      grossReturn: parseFloat(newReport.grossReturn) || 0,
+      netReturn: parseFloat(newReport.netReturn) || 0,
+      distributions: parseFloat(newReport.distributions) || 0,
+      capitalCalls: parseFloat(newReport.capitalCalls) || 0,
+      managementFee: parseFloat(newReport.managementFee) || 0,
+      performanceFee: parseFloat(newReport.performanceFee) || 0,
+      reportDate: new Date().toISOString()
+    };
+
+    setPartnershipData(prev => ({
+      ...prev,
+      quarterlyReports: [...prev.quarterlyReports, report]
+    }));
+
+    setNewReport({
+      quarter: 4, year: 2025, totalNav: '', navPerUnit: '',
+      grossReturn: '', netReturn: '', distributions: '', capitalCalls: '',
+      managementFee: '', performanceFee: '', notes: ''
+    });
+    setShowAddReport(false);
+    analyzeReport(report);
+  };
+
+  const analyzeReport = async (report) => {
+    try {
+      const res = await fetch('/api/alpaca/partnership', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'analyze_report',
+          report,
+          partnership: partnershipData
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setReportAnalysis(data);
+      }
+    } catch (err) {
+      console.error('Report analysis error:', err);
+    }
+  };
+
+  const calculatePartnershipMetrics = async () => {
+    try {
+      const res = await fetch('/api/alpaca/partnership', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'calculate_metrics',
+          partnership: partnershipData
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPartnershipMetrics(data);
+      }
+    } catch (err) {
+      console.error('Partnership metrics error:', err);
+    }
+  };
+
+  const deleteReport = (id) => {
+    setPartnershipData(prev => ({
+      ...prev,
+      quarterlyReports: prev.quarterlyReports.filter(r => r.id !== id)
+    }));
+  };
+
+  // Load partnership data from localStorage
+  useEffect(() => {
+    const savedPartnership = localStorage.getItem('partnershipData');
+    if (savedPartnership) {
+      try { setPartnershipData(JSON.parse(savedPartnership)); } catch (e) {}
+    }
+  }, []);
+
+  // Save partnership data
+  useEffect(() => {
+    localStorage.setItem('partnershipData', JSON.stringify(partnershipData));
+    if (partnershipData.quarterlyReports.length > 0) {
+      calculatePartnershipMetrics();
+    }
+  }, [partnershipData]);
+
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
     setTradeSide(side);
@@ -816,9 +923,9 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['overview', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab}
+                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab}
                 </button>
               ))}
             </nav>
@@ -1397,6 +1504,137 @@ export default function AIPortfolioManager() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PARTNERSHIP TAB - Phase 6 */}
+        {activeTab === 'partnership' && (
+          <div className="space-y-6">
+            {/* Partnership Header */}
+            <div className="bg-gradient-to-r from-cyan-500/10 to-teal-500/10 rounded-xl border border-cyan-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-teal-600 rounded-xl flex items-center justify-center">
+                    <Users className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-xl font-bold text-white">{partnershipData.name}</h2>
+                      <span className="text-xs px-2 py-0.5 bg-cyan-500/20 text-cyan-400 rounded-full">
+                        {partnershipData.ownershipPct}% ownership
+                      </span>
+                    </div>
+                    <p className="text-slate-400 text-sm">
+                      {partnershipData.quarterlyReports.length} quarterly reports
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAddReport(true)}
+                  className="bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Report
+                </button>
+              </div>
+            </div>
+
+            {/* Partnership Metrics */}
+            {partnershipMetrics?.hasData && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-slate-400 text-xs mb-1">Your Share Value</p>
+                  <p className="text-xl font-bold text-white">${partnershipMetrics.currentValue?.yourShare?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-slate-400 text-xs mb-1">Annualized Return</p>
+                  <p className={`text-xl font-bold ${parseFloat(partnershipMetrics.performanceMetrics?.annualizedReturn) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {partnershipMetrics.performanceMetrics?.annualizedReturn}%
+                  </p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-slate-400 text-xs mb-1">Distributions Received</p>
+                  <p className="text-xl font-bold text-green-400">${partnershipMetrics.cumulativeMetrics?.yourDistributions?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-slate-400 text-xs mb-1">Sharpe Ratio</p>
+                  <p className="text-xl font-bold text-white">{partnershipMetrics.performanceMetrics?.sharpeRatio}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Performance Chart */}
+            {partnershipMetrics?.navHistory?.length > 1 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4">Your Share Value Over Time</h3>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={partnershipMetrics.navHistory}>
+                      <defs>
+                        <linearGradient id="partnershipGrad" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#06B6D4" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#06B6D4" stopOpacity={0} />
+                        </linearGradient>
+                      </defs>
+                      <XAxis dataKey="period" stroke="#64748b" fontSize={11} />
+                      <YAxis stroke="#64748b" fontSize={11} tickFormatter={(v) => `$${(v/1000).toFixed(0)}k`} />
+                      <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} formatter={(v) => [`$${v?.toLocaleString()}`, 'Value']} />
+                      <Area type="monotone" dataKey="yourValue" stroke="#06B6D4" strokeWidth={2} fill="url(#partnershipGrad)" />
+                    </AreaChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Quarterly Reports */}
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-4 border-b border-slate-700">
+                <h3 className="font-semibold text-white flex items-center gap-2"><FileText className="w-4 h-4 text-amber-400" /> Quarterly Reports</h3>
+              </div>
+              {partnershipData.quarterlyReports.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="bg-slate-900/50">
+                      <tr>
+                        <th className="px-4 py-2 text-left text-xs text-slate-400">Period</th>
+                        <th className="px-4 py-2 text-right text-xs text-slate-400">NAV</th>
+                        <th className="px-4 py-2 text-right text-xs text-slate-400">Your Share</th>
+                        <th className="px-4 py-2 text-right text-xs text-slate-400">Return</th>
+                        <th className="px-4 py-2 text-right text-xs text-slate-400">Distribution</th>
+                        <th className="px-4 py-2 text-right text-xs text-slate-400"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700">
+                      {partnershipData.quarterlyReports.sort((a, b) => (b.year * 4 + b.quarter) - (a.year * 4 + a.quarter)).map((r) => (
+                        <tr key={r.id} className="hover:bg-slate-700/30">
+                          <td className="px-4 py-2 text-white">Q{r.quarter} {r.year}</td>
+                          <td className="px-4 py-2 text-right text-slate-300">${r.totalNav?.toLocaleString()}</td>
+                          <td className="px-4 py-2 text-right text-cyan-400">${(r.totalNav * partnershipData.ownershipPct / 100)?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
+                          <td className={`px-4 py-2 text-right ${r.netReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>{r.netReturn >= 0 ? '+' : ''}{r.netReturn}%</td>
+                          <td className="px-4 py-2 text-right text-green-400">{r.distributions > 0 ? `$${(r.distributions * partnershipData.ownershipPct / 100).toFixed(0)}` : '-'}</td>
+                          <td className="px-4 py-2 text-right"><button onClick={() => deleteReport(r.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3 h-3" /></button></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-slate-400">
+                  <p>No reports yet. Add quarterly reports to track performance.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Settings */}
+            <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4 flex items-center gap-6 flex-wrap">
+              <div>
+                <label className="text-xs text-slate-400">Partnership Name</label>
+                <input type="text" value={partnershipData.name} onChange={(e) => setPartnershipData(p => ({ ...p, name: e.target.value }))} className="block mt-1 bg-slate-700/50 border border-slate-600 rounded px-3 py-1.5 text-white text-sm w-48" />
+              </div>
+              <div>
+                <label className="text-xs text-slate-400">Ownership %</label>
+                <input type="number" step="0.1" value={partnershipData.ownershipPct} onChange={(e) => setPartnershipData(p => ({ ...p, ownershipPct: parseFloat(e.target.value) || 0 }))} className="block mt-1 bg-slate-700/50 border border-slate-600 rounded px-3 py-1.5 text-white text-sm w-24" />
               </div>
             </div>
           </div>
@@ -2523,6 +2761,176 @@ export default function AIPortfolioManager() {
                 className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium py-3 rounded-xl"
               >
                 {editingDebt ? 'Save Changes' : 'Add Debt'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Quarterly Report Modal */}
+      {showAddReport && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-cyan-400" />
+                  Add Quarterly Report
+                </h2>
+                <button
+                  onClick={() => setShowAddReport(false)}
+                  className="text-slate-400 hover:text-white"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Enter data from your partnership quarterly report</p>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Period */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Quarter</label>
+                  <select
+                    value={newReport.quarter}
+                    onChange={(e) => setNewReport({ ...newReport, quarter: parseInt(e.target.value) })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <option value={1}>Q1</option>
+                    <option value={2}>Q2</option>
+                    <option value={3}>Q3</option>
+                    <option value={4}>Q4</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Year</label>
+                  <input
+                    type="number"
+                    value={newReport.year}
+                    onChange={(e) => setNewReport({ ...newReport, year: parseInt(e.target.value) })}
+                    placeholder="2025"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* NAV Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Total NAV ($)</label>
+                  <input
+                    type="number"
+                    value={newReport.totalNav}
+                    onChange={(e) => setNewReport({ ...newReport, totalNav: e.target.value })}
+                    placeholder="10,000,000"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">NAV per Unit ($)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newReport.navPerUnit}
+                    onChange={(e) => setNewReport({ ...newReport, navPerUnit: e.target.value })}
+                    placeholder="1,234.56"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Returns */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Gross Return (%)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newReport.grossReturn}
+                    onChange={(e) => setNewReport({ ...newReport, grossReturn: e.target.value })}
+                    placeholder="5.5"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Net Return (%)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={newReport.netReturn}
+                    onChange={(e) => setNewReport({ ...newReport, netReturn: e.target.value })}
+                    placeholder="4.2"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Cash Flows */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Distributions ($)</label>
+                  <input
+                    type="number"
+                    value={newReport.distributions}
+                    onChange={(e) => setNewReport({ ...newReport, distributions: e.target.value })}
+                    placeholder="0"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Capital Calls ($)</label>
+                  <input
+                    type="number"
+                    value={newReport.capitalCalls}
+                    onChange={(e) => setNewReport({ ...newReport, capitalCalls: e.target.value })}
+                    placeholder="0"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Fees */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Management Fee ($)</label>
+                  <input
+                    type="number"
+                    value={newReport.managementFee}
+                    onChange={(e) => setNewReport({ ...newReport, managementFee: e.target.value })}
+                    placeholder="0"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Performance Fee ($)</label>
+                  <input
+                    type="number"
+                    value={newReport.performanceFee}
+                    onChange={(e) => setNewReport({ ...newReport, performanceFee: e.target.value })}
+                    placeholder="0"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <textarea
+                  value={newReport.notes}
+                  onChange={(e) => setNewReport({ ...newReport, notes: e.target.value })}
+                  placeholder="Any highlights or concerns from the GP letter..."
+                  rows={3}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                />
+              </div>
+
+              {/* Submit */}
+              <button
+                onClick={addQuarterlyReport}
+                className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Report
               </button>
             </div>
           </div>
