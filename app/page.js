@@ -207,6 +207,19 @@ export default function AIPortfolioManager() {
   const [partnershipMetrics, setPartnershipMetrics] = useState(null);
   const [reportAnalysis, setReportAnalysis] = useState(null);
 
+  // Phase 7: Plaid Bank Integrations
+  const [plaidConfig, setPlaidConfig] = useState({ clientId: '', secret: '', environment: 'sandbox' });
+  const [plaidConnections, setPlaidConnections] = useState([]); // { id, accessToken, institutionName, accounts }
+  const [transactions, setTransactions] = useState([]);
+  const [transactionsSummary, setTransactionsSummary] = useState(null);
+  const [recurringExpenses, setRecurringExpenses] = useState(null);
+  const [plaidLoading, setPlaidLoading] = useState(false);
+  const [plaidLinkToken, setPlaidLinkToken] = useState(null);
+  const [showPlaidSetup, setShowPlaidSetup] = useState(false);
+  const [transactionDateRange, setTransactionDateRange] = useState('30'); // days
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [transactionSearch, setTransactionSearch] = useState('');
+
   const generateHistory = (equity) => {
     const history = [];
     let value = parseFloat(equity) * 0.85;
@@ -716,6 +729,140 @@ export default function AIPortfolioManager() {
     }));
   };
 
+  // Phase 7: Plaid Functions
+  const initPlaidLink = async () => {
+    if (!plaidConfig.clientId || !plaidConfig.secret) {
+      setError('Please enter your Plaid credentials');
+      return;
+    }
+    setPlaidLoading(true);
+    try {
+      const res = await fetch('/api/plaid/create-link-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(plaidConfig),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setPlaidLinkToken(data.link_token);
+      // Open Plaid Link in a new window (simplified approach)
+      window.open(
+        `https://cdn.plaid.com/link/v2/stable/link.html?token=${data.link_token}`,
+        'PlaidLink',
+        'width=400,height=600'
+      );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPlaidLoading(false);
+    }
+  };
+
+  const connectPlaidAccount = async (publicToken, institutionName) => {
+    setPlaidLoading(true);
+    try {
+      const res = await fetch('/api/plaid/exchange-token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...plaidConfig, publicToken }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      // Get initial balances
+      const balanceRes = await fetch('/api/plaid/balances', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...plaidConfig, accessToken: data.access_token }),
+      });
+      const balanceData = await balanceRes.json();
+
+      const newConnection = {
+        id: Date.now(),
+        accessToken: data.access_token,
+        itemId: data.item_id,
+        institutionName: institutionName || 'Connected Bank',
+        accounts: balanceData.accounts || [],
+        summary: balanceData.summary,
+        connectedAt: new Date().toISOString(),
+      };
+
+      setPlaidConnections(prev => [...prev, newConnection]);
+      setShowPlaidSetup(false);
+
+      // Fetch transactions
+      fetchTransactions(data.access_token);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPlaidLoading(false);
+    }
+  };
+
+  const fetchTransactions = async (accessToken) => {
+    if (!accessToken && plaidConnections.length === 0) return;
+    setPlaidLoading(true);
+    try {
+      const token = accessToken || plaidConnections[0]?.accessToken;
+      if (!token) return;
+
+      const days = parseInt(transactionDateRange);
+      const endDate = new Date().toISOString().split('T')[0];
+      const startDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+      const res = await fetch('/api/plaid/transactions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...plaidConfig, accessToken: token, startDate, endDate }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setTransactions(data.transactions || []);
+      setTransactionsSummary(data.summary);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPlaidLoading(false);
+    }
+  };
+
+  const fetchRecurring = async () => {
+    if (plaidConnections.length === 0) return;
+    setPlaidLoading(true);
+    try {
+      const res = await fetch('/api/plaid/recurring', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...plaidConfig, accessToken: plaidConnections[0].accessToken }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setRecurringExpenses(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPlaidLoading(false);
+    }
+  };
+
+  const removePlaidConnection = (connectionId) => {
+    setPlaidConnections(prev => prev.filter(c => c.id !== connectionId));
+    if (plaidConnections.length <= 1) {
+      setTransactions([]);
+      setTransactionsSummary(null);
+      setRecurringExpenses(null);
+    }
+  };
+
+  const filteredTransactions = transactions.filter(tx => {
+    const matchesSearch = !transactionSearch ||
+      tx.name?.toLowerCase().includes(transactionSearch.toLowerCase()) ||
+      tx.merchantName?.toLowerCase().includes(transactionSearch.toLowerCase());
+    const matchesCategory = !selectedCategory || tx.primaryCategory === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   // Load partnership data from localStorage
   useEffect(() => {
     const savedPartnership = localStorage.getItem('partnershipData');
@@ -731,6 +878,30 @@ export default function AIPortfolioManager() {
       calculatePartnershipMetrics();
     }
   }, [partnershipData]);
+
+  // Load Plaid data from localStorage
+  useEffect(() => {
+    const savedPlaid = localStorage.getItem('plaidConfig');
+    const savedConnections = localStorage.getItem('plaidConnections');
+    if (savedPlaid) {
+      try { setPlaidConfig(JSON.parse(savedPlaid)); } catch (e) {}
+    }
+    if (savedConnections) {
+      try { setPlaidConnections(JSON.parse(savedConnections)); } catch (e) {}
+    }
+  }, []);
+
+  // Save Plaid config
+  useEffect(() => {
+    if (plaidConfig.clientId) {
+      localStorage.setItem('plaidConfig', JSON.stringify(plaidConfig));
+    }
+  }, [plaidConfig]);
+
+  // Save Plaid connections
+  useEffect(() => {
+    localStorage.setItem('plaidConnections', JSON.stringify(plaidConnections));
+  }, [plaidConnections]);
 
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
@@ -923,7 +1094,7 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['overview', 'spending', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
                   {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab}
                 </button>
@@ -1506,6 +1677,302 @@ export default function AIPortfolioManager() {
                 </table>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* SPENDING TAB - Phase 7 */}
+        {activeTab === 'spending' && (
+          <div className="space-y-6">
+            {/* Spending Header */}
+            <div className="bg-gradient-to-r from-emerald-500/10 to-green-500/10 rounded-xl border border-emerald-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-green-600 rounded-xl flex items-center justify-center">
+                    <CreditCard className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Spending Tracker</h2>
+                    <p className="text-slate-400 text-sm">
+                      {plaidConnections.length > 0
+                        ? `${plaidConnections.length} bank${plaidConnections.length > 1 ? 's' : ''} connected`
+                        : 'Connect your bank accounts to track spending'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  {plaidConnections.length > 0 && (
+                    <>
+                      <select
+                        value={transactionDateRange}
+                        onChange={(e) => setTransactionDateRange(e.target.value)}
+                        className="bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm"
+                      >
+                        <option value="7">Last 7 days</option>
+                        <option value="30">Last 30 days</option>
+                        <option value="60">Last 60 days</option>
+                        <option value="90">Last 90 days</option>
+                      </select>
+                      <button
+                        onClick={() => fetchTransactions()}
+                        disabled={plaidLoading}
+                        className="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${plaidLoading ? 'animate-spin' : ''}`} />
+                      </button>
+                    </>
+                  )}
+                  <button
+                    onClick={() => setShowPlaidSetup(true)}
+                    className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <Plus className="w-4 h-4" /> Connect Bank
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* No Connections State */}
+            {plaidConnections.length === 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="w-8 h-8 text-slate-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-white mb-2">Connect Your Bank Accounts</h3>
+                <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                  Securely connect your checking, savings, and credit cards to track spending, identify subscriptions, and get insights.
+                </p>
+                <button
+                  onClick={() => setShowPlaidSetup(true)}
+                  className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 mx-auto"
+                >
+                  <Plus className="w-5 h-5" /> Get Started with Plaid
+                </button>
+                <p className="text-slate-500 text-xs mt-4">
+                  Get free Plaid sandbox credentials at <a href="https://dashboard.plaid.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">dashboard.plaid.com</a>
+                </p>
+              </div>
+            )}
+
+            {/* Connected Banks */}
+            {plaidConnections.length > 0 && (
+              <>
+                {/* Summary Cards */}
+                {transactionsSummary && (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                      <p className="text-slate-400 text-xs mb-1">Total Spending</p>
+                      <p className="text-xl font-bold text-red-400">-${transactionsSummary.totalSpending?.toLocaleString()}</p>
+                      <p className="text-slate-500 text-xs mt-1">{transactionDateRange} days</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                      <p className="text-slate-400 text-xs mb-1">Total Income</p>
+                      <p className="text-xl font-bold text-green-400">+${transactionsSummary.totalIncome?.toLocaleString()}</p>
+                      <p className="text-slate-500 text-xs mt-1">{transactionsSummary.totalTransactions} transactions</p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                      <p className="text-slate-400 text-xs mb-1">Net Cash Flow</p>
+                      <p className={`text-xl font-bold ${transactionsSummary.netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        {transactionsSummary.netCashFlow >= 0 ? '+' : ''}${transactionsSummary.netCashFlow?.toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                      <p className="text-slate-400 text-xs mb-1">Top Category</p>
+                      <p className="text-lg font-bold text-white">{transactionsSummary.topCategories?.[0]?.category || '-'}</p>
+                      <p className="text-slate-500 text-xs mt-1">${transactionsSummary.topCategories?.[0]?.amount?.toLocaleString() || 0}</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Spending by Category */}
+                {transactionsSummary?.topCategories?.length > 0 && (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    {/* Category Breakdown */}
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Layers className="w-5 h-5 text-emerald-400" /> Spending by Category
+                      </h3>
+                      <div className="space-y-3">
+                        {transactionsSummary.topCategories.map((cat, i) => {
+                          const pct = (cat.amount / transactionsSummary.totalSpending) * 100;
+                          const colors = ['bg-emerald-500', 'bg-cyan-500', 'bg-purple-500', 'bg-amber-500', 'bg-pink-500', 'bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-indigo-500', 'bg-orange-500'];
+                          return (
+                            <div key={cat.category} className="group">
+                              <div className="flex items-center justify-between mb-1">
+                                <button
+                                  onClick={() => setSelectedCategory(selectedCategory === cat.category ? null : cat.category)}
+                                  className={`text-sm font-medium ${selectedCategory === cat.category ? 'text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                                >
+                                  {cat.category}
+                                </button>
+                                <span className="text-sm text-slate-400">${cat.amount.toLocaleString()}</span>
+                              </div>
+                              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                                <div className={`h-full ${colors[i % colors.length]} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Top Merchants */}
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <ShoppingCart className="w-5 h-5 text-amber-400" /> Top Merchants
+                      </h3>
+                      <div className="space-y-2">
+                        {transactionsSummary.topMerchants?.slice(0, 8).map((m, i) => (
+                          <div key={m.merchant} className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
+                            <div className="flex items-center gap-3">
+                              <span className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-400">{i + 1}</span>
+                              <span className="text-sm text-slate-300">{m.merchant}</span>
+                            </div>
+                            <span className="text-sm font-medium text-white">${m.amount.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Daily Spending Chart */}
+                {transactionsSummary?.dailySpending?.length > 0 && (
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Daily Spending</h3>
+                    <div className="h-48">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={transactionsSummary.dailySpending}>
+                          <defs>
+                            <linearGradient id="spendingGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.3} />
+                              <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="date" stroke="#64748b" fontSize={10} tickFormatter={(d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} />
+                          <YAxis stroke="#64748b" fontSize={10} tickFormatter={(v) => `$${v}`} />
+                          <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #334155', borderRadius: '8px' }} formatter={(v) => [`$${v}`, 'Spent']} />
+                          <Area type="monotone" dataKey="amount" stroke="#10B981" strokeWidth={2} fill="url(#spendingGrad)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* Recurring/Subscriptions */}
+                {recurringExpenses && (
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <Radio className="w-5 h-5 text-purple-400" /> Subscriptions & Recurring
+                      </h3>
+                      <div className="text-right">
+                        <p className="text-sm text-slate-400">Monthly Total</p>
+                        <p className="text-lg font-bold text-purple-400">${recurringExpenses.summary?.monthlySubscriptions?.toLocaleString()}/mo</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {recurringExpenses.subscriptions?.slice(0, 9).map(sub => (
+                        <div key={sub.id} className="bg-slate-700/30 rounded-lg p-3 flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-white">{sub.merchantName}</p>
+                            <p className="text-xs text-slate-400">{sub.frequency}</p>
+                          </div>
+                          <p className="text-sm font-bold text-white">${sub.averageAmount?.toFixed(2)}</p>
+                        </div>
+                      ))}
+                    </div>
+                    {!recurringExpenses.subscriptions?.length && (
+                      <p className="text-slate-400 text-center py-4">No recurring expenses detected yet</p>
+                    )}
+                  </div>
+                )}
+
+                {/* Transactions List */}
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                  <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-wrap gap-4">
+                    <h3 className="font-semibold text-white flex items-center gap-2">
+                      <History className="w-4 h-4 text-slate-400" /> Recent Transactions
+                      {selectedCategory && (
+                        <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">
+                          {selectedCategory}
+                          <button onClick={() => setSelectedCategory(null)} className="ml-1">×</button>
+                        </span>
+                      )}
+                    </h3>
+                    <div className="relative">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <input
+                        type="text"
+                        placeholder="Search transactions..."
+                        value={transactionSearch}
+                        onChange={(e) => setTransactionSearch(e.target.value)}
+                        className="bg-slate-700/50 border border-slate-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm w-64 placeholder-slate-400"
+                      />
+                    </div>
+                  </div>
+                  {filteredTransactions.length > 0 ? (
+                    <div className="max-h-96 overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-900/50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Date</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Description</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Category</th>
+                            <th className="px-4 py-2 text-right text-xs text-slate-400">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700">
+                          {filteredTransactions.slice(0, 50).map((tx) => (
+                            <tr key={tx.id} className="hover:bg-slate-700/30">
+                              <td className="px-4 py-2 text-slate-400 text-xs">{new Date(tx.date).toLocaleDateString()}</td>
+                              <td className="px-4 py-2">
+                                <p className="text-white">{tx.merchantName || tx.name}</p>
+                                {tx.merchantName && tx.merchantName !== tx.name && (
+                                  <p className="text-xs text-slate-500">{tx.name}</p>
+                                )}
+                              </td>
+                              <td className="px-4 py-2">
+                                <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">{tx.primaryCategory}</span>
+                              </td>
+                              <td className={`px-4 py-2 text-right font-medium ${tx.isExpense ? 'text-red-400' : 'text-green-400'}`}>
+                                {tx.isExpense ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="p-8 text-center text-slate-400">
+                      {transactions.length === 0 ? (
+                        <p>No transactions yet. Click refresh to load.</p>
+                      ) : (
+                        <p>No transactions match your search.</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Connected Accounts */}
+                <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+                  <h3 className="text-sm font-semibold text-slate-400 mb-3">Connected Accounts</h3>
+                  <div className="flex flex-wrap gap-3">
+                    {plaidConnections.map(conn => (
+                      <div key={conn.id} className="bg-slate-700/50 rounded-lg px-4 py-2 flex items-center gap-3">
+                        <Building2 className="w-4 h-4 text-emerald-400" />
+                        <div>
+                          <p className="text-sm font-medium text-white">{conn.institutionName}</p>
+                          <p className="text-xs text-slate-400">{conn.accounts?.length || 0} accounts</p>
+                        </div>
+                        <button onClick={() => removePlaidConnection(conn.id)} className="text-red-400 hover:text-red-300 ml-2">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -2932,6 +3399,88 @@ export default function AIPortfolioManager() {
               >
                 <Plus className="w-4 h-4" /> Add Report
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plaid Setup Modal */}
+      {showPlaidSetup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-emerald-400" />
+                  Connect Bank Account
+                </h2>
+                <button onClick={() => setShowPlaidSetup(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Enter your Plaid API credentials</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Environment</label>
+                <select
+                  value={plaidConfig.environment}
+                  onChange={(e) => setPlaidConfig({ ...plaidConfig, environment: e.target.value })}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="sandbox">Sandbox (Testing)</option>
+                  <option value="development">Development</option>
+                  <option value="production">Production</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Client ID</label>
+                <input
+                  type="text"
+                  value={plaidConfig.clientId}
+                  onChange={(e) => setPlaidConfig({ ...plaidConfig, clientId: e.target.value })}
+                  placeholder="Enter your Plaid Client ID"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Secret</label>
+                <input
+                  type="password"
+                  value={plaidConfig.secret}
+                  onChange={(e) => setPlaidConfig({ ...plaidConfig, secret: e.target.value })}
+                  placeholder="Enter your Plaid Secret"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              </div>
+
+              <div className="bg-slate-700/30 rounded-lg p-4 text-sm">
+                <p className="text-slate-300 font-medium mb-2">📋 Sandbox Testing</p>
+                <p className="text-slate-400 text-xs mb-2">For sandbox mode, use these test credentials when Plaid Link opens:</p>
+                <div className="bg-slate-800 rounded p-2 font-mono text-xs text-slate-300">
+                  <p>Username: <span className="text-emerald-400">user_good</span></p>
+                  <p>Password: <span className="text-emerald-400">pass_good</span></p>
+                </div>
+              </div>
+
+              <button
+                onClick={initPlaidLink}
+                disabled={plaidLoading || !plaidConfig.clientId || !plaidConfig.secret}
+                className="w-full bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                {plaidLoading ? (
+                  <><RefreshCw className="w-4 h-4 animate-spin" /> Connecting...</>
+                ) : (
+                  <><Plus className="w-4 h-4" /> Connect with Plaid</>
+                )}
+              </button>
+
+              <p className="text-xs text-slate-500 text-center">
+                Get free API keys at{' '}
+                <a href="https://dashboard.plaid.com/signup" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">
+                  dashboard.plaid.com
+                </a>
+              </p>
             </div>
           </div>
         </div>
