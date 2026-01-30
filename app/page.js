@@ -220,6 +220,14 @@ export default function AIPortfolioManager() {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [transactionSearch, setTransactionSearch] = useState('');
 
+  // Phase 8: Budgets & Smart Categorization
+  const [budgets, setBudgets] = useState({});
+  const [budgetAnalysis, setBudgetAnalysis] = useState(null);
+  const [showBudgetSetup, setShowBudgetSetup] = useState(false);
+  const [editingBudget, setEditingBudget] = useState(null);
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [spendingView, setSpendingView] = useState('overview'); // overview, budgets, transactions
+
   const generateHistory = (equity) => {
     const history = [];
     let value = parseFloat(equity) * 0.85;
@@ -863,6 +871,64 @@ export default function AIPortfolioManager() {
     return matchesSearch && matchesCategory;
   });
 
+  // Phase 8: Budget Functions
+  const analyzeBudget = async () => {
+    if (transactions.length === 0) return;
+    setPlaidLoading(true);
+    try {
+      const res = await fetch('/api/plaid/budget-analysis', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          transactions,
+          budgets,
+          monthlyIncome,
+          previousTransactions: [], // TODO: store historical for better analysis
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setBudgetAnalysis(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setPlaidLoading(false);
+    }
+  };
+
+  const updateBudget = (category, amount) => {
+    setBudgets(prev => ({
+      ...prev,
+      [category]: parseFloat(amount) || 0,
+    }));
+  };
+
+  const removeBudget = (category) => {
+    setBudgets(prev => {
+      const updated = { ...prev };
+      delete updated[category];
+      return updated;
+    });
+  };
+
+  const applyBudgetSuggestions = () => {
+    if (!budgetAnalysis?.budgetSuggestions) return;
+    const newBudgets = {};
+    budgetAnalysis.budgetSuggestions.forEach(s => {
+      if (s.suggestedBudget > 0 && s.category !== 'Income' && s.category !== 'Transfer') {
+        newBudgets[s.category] = s.suggestedBudget;
+      }
+    });
+    setBudgets(newBudgets);
+  };
+
+  // Auto-analyze when transactions change
+  useEffect(() => {
+    if (transactions.length > 0) {
+      analyzeBudget();
+    }
+  }, [transactions, budgets, monthlyIncome]);
+
   // Load partnership data from localStorage
   useEffect(() => {
     const savedPartnership = localStorage.getItem('partnershipData');
@@ -902,6 +968,28 @@ export default function AIPortfolioManager() {
   useEffect(() => {
     localStorage.setItem('plaidConnections', JSON.stringify(plaidConnections));
   }, [plaidConnections]);
+
+  // Load budgets from localStorage
+  useEffect(() => {
+    const savedBudgets = localStorage.getItem('budgets');
+    const savedIncome = localStorage.getItem('monthlyIncome');
+    if (savedBudgets) {
+      try { setBudgets(JSON.parse(savedBudgets)); } catch (e) {}
+    }
+    if (savedIncome) {
+      setMonthlyIncome(parseFloat(savedIncome) || 0);
+    }
+  }, []);
+
+  // Save budgets
+  useEffect(() => {
+    localStorage.setItem('budgets', JSON.stringify(budgets));
+  }, [budgets]);
+
+  // Save monthly income
+  useEffect(() => {
+    localStorage.setItem('monthlyIncome', monthlyIncome.toString());
+  }, [monthlyIncome]);
 
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
@@ -1731,6 +1819,25 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
+            {/* Sub-navigation */}
+            {plaidConnections.length > 0 && (
+              <div className="flex gap-2 border-b border-slate-700 pb-2">
+                {['overview', 'budgets', 'transactions'].map((view) => (
+                  <button
+                    key={view}
+                    onClick={() => setSpendingView(view)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                      spendingView === view
+                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  >
+                    {view}
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* No Connections State */}
             {plaidConnections.length === 0 && (
               <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
@@ -1756,8 +1863,11 @@ export default function AIPortfolioManager() {
             {/* Connected Banks */}
             {plaidConnections.length > 0 && (
               <>
-                {/* Summary Cards */}
-                {transactionsSummary && (
+                {/* OVERVIEW VIEW */}
+                {spendingView === 'overview' && (
+                  <>
+                    {/* Summary Cards */}
+                    {transactionsSummary && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
                       <p className="text-slate-400 text-xs mb-1">Total Spending</p>
@@ -1952,8 +2062,238 @@ export default function AIPortfolioManager() {
                     </div>
                   )}
                 </div>
+                  </>
+                )}
 
-                {/* Connected Accounts */}
+                {/* BUDGETS VIEW */}
+                {spendingView === 'budgets' && (
+                  <>
+                    {/* Income & Budget Setup */}
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                          <Target className="w-5 h-5 text-amber-400" /> Monthly Budget
+                        </h3>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm text-slate-400">Monthly Income:</span>
+                            <div className="relative">
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                              <input
+                                type="number"
+                                value={monthlyIncome || ''}
+                                onChange={(e) => setMonthlyIncome(parseFloat(e.target.value) || 0)}
+                                placeholder="5,000"
+                                className="bg-slate-700/50 border border-slate-600 rounded-lg pl-7 pr-3 py-2 text-white w-32 text-sm"
+                              />
+                            </div>
+                          </div>
+                          {budgetAnalysis?.budgetSuggestions && Object.keys(budgets).length === 0 && (
+                            <button
+                              onClick={applyBudgetSuggestions}
+                              className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-3 py-2 rounded-lg text-sm flex items-center gap-2"
+                            >
+                              <Sparkles className="w-4 h-4" /> Auto-fill Budgets
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Insights & Anomalies */}
+                      {budgetAnalysis?.insights?.length > 0 && (
+                        <div className="mb-6 space-y-2">
+                          {budgetAnalysis.insights.slice(0, 3).map((insight, i) => (
+                            <div
+                              key={i}
+                              className={`p-3 rounded-lg flex items-start gap-3 ${
+                                insight.type === 'warning' || insight.type === 'alert' ? 'bg-red-500/10 border border-red-500/20' :
+                                insight.type === 'caution' ? 'bg-amber-500/10 border border-amber-500/20' :
+                                insight.type === 'success' ? 'bg-green-500/10 border border-green-500/20' :
+                                'bg-blue-500/10 border border-blue-500/20'
+                              }`}
+                            >
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                                insight.type === 'warning' || insight.type === 'alert' ? 'bg-red-500/20 text-red-400' :
+                                insight.type === 'caution' ? 'bg-amber-500/20 text-amber-400' :
+                                insight.type === 'success' ? 'bg-green-500/20 text-green-400' :
+                                'bg-blue-500/20 text-blue-400'
+                              }`}>
+                                {insight.type === 'success' ? '✓' : insight.type === 'warning' || insight.type === 'alert' ? '!' : 'i'}
+                              </div>
+                              <div>
+                                <p className="text-sm text-white">{insight.message}</p>
+                                {insight.action && <p className="text-xs text-slate-400 mt-1">{insight.action}</p>}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Budget Categories Grid */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {budgetAnalysis?.categorySummary?.filter(c => c.category !== 'Income' && c.category !== 'Transfer').map((cat) => {
+                          const budget = budgets[cat.category];
+                          const pctUsed = budget ? (cat.amount / budget) * 100 : 0;
+                          return (
+                            <div
+                              key={cat.category}
+                              className={`bg-slate-700/30 rounded-lg p-4 border ${
+                                budget && pctUsed > 100 ? 'border-red-500/50' :
+                                budget && pctUsed > 80 ? 'border-amber-500/50' :
+                                'border-slate-600/50'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{cat.icon}</span>
+                                  <span className="text-sm font-medium text-white">{cat.category}</span>
+                                </div>
+                                {cat.trend && (
+                                  <span className={`text-xs ${cat.trend === 'up' ? 'text-red-400' : cat.trend === 'down' ? 'text-green-400' : 'text-slate-400'}`}>
+                                    {cat.trend === 'up' ? '↑' : cat.trend === 'down' ? '↓' : '→'}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-baseline justify-between mb-2">
+                                <span className="text-xl font-bold text-white">${cat.amount.toLocaleString()}</span>
+                                {budget && (
+                                  <span className={`text-sm ${pctUsed > 100 ? 'text-red-400' : 'text-slate-400'}`}>
+                                    / ${budget.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                              {budget && (
+                                <div className="h-2 bg-slate-600 rounded-full overflow-hidden mb-2">
+                                  <div
+                                    className={`h-full rounded-full transition-all ${
+                                      pctUsed > 100 ? 'bg-red-500' : pctUsed > 80 ? 'bg-amber-500' : 'bg-emerald-500'
+                                    }`}
+                                    style={{ width: `${Math.min(pctUsed, 100)}%` }}
+                                  />
+                                </div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <div className="relative flex-1">
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                                  <input
+                                    type="number"
+                                    value={budget || ''}
+                                    onChange={(e) => updateBudget(cat.category, e.target.value)}
+                                    placeholder={cat.monthlyAverage ? `Avg: ${Math.round(cat.monthlyAverage)}` : 'Set budget'}
+                                    className="w-full bg-slate-600/50 border border-slate-500 rounded pl-5 pr-2 py-1 text-white text-sm"
+                                  />
+                                </div>
+                                {budget && (
+                                  <button
+                                    onClick={() => removeBudget(cat.category)}
+                                    className="text-red-400 hover:text-red-300 p-1"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Anomalies */}
+                    {budgetAnalysis?.anomalies?.length > 0 && (
+                      <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
+                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <AlertTriangle className="w-5 h-5 text-amber-400" /> Spending Anomalies
+                        </h3>
+                        <div className="space-y-3">
+                          {budgetAnalysis.anomalies.map((anomaly, i) => (
+                            <div key={i} className={`flex items-center justify-between p-3 rounded-lg ${
+                              anomaly.type === 'spike' ? 'bg-red-500/10' : 'bg-green-500/10'
+                            }`}>
+                              <div className="flex items-center gap-3">
+                                <span className={`text-2xl ${anomaly.type === 'spike' ? '' : ''}`}>
+                                  {anomaly.type === 'spike' ? '📈' : '📉'}
+                                </span>
+                                <div>
+                                  <p className="text-sm font-medium text-white">{anomaly.message}</p>
+                                </div>
+                              </div>
+                              <span className={`text-lg font-bold ${anomaly.type === 'spike' ? 'text-red-400' : 'text-green-400'}`}>
+                                {anomaly.percentChange > 0 ? '+' : ''}{anomaly.percentChange}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* TRANSACTIONS VIEW */}
+                {spendingView === 'transactions' && (
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                    <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-wrap gap-4">
+                      <h3 className="font-semibold text-white flex items-center gap-2">
+                        <History className="w-4 h-4 text-slate-400" /> All Transactions
+                        <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">{transactions.length}</span>
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={selectedCategory || ''}
+                          onChange={(e) => setSelectedCategory(e.target.value || null)}
+                          className="bg-slate-700 border border-slate-600 text-white text-sm px-3 py-2 rounded-lg"
+                        >
+                          <option value="">All Categories</option>
+                          {[...new Set(transactions.map(t => t.primaryCategory))].sort().map(cat => (
+                            <option key={cat} value={cat}>{cat}</option>
+                          ))}
+                        </select>
+                        <div className="relative">
+                          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <input
+                            type="text"
+                            placeholder="Search..."
+                            value={transactionSearch}
+                            onChange={(e) => setTransactionSearch(e.target.value)}
+                            className="bg-slate-700/50 border border-slate-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm w-48 placeholder-slate-400"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="max-h-[600px] overflow-y-auto">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-900/50 sticky top-0">
+                          <tr>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Date</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Description</th>
+                            <th className="px-4 py-2 text-left text-xs text-slate-400">Category</th>
+                            <th className="px-4 py-2 text-right text-xs text-slate-400">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-700">
+                          {filteredTransactions.map((tx) => (
+                            <tr key={tx.id} className="hover:bg-slate-700/30">
+                              <td className="px-4 py-2 text-slate-400 text-xs">{new Date(tx.date).toLocaleDateString()}</td>
+                              <td className="px-4 py-2">
+                                <p className="text-white">{tx.merchantName || tx.name}</p>
+                                {tx.merchantName && tx.merchantName !== tx.name && (
+                                  <p className="text-xs text-slate-500">{tx.name}</p>
+                                )}
+                              </td>
+                              <td className="px-4 py-2">
+                                <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">{tx.primaryCategory}</span>
+                              </td>
+                              <td className={`px-4 py-2 text-right font-medium ${tx.isExpense ? 'text-red-400' : 'text-green-400'}`}>
+                                {tx.isExpense ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Connected Accounts - Always visible */}
                 <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
                   <h3 className="text-sm font-semibold text-slate-400 mb-3">Connected Accounts</h3>
                   <div className="flex flex-wrap gap-3">
