@@ -167,7 +167,8 @@ app/
     ├── exchange-token/route.js     # Exchange tokens
     ├── transactions/route.js       # Fetch transactions
     ├── balances/route.js           # Account balances
-    └── recurring/route.js          # Subscription detection
+    ├── recurring/route.js          # Subscription detection
+    └── budget-analysis/route.js    # Smart budgeting & insights
 ```
 
 ## Roadmap
@@ -180,9 +181,9 @@ app/
 - Phase 5: Multi-model AI arena
 - Phase 6: Partnership dashboard (quarterly reports)
 - Phase 7: Plaid bank integrations & spending tracker
+- Phase 8: Smart categorization & budgeting
 
 ### 🚧 In Progress
-- Phase 8: Smart categorization & budgeting
 - Phase 9: Joint finance (multi-user support)
 
 ### 📋 Planned
