@@ -240,7 +240,16 @@ export default function AIPortfolioManager() {
   const [showBudgetSetup, setShowBudgetSetup] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
-  const [spendingView, setSpendingView] = useState('overview'); // overview, budgets, transactions
+  const [spendingView, setSpendingView] = useState('overview'); // overview, budgets, transactions, trips
+
+  // Phase 10: Trip & Event Tracking
+  const [trips, setTrips] = useState([]);
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [tripAnalysis, setTripAnalysis] = useState(null);
+  const [tripComparison, setTripComparison] = useState(null);
+  const [showAddTrip, setShowAddTrip] = useState(false);
+  const [newTrip, setNewTrip] = useState({ name: '', startDate: '', endDate: '', budget: '', notes: '' });
+  const [tripSuggestions, setTripSuggestions] = useState([]);
 
   // Authentication functions
   const handleAuth = async (e) => {
@@ -1069,6 +1078,111 @@ export default function AIPortfolioManager() {
       analyzeBudget();
     }
   }, [transactions, budgets, monthlyIncome]);
+
+  // Phase 10: Trip Functions
+  const addTrip = () => {
+    if (!newTrip.name) return;
+    const trip = {
+      id: `trip_${Date.now()}`,
+      ...newTrip,
+      budget: parseFloat(newTrip.budget) || 0,
+      transactionIds: [],
+      createdAt: new Date().toISOString(),
+    };
+    setTrips(prev => [...prev, trip]);
+    setNewTrip({ name: '', startDate: '', endDate: '', budget: '', notes: '' });
+    setShowAddTrip(false);
+  };
+
+  const deleteTrip = (tripId) => {
+    setTrips(prev => prev.filter(t => t.id !== tripId));
+    if (selectedTrip?.id === tripId) {
+      setSelectedTrip(null);
+      setTripAnalysis(null);
+    }
+  };
+
+  const addTransactionToTrip = (tripId, transactionId) => {
+    setTrips(prev => prev.map(t =>
+      t.id === tripId
+        ? { ...t, transactionIds: [...(t.transactionIds || []), transactionId] }
+        : t
+    ));
+  };
+
+  const removeTransactionFromTrip = (tripId, transactionId) => {
+    setTrips(prev => prev.map(t =>
+      t.id === tripId
+        ? { ...t, transactionIds: (t.transactionIds || []).filter(id => id !== transactionId) }
+        : t
+    ));
+  };
+
+  const analyzeTrip = async (trip) => {
+    if (!trip || transactions.length === 0) return;
+    try {
+      const res = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze', trip, transactions }),
+      });
+      const data = await res.json();
+      setTripAnalysis(data);
+    } catch (err) {
+      console.error('Trip analysis error:', err);
+    }
+  };
+
+  const compareTrips = async () => {
+    if (trips.length === 0 || transactions.length === 0) return;
+    try {
+      const res = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'compare', trips, transactions }),
+      });
+      const data = await res.json();
+      setTripComparison(data);
+    } catch (err) {
+      console.error('Trip comparison error:', err);
+    }
+  };
+
+  const suggestTripTransactions = async (trip) => {
+    if (!trip || transactions.length === 0) return;
+    try {
+      const res = await fetch('/api/trips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'suggest', trip, transactions }),
+      });
+      const data = await res.json();
+      setTripSuggestions(data.suggestions || []);
+    } catch (err) {
+      console.error('Trip suggestions error:', err);
+    }
+  };
+
+  // Auto-analyze selected trip
+  useEffect(() => {
+    if (selectedTrip && transactions.length > 0) {
+      analyzeTrip(selectedTrip);
+      suggestTripTransactions(selectedTrip);
+    }
+  }, [selectedTrip, transactions]);
+
+  // Load trips from localStorage (will be replaced by household sync)
+  useEffect(() => {
+    const savedTrips = localStorage.getItem('trips');
+    if (savedTrips) {
+      try { setTrips(JSON.parse(savedTrips)); } catch (e) {}
+    }
+  }, []);
+
+  // Save trips
+  useEffect(() => {
+    localStorage.setItem('trips', JSON.stringify(trips));
+  }, [trips]);
 
   // Load partnership data from localStorage
   useEffect(() => {
@@ -2174,7 +2288,7 @@ export default function AIPortfolioManager() {
             {/* Sub-navigation */}
             {plaidConnections.length > 0 && (
               <div className="flex gap-2 border-b border-slate-700 pb-2">
-                {['overview', 'budgets', 'transactions'].map((view) => (
+                {['overview', 'budgets', 'transactions', 'trips'].map((view) => (
                   <button
                     key={view}
                     onClick={() => setSpendingView(view)}
@@ -2184,7 +2298,7 @@ export default function AIPortfolioManager() {
                         : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   >
-                    {view}
+                    {view === 'trips' ? '✈️ Trips' : view}
                   </button>
                 ))}
               </div>
@@ -2642,6 +2756,226 @@ export default function AIPortfolioManager() {
                         </tbody>
                       </table>
                     </div>
+                  </div>
+                )}
+
+                {/* TRIPS VIEW */}
+                {spendingView === 'trips' && (
+                  <div className="space-y-6">
+                    {/* Trip Header */}
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        ✈️ Trip & Event Tracking
+                      </h3>
+                      <button
+                        onClick={() => setShowAddTrip(true)}
+                        className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" /> New Trip
+                      </button>
+                    </div>
+
+                    {/* Trips List */}
+                    {trips.length === 0 ? (
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                        <div className="text-4xl mb-4">🏝️</div>
+                        <h4 className="text-lg font-semibold text-white mb-2">No Trips Yet</h4>
+                        <p className="text-slate-400 mb-4">Track your vacation and event expenses by creating a trip.</p>
+                        <button
+                          onClick={() => setShowAddTrip(true)}
+                          className="bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 px-4 py-2 rounded-lg"
+                        >
+                          Create Your First Trip
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Trip Cards */}
+                        <div className="lg:col-span-1 space-y-3">
+                          {trips.map(trip => (
+                            <div
+                              key={trip.id}
+                              onClick={() => setSelectedTrip(trip)}
+                              className={`bg-slate-800/50 rounded-xl border p-4 cursor-pointer transition-all ${
+                                selectedTrip?.id === trip.id
+                                  ? 'border-violet-500 ring-1 ring-violet-500'
+                                  : 'border-slate-700 hover:border-slate-600'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <h4 className="font-semibold text-white">{trip.name}</h4>
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); deleteTrip(trip.id); }}
+                                  className="text-red-400 hover:text-red-300 p-1"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                              <p className="text-xs text-slate-400 mb-2">
+                                {trip.startDate && trip.endDate
+                                  ? `${new Date(trip.startDate).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}`
+                                  : 'No dates set'}
+                              </p>
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm text-slate-300">
+                                  {trip.transactionIds?.length || 0} expenses
+                                </span>
+                                {trip.budget > 0 && (
+                                  <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">
+                                    Budget: ${trip.budget.toLocaleString()}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Trip Details */}
+                        <div className="lg:col-span-2">
+                          {selectedTrip && tripAnalysis ? (
+                            <div className="space-y-4">
+                              {/* Trip Summary */}
+                              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                                <h4 className="text-lg font-semibold text-white mb-4">{selectedTrip.name}</h4>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                  <div>
+                                    <p className="text-xs text-slate-400">Total Spent</p>
+                                    <p className="text-xl font-bold text-white">${tripAnalysis.totalSpent?.toLocaleString()}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-400">Daily Average</p>
+                                    <p className="text-xl font-bold text-violet-400">${tripAnalysis.dailyAverage?.toLocaleString()}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-400">Duration</p>
+                                    <p className="text-xl font-bold text-white">{tripAnalysis.durationDays} days</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-xs text-slate-400">Expenses</p>
+                                    <p className="text-xl font-bold text-white">{tripAnalysis.transactionCount}</p>
+                                  </div>
+                                </div>
+
+                                {/* Budget Status */}
+                                {tripAnalysis.budgetStatus && (
+                                  <div className="mt-4 p-3 bg-slate-700/30 rounded-lg">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-sm text-slate-300">Budget Progress</span>
+                                      <span className={`text-sm font-medium ${
+                                        tripAnalysis.budgetStatus.status === 'over' ? 'text-red-400' :
+                                        tripAnalysis.budgetStatus.status === 'warning' ? 'text-amber-400' :
+                                        'text-green-400'
+                                      }`}>
+                                        {tripAnalysis.budgetStatus.percentUsed}%
+                                      </span>
+                                    </div>
+                                    <div className="h-2 bg-slate-600 rounded-full overflow-hidden">
+                                      <div
+                                        className={`h-full rounded-full ${
+                                          tripAnalysis.budgetStatus.status === 'over' ? 'bg-red-500' :
+                                          tripAnalysis.budgetStatus.status === 'warning' ? 'bg-amber-500' :
+                                          'bg-green-500'
+                                        }`}
+                                        style={{ width: `${Math.min(tripAnalysis.budgetStatus.percentUsed, 100)}%` }}
+                                      />
+                                    </div>
+                                    <p className="text-xs text-slate-400 mt-1">
+                                      ${tripAnalysis.budgetStatus.spent.toLocaleString()} of ${tripAnalysis.budgetStatus.budget.toLocaleString()}
+                                      {tripAnalysis.budgetStatus.remaining > 0
+                                        ? ` (${tripAnalysis.budgetStatus.remaining.toLocaleString()} remaining)`
+                                        : ` (${Math.abs(tripAnalysis.budgetStatus.remaining).toLocaleString()} over)`}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Category Breakdown */}
+                              {tripAnalysis.categoryBreakdown?.length > 0 && (
+                                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                                  <h5 className="text-sm font-semibold text-white mb-3">Spending by Category</h5>
+                                  <div className="space-y-2">
+                                    {tripAnalysis.categoryBreakdown.slice(0, 6).map((cat, i) => (
+                                      <div key={cat.category} className="flex items-center gap-3">
+                                        <div className="flex-1">
+                                          <div className="flex justify-between text-sm mb-1">
+                                            <span className="text-slate-300">{cat.category}</span>
+                                            <span className="text-white">${cat.amount.toLocaleString()}</span>
+                                          </div>
+                                          <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                            <div
+                                              className="h-full bg-violet-500 rounded-full"
+                                              style={{ width: `${cat.percent}%` }}
+                                            />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Suggested Transactions */}
+                              {tripSuggestions.length > 0 && (
+                                <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
+                                  <h5 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4 text-amber-400" /> Suggested Expenses to Add
+                                  </h5>
+                                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                                    {tripSuggestions.slice(0, 10).map(tx => (
+                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                                        <div className="flex-1">
+                                          <p className="text-sm text-white">{tx.merchantName || tx.name}</p>
+                                          <p className="text-xs text-slate-400">{tx.date} · {tx.primaryCategory}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-medium text-white">${Math.abs(tx.amount).toFixed(2)}</span>
+                                          <button
+                                            onClick={() => addTransactionToTrip(selectedTrip.id, tx.id)}
+                                            className="p-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 rounded"
+                                          >
+                                            <Plus className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Trip Transactions */}
+                              {tripAnalysis.transactions?.length > 0 && (
+                                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                                  <h5 className="text-sm font-semibold text-white mb-3">Trip Expenses</h5>
+                                  <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {tripAnalysis.transactions.map(tx => (
+                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                                        <div className="flex-1">
+                                          <p className="text-sm text-white">{tx.merchantName || tx.name}</p>
+                                          <p className="text-xs text-slate-400">{tx.date}</p>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                          <span className="text-sm font-medium text-red-400">-${Math.abs(tx.amount).toFixed(2)}</span>
+                                          <button
+                                            onClick={() => removeTransactionFromTrip(selectedTrip.id, tx.id)}
+                                            className="p-1 text-slate-400 hover:text-red-400"
+                                          >
+                                            <X className="w-4 h-4" />
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                              <p className="text-slate-400">Select a trip to view details</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -4090,6 +4424,87 @@ export default function AIPortfolioManager() {
                 className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Trip Modal */}
+      {showAddTrip && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  ✈️ New Trip
+                </h2>
+                <button onClick={() => setShowAddTrip(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Track expenses for a vacation or event</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Trip Name</label>
+                <input
+                  type="text"
+                  value={newTrip.name}
+                  onChange={(e) => setNewTrip({ ...newTrip, name: e.target.value })}
+                  placeholder="Hawaii Vacation 2026"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Start Date</label>
+                  <input
+                    type="date"
+                    value={newTrip.startDate}
+                    onChange={(e) => setNewTrip({ ...newTrip, startDate: e.target.value })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">End Date</label>
+                  <input
+                    type="date"
+                    value={newTrip.endDate}
+                    onChange={(e) => setNewTrip({ ...newTrip, endDate: e.target.value })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Budget (optional)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <input
+                    type="number"
+                    value={newTrip.budget}
+                    onChange={(e) => setNewTrip({ ...newTrip, budget: e.target.value })}
+                    placeholder="3,000"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <textarea
+                  value={newTrip.notes}
+                  onChange={(e) => setNewTrip({ ...newTrip, notes: e.target.value })}
+                  placeholder="Anniversary trip, all-inclusive resort..."
+                  rows={2}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                />
+              </div>
+              <button
+                onClick={addTrip}
+                disabled={!newTrip.name}
+                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Create Trip
               </button>
             </div>
           </div>
