@@ -157,18 +157,29 @@ export default function AIPortfolioManager() {
   const [researchLoading, setResearchLoading] = useState(false);
   const [lastResearchUpdate, setLastResearchUpdate] = useState(null);
 
-  // Phase 3: Manual Accounts & Digests
+  // Phase 3 & 4: Manual Accounts, Debts & Digests
   const [manualAccounts, setManualAccounts] = useState([
     { id: 1, name: 'Roth IRA', type: 'retirement', institution: 'Fidelity', balance: 45000, lastUpdated: new Date().toISOString() },
     { id: 2, name: 'Checking', type: 'checking', institution: 'Chase', balance: 8500, lastUpdated: new Date().toISOString() },
     { id: 3, name: 'Savings', type: 'savings', institution: 'Marcus', balance: 15000, lastUpdated: new Date().toISOString() },
+    { id: 4, name: 'Crypto (Ledger)', type: 'crypto', institution: 'Ledger', balance: 12500, holdings: 'BTC, ETH', lastUpdated: new Date().toISOString() },
+    { id: 5, name: 'Investment Partnership', type: 'partnership', institution: 'ABC Partners LP', balance: 25000, ownershipPct: 1.8, lastUpdated: new Date().toISOString() },
+  ]);
+  const [debts, setDebts] = useState([
+    { id: 1, name: 'Mortgage', type: 'mortgage', balance: 285000, interestRate: 6.5, minimumPayment: 1850, institution: 'Wells Fargo', lastUpdated: new Date().toISOString() },
+    { id: 2, name: 'Student Loan', type: 'student', balance: 32000, interestRate: 5.5, minimumPayment: 350, institution: 'Nelnet', lastUpdated: new Date().toISOString() },
   ]);
   const [showAddAccount, setShowAddAccount] = useState(false);
+  const [showAddDebt, setShowAddDebt] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
-  const [newAccount, setNewAccount] = useState({ name: '', type: 'checking', institution: '', balance: '' });
+  const [editingDebt, setEditingDebt] = useState(null);
+  const [newAccount, setNewAccount] = useState({ name: '', type: 'checking', institution: '', balance: '', ownershipPct: '', holdings: '' });
+  const [newDebt, setNewDebt] = useState({ name: '', type: 'mortgage', balance: '', interestRate: '', minimumPayment: '', institution: '' });
   const [digest, setDigest] = useState(null);
   const [digestPeriod, setDigestPeriod] = useState('weekly');
   const [digestLoading, setDigestLoading] = useState(false);
+  const [advisor, setAdvisor] = useState(null);
+  const [advisorLoading, setAdvisorLoading] = useState(false);
 
   const generateHistory = (equity) => {
     const history = [];
@@ -397,6 +408,8 @@ export default function AIPortfolioManager() {
       checking: Building2,
       savings: Wallet,
       credit: CreditCard,
+      crypto: Circle, // Bitcoin-like
+      partnership: Users,
     };
     return icons[type] || Wallet;
   };
@@ -408,9 +421,103 @@ export default function AIPortfolioManager() {
       checking: 'text-green-400 bg-green-500/20',
       savings: 'text-amber-400 bg-amber-500/20',
       credit: 'text-red-400 bg-red-500/20',
+      crypto: 'text-orange-400 bg-orange-500/20',
+      partnership: 'text-cyan-400 bg-cyan-500/20',
     };
     return colors[type] || 'text-slate-400 bg-slate-500/20';
   };
+
+  // Debt Management Functions
+  const addDebt = () => {
+    if (!newDebt.name || !newDebt.balance) return;
+    const debt = {
+      id: Date.now(),
+      ...newDebt,
+      balance: parseFloat(newDebt.balance),
+      interestRate: parseFloat(newDebt.interestRate) || 0,
+      minimumPayment: parseFloat(newDebt.minimumPayment) || 0,
+      lastUpdated: new Date().toISOString()
+    };
+    setDebts(prev => [...prev, debt]);
+    setNewDebt({ name: '', type: 'mortgage', balance: '', interestRate: '', minimumPayment: '', institution: '' });
+    setShowAddDebt(false);
+  };
+
+  const updateDebt = (id, updates) => {
+    setDebts(prev => prev.map(debt =>
+      debt.id === id ? { ...debt, ...updates, lastUpdated: new Date().toISOString() } : debt
+    ));
+    setEditingDebt(null);
+  };
+
+  const deleteDebt = (id) => {
+    setDebts(prev => prev.filter(debt => debt.id !== id));
+  };
+
+  const calculateTotalDebts = () => {
+    return debts.reduce((sum, debt) => sum + debt.balance, 0);
+  };
+
+  const calculateTrueNetWorth = () => {
+    return calculateNetWorth() - calculateTotalDebts();
+  };
+
+  // AI Financial Advisor
+  const getFinancialAdvice = async () => {
+    setAdvisorLoading(true);
+    try {
+      const res = await fetch('/api/alpaca/advisor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          accounts: manualAccounts,
+          debts,
+          positions,
+          preferences
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setAdvisor(data);
+      }
+    } catch (err) {
+      console.error('Advisor error:', err);
+    } finally {
+      setAdvisorLoading(false);
+    }
+  };
+
+  const getDebtIcon = (type) => {
+    const icons = {
+      mortgage: Home,
+      student: FileText,
+      auto: ShoppingCart,
+      credit: CreditCard,
+      personal: Wallet,
+    };
+    return icons[type] || Wallet;
+  };
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedAccounts = localStorage.getItem('portfolioAccounts');
+    const savedDebts = localStorage.getItem('portfolioDebts');
+    if (savedAccounts) {
+      try { setManualAccounts(JSON.parse(savedAccounts)); } catch (e) {}
+    }
+    if (savedDebts) {
+      try { setDebts(JSON.parse(savedDebts)); } catch (e) {}
+    }
+  }, []);
+
+  // Save to localStorage on changes
+  useEffect(() => {
+    localStorage.setItem('portfolioAccounts', JSON.stringify(manualAccounts));
+  }, [manualAccounts]);
+
+  useEffect(() => {
+    localStorage.setItem('portfolioDebts', JSON.stringify(debts));
+  }, [debts]);
 
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
@@ -642,15 +749,24 @@ export default function AIPortfolioManager() {
             <div className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl border border-indigo-500/30 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <p className="text-slate-400 text-sm mb-1">Total Net Worth</p>
-                  <p className="text-4xl font-bold text-white">
-                    ${calculateNetWorth().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <p className="text-slate-400 text-sm mb-1">True Net Worth</p>
+                  <p className={`text-4xl font-bold ${calculateTrueNetWorth() >= 0 ? 'text-white' : 'text-red-400'}`}>
+                    ${calculateTrueNetWorth().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
-                  <p className="text-sm text-slate-400 mt-2">
-                    Across {manualAccounts.length + (account ? 1 : 0)} accounts
-                  </p>
+                  <div className="flex gap-4 mt-2 text-sm">
+                    <span className="text-green-400">Assets: ${calculateNetWorth().toLocaleString()}</span>
+                    <span className="text-red-400">Debts: ${calculateTotalDebts().toLocaleString()}</span>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <button
+                    onClick={getFinancialAdvice}
+                    disabled={advisorLoading}
+                    className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {advisorLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Brain className="w-4 h-4" />}
+                    Get Advice
+                  </button>
                   <select
                     value={digestPeriod}
                     onChange={(e) => setDigestPeriod(e.target.value)}
@@ -782,6 +898,166 @@ export default function AIPortfolioManager() {
                 </div>
               </div>
             )}
+
+            {/* AI Financial Advisor */}
+            {advisor && (
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-emerald-500/30 overflow-hidden">
+                <div className="p-6 border-b border-slate-700 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Brain className="w-5 h-5 text-emerald-400" /> AI Financial Advisor
+                  </h3>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-slate-400">Health Score:</span>
+                    <span className={`text-2xl font-bold ${
+                      advisor.analysis?.healthScore >= 80 ? 'text-green-400' :
+                      advisor.analysis?.healthScore >= 60 ? 'text-amber-400' : 'text-red-400'
+                    }`}>{advisor.analysis?.healthScore || 0}/100</span>
+                  </div>
+                </div>
+                <div className="p-6 space-y-6">
+                  {/* Recommendations */}
+                  {advisor.recommendations && advisor.recommendations.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-300 mb-3">Recommendations</h4>
+                      <div className="space-y-3">
+                        {advisor.recommendations.slice(0, 4).map((rec, i) => (
+                          <div key={i} className={`p-4 rounded-lg border ${
+                            rec.priority === 'high' ? 'bg-red-500/10 border-red-500/30' :
+                            rec.priority === 'medium' ? 'bg-amber-500/10 border-amber-500/30' :
+                            'bg-slate-700/30 border-slate-600'
+                          }`}>
+                            <div className="flex items-start gap-3">
+                              <div className={`w-2 h-2 rounded-full mt-2 ${
+                                rec.priority === 'high' ? 'bg-red-400' :
+                                rec.priority === 'medium' ? 'bg-amber-400' : 'bg-green-400'
+                              }`} />
+                              <div className="flex-1">
+                                <p className="font-medium text-white">{rec.title}</p>
+                                <p className="text-sm text-slate-400 mt-1">{rec.description}</p>
+                                {rec.action && <p className="text-sm text-emerald-400 mt-2">→ {rec.action}</p>}
+                                {rec.impact && <p className="text-xs text-slate-500 mt-1">{rec.impact}</p>}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Debt Strategy */}
+                  {advisor.debtStrategy?.hasDebt && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-300 mb-3">Debt Payoff Strategy</h4>
+                      <div className="bg-slate-700/30 rounded-lg p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-white font-medium">Recommended: {advisor.debtStrategy.recommendedStrategy === 'avalanche' ? 'Avalanche Method' : 'Snowball Method'}</span>
+                          <span className="text-sm text-slate-400">Avg Rate: {advisor.debtStrategy.weightedRate?.toFixed(1)}%</span>
+                        </div>
+                        <p className="text-sm text-slate-400 mb-3">{advisor.debtStrategy.strategyReason}</p>
+                        <div className="space-y-2">
+                          <p className="text-xs text-slate-500">Payoff Order:</p>
+                          {(advisor.debtStrategy.recommendedStrategy === 'avalanche'
+                            ? advisor.debtStrategy.avalancheOrder
+                            : advisor.debtStrategy.snowballOrder
+                          )?.slice(0, 3).map((d, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm">
+                              <span className="text-slate-300">{i + 1}. {d.name}</span>
+                              <span className="text-slate-400">${d.balance?.toLocaleString()} @ {d.rate}%</span>
+                            </div>
+                          ))}
+                        </div>
+                        {advisor.debtStrategy.extraPaymentSuggestion > 0 && (
+                          <p className="text-emerald-400 text-sm mt-3">
+                            💡 {advisor.debtStrategy.payoffAcceleration}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Investment Opportunities */}
+                  {advisor.investmentStrategy && advisor.investmentStrategy.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-300 mb-3">Investment Opportunities</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {advisor.investmentStrategy.map((opp, i) => (
+                          <div key={i} className="bg-slate-700/30 rounded-lg p-3">
+                            <p className="font-medium text-white text-sm">{opp.title}</p>
+                            <p className="text-xs text-slate-400 mt-1">{opp.description}</p>
+                            {opp.amount && <p className="text-xs text-blue-400 mt-1">Up to ${opp.amount.toLocaleString()}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Debts Section */}
+            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+                <div>
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-red-400" /> Debts & Liabilities
+                  </h3>
+                  <p className="text-sm text-slate-400 mt-1">Total: ${calculateTotalDebts().toLocaleString()}</p>
+                </div>
+                <button
+                  onClick={() => setShowAddDebt(true)}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Debt
+                </button>
+              </div>
+              <div className="p-4">
+                {debts.length > 0 ? (
+                  <div className="space-y-3">
+                    {debts.map((debt) => {
+                      const DebtIcon = getDebtIcon(debt.type);
+                      const monthlyInterest = (debt.balance * (debt.interestRate / 100) / 12);
+                      return (
+                        <div key={debt.id} className="bg-slate-700/30 rounded-xl border border-slate-600 p-4 group relative">
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                            <button onClick={() => setEditingDebt(debt)} className="p-1.5 bg-slate-600 hover:bg-slate-500 rounded text-slate-300">
+                              <Edit3 className="w-3 h-3" />
+                            </button>
+                            <button onClick={() => deleteDebt(debt.id)} className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className="p-3 bg-red-500/20 rounded-lg">
+                              <DebtIcon className="w-6 h-6 text-red-400" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-medium text-white">{debt.name}</p>
+                                <span className="text-xs px-2 py-0.5 bg-slate-600 rounded text-slate-300">{debt.institution}</span>
+                              </div>
+                              <div className="flex items-center gap-4 mt-1 text-sm">
+                                <span className="text-red-400 font-semibold">${debt.balance.toLocaleString()}</span>
+                                <span className="text-slate-400">{debt.interestRate}% APR</span>
+                                <span className="text-slate-500">~${monthlyInterest.toFixed(0)}/mo interest</span>
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-slate-400 text-xs">Min Payment</p>
+                              <p className="text-white font-medium">${debt.minimumPayment}/mo</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-400">
+                    <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <p>No debts tracked. Add mortgage, student loans, etc.</p>
+                  </div>
+                )}
+              </div>
+            </div>
 
             {/* Accounts Grid */}
             <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
@@ -1722,9 +1998,47 @@ export default function AIPortfolioManager() {
                   <option value="savings">Savings</option>
                   <option value="investment">Investment</option>
                   <option value="retirement">Retirement (IRA/401k)</option>
+                  <option value="crypto">Crypto (Ledger/Wallet)</option>
+                  <option value="partnership">Investment Partnership</option>
                   <option value="credit">Credit Card</option>
                 </select>
               </div>
+
+              {/* Partnership-specific field */}
+              {(editingAccount?.type === 'partnership' || newAccount.type === 'partnership') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Ownership %</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={editingAccount ? editingAccount.ownershipPct : newAccount.ownershipPct}
+                    onChange={(e) => editingAccount
+                      ? setEditingAccount({ ...editingAccount, ownershipPct: parseFloat(e.target.value) || 0 })
+                      : setNewAccount({ ...newAccount, ownershipPct: e.target.value })
+                    }
+                    placeholder="e.g., 1.8"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+
+              {/* Crypto-specific field */}
+              {(editingAccount?.type === 'crypto' || newAccount.type === 'crypto') && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Holdings (e.g., BTC, ETH)</label>
+                  <input
+                    type="text"
+                    value={editingAccount ? editingAccount.holdings : newAccount.holdings}
+                    onChange={(e) => editingAccount
+                      ? setEditingAccount({ ...editingAccount, holdings: e.target.value })
+                      : setNewAccount({ ...newAccount, holdings: e.target.value })
+                    }
+                    placeholder="BTC, ETH, SOL"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">Institution</label>
                 <input
@@ -1765,6 +2079,133 @@ export default function AIPortfolioManager() {
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 rounded-xl"
               >
                 {editingAccount ? 'Save Changes' : 'Add Account'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Debt Modal */}
+      {(showAddDebt || editingDebt) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">
+                {editingDebt ? 'Edit Debt' : 'Add Debt'}
+              </h3>
+              <button
+                onClick={() => { setShowAddDebt(false); setEditingDebt(null); }}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Debt Name</label>
+                <input
+                  type="text"
+                  value={editingDebt ? editingDebt.name : newDebt.name}
+                  onChange={(e) => editingDebt
+                    ? setEditingDebt({ ...editingDebt, name: e.target.value })
+                    : setNewDebt({ ...newDebt, name: e.target.value })
+                  }
+                  placeholder="e.g., Mortgage, Student Loan"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Debt Type</label>
+                <select
+                  value={editingDebt ? editingDebt.type : newDebt.type}
+                  onChange={(e) => editingDebt
+                    ? setEditingDebt({ ...editingDebt, type: e.target.value })
+                    : setNewDebt({ ...newDebt, type: e.target.value })
+                  }
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                >
+                  <option value="mortgage">Mortgage</option>
+                  <option value="student">Student Loan</option>
+                  <option value="auto">Auto Loan</option>
+                  <option value="credit">Credit Card</option>
+                  <option value="personal">Personal Loan</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Lender/Institution</label>
+                <input
+                  type="text"
+                  value={editingDebt ? editingDebt.institution : newDebt.institution}
+                  onChange={(e) => editingDebt
+                    ? setEditingDebt({ ...editingDebt, institution: e.target.value })
+                    : setNewDebt({ ...newDebt, institution: e.target.value })
+                  }
+                  placeholder="e.g., Wells Fargo, Nelnet"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Balance</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={editingDebt ? editingDebt.balance : newDebt.balance}
+                      onChange={(e) => editingDebt
+                        ? setEditingDebt({ ...editingDebt, balance: parseFloat(e.target.value) || 0 })
+                        : setNewDebt({ ...newDebt, balance: e.target.value })
+                      }
+                      placeholder="0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Interest Rate</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={editingDebt ? editingDebt.interestRate : newDebt.interestRate}
+                      onChange={(e) => editingDebt
+                        ? setEditingDebt({ ...editingDebt, interestRate: parseFloat(e.target.value) || 0 })
+                        : setNewDebt({ ...newDebt, interestRate: e.target.value })
+                      }
+                      placeholder="0.0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Minimum Payment (Monthly)</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <input
+                    type="number"
+                    value={editingDebt ? editingDebt.minimumPayment : newDebt.minimumPayment}
+                    onChange={(e) => editingDebt
+                      ? setEditingDebt({ ...editingDebt, minimumPayment: parseFloat(e.target.value) || 0 })
+                      : setNewDebt({ ...newDebt, minimumPayment: e.target.value })
+                    }
+                    placeholder="0"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  if (editingDebt) {
+                    updateDebt(editingDebt.id, editingDebt);
+                  } else {
+                    addDebt();
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium py-3 rounded-xl"
+              >
+                {editingDebt ? 'Save Changes' : 'Add Debt'}
               </button>
             </div>
           </div>
