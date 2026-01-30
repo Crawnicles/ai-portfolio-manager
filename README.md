@@ -85,12 +85,21 @@ Connect your bank accounts and credit cards for comprehensive spending analysis:
 - **Daily Spending Charts** - Visualize spending patterns over time
 - **Search & Filter** - Find specific transactions quickly
 
+### Joint Finance (Multi-User)
+Share your financial dashboard with your spouse or family:
+- **User Authentication** - Secure login with email/password
+- **Household Sharing** - Create or join a household with a 6-character code
+- **Shared Data** - All accounts, debts, budgets, and settings sync automatically
+- **Real-time Sync** - Changes by one user appear for all household members
+- **Member Management** - See who's in your household
+
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
 - **UI**: React 18, Tailwind CSS
 - **Charts**: Recharts
 - **Icons**: Lucide React
+- **Auth**: NextAuth.js with credentials provider
 - **Trading API**: Alpaca (paper trading)
 - **Banking API**: Plaid (transactions, balances, recurring)
 - **Deployment**: Vercel
@@ -169,6 +178,11 @@ app/
     ├── balances/route.js           # Account balances
     ├── recurring/route.js          # Subscription detection
     └── budget-analysis/route.js    # Smart budgeting & insights
+├── api/auth/
+│   └── [...nextauth]/route.js      # NextAuth.js authentication
+├── api/household/
+│   └── route.js                    # Household data sync
+└── providers.js                    # Session provider wrapper
 ```
 
 ## Roadmap
@@ -182,9 +196,7 @@ app/
 - Phase 6: Partnership dashboard (quarterly reports)
 - Phase 7: Plaid bank integrations & spending tracker
 - Phase 8: Smart categorization & budgeting
-
-### 🚧 In Progress
-- Phase 9: Joint finance (multi-user support)
+- Phase 9: Joint finance (multi-user authentication)
 
 ### 📋 Planned
 - Phase 10: Trip & event expense tracking
