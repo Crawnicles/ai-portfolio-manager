@@ -181,6 +181,17 @@ export default function AIPortfolioManager() {
   const [advisor, setAdvisor] = useState(null);
   const [advisorLoading, setAdvisorLoading] = useState(false);
 
+  // Phase 5: AI Competition
+  const [aiTraders, setAiTraders] = useState([
+    { model: 'claude', enabled: true, portfolioValue: 100000, positions: [], tradeHistory: [], dailyReturns: [], valueHistory: [100000] },
+    { model: 'gpt', enabled: true, portfolioValue: 100000, positions: [], tradeHistory: [], dailyReturns: [], valueHistory: [100000] },
+    { model: 'grok', enabled: true, portfolioValue: 100000, positions: [], tradeHistory: [], dailyReturns: [], valueHistory: [100000] },
+    { model: 'gemini', enabled: true, portfolioValue: 100000, positions: [], tradeHistory: [], dailyReturns: [], valueHistory: [100000] },
+  ]);
+  const [aiDecisions, setAiDecisions] = useState({});
+  const [competitionRunning, setCompetitionRunning] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+
   const generateHistory = (equity) => {
     const history = [];
     let value = parseFloat(equity) * 0.85;
@@ -519,6 +530,101 @@ export default function AIPortfolioManager() {
     localStorage.setItem('portfolioDebts', JSON.stringify(debts));
   }, [debts]);
 
+  // AI Competition Functions
+  const AI_PROFILES = {
+    claude: { name: 'Claude', provider: 'Anthropic', style: 'Balanced & Thoughtful', color: '#D97706' },
+    gpt: { name: 'GPT-4', provider: 'OpenAI', style: 'Aggressive Growth', color: '#10B981' },
+    grok: { name: 'Grok', provider: 'xAI', style: 'Contrarian & Bold', color: '#EF4444' },
+    gemini: { name: 'Gemini', provider: 'Google', style: 'Data-Driven Conservative', color: '#3B82F6' },
+  };
+
+  const runAICompetition = async () => {
+    setCompetitionRunning(true);
+    try {
+      // Get decisions from each AI
+      const res = await fetch('/api/alpaca/ai-competition', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'generate_decisions',
+          traders: aiTraders.filter(t => t.enabled),
+          positions
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setAiDecisions(data.decisions);
+
+        // Simulate performance update
+        const perfRes = await fetch('/api/alpaca/ai-competition', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'simulate_performance',
+            traders: aiTraders.filter(t => t.enabled),
+          }),
+        });
+
+        if (perfRes.ok) {
+          const perfData = await perfRes.json();
+
+          // Update trader portfolios
+          setAiTraders(prev => prev.map(trader => {
+            const perf = perfData[trader.model];
+            if (!perf) return trader;
+
+            const newReturn = perf.dailyReturn;
+            return {
+              ...trader,
+              portfolioValue: perf.newValue,
+              dailyReturns: [...trader.dailyReturns, newReturn].slice(-30),
+              valueHistory: [...trader.valueHistory, perf.newValue].slice(-30),
+            };
+          }));
+        }
+
+        // Update leaderboard
+        const lbRes = await fetch('/api/alpaca/ai-competition', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'get_leaderboard',
+            traders: aiTraders.filter(t => t.enabled),
+          }),
+        });
+
+        if (lbRes.ok) {
+          const lbData = await lbRes.json();
+          setLeaderboard(lbData);
+        }
+      }
+    } catch (err) {
+      console.error('AI Competition error:', err);
+    } finally {
+      setCompetitionRunning(false);
+    }
+  };
+
+  const toggleTrader = (model) => {
+    setAiTraders(prev => prev.map(t =>
+      t.model === model ? { ...t, enabled: !t.enabled } : t
+    ));
+  };
+
+  const resetCompetition = () => {
+    setAiTraders(prev => prev.map(t => ({
+      ...t,
+      portfolioValue: 100000,
+      positions: [],
+      tradeHistory: [],
+      dailyReturns: [],
+      valueHistory: [100000],
+    })));
+    setLeaderboard([]);
+    setAiDecisions({});
+  };
+
   const openTradePanel = (symbol, side = 'buy') => {
     setSelectedStock(symbol.toUpperCase());
     setTradeSide(side);
@@ -710,9 +816,9 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'dashboard', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['overview', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  {tab}
+                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab}
                 </button>
               ))}
             </nav>
@@ -1291,6 +1397,217 @@ export default function AIPortfolioManager() {
                     })}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* AI ARENA TAB - Phase 5 */}
+        {activeTab === 'ai-arena' && (
+          <div className="space-y-6">
+            {/* Arena Header */}
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <Bot className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">AI Trading Arena</h2>
+                    <p className="text-slate-400 text-sm">Watch AI models compete with $100k paper portfolios</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={resetCompetition}
+                    className="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4" /> Reset
+                  </button>
+                  <button
+                    onClick={runAICompetition}
+                    disabled={competitionRunning}
+                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                  >
+                    {competitionRunning ? (
+                      <><RefreshCw className="w-4 h-4 animate-spin" /> Running...</>
+                    ) : (
+                      <><Play className="w-4 h-4" /> Run Round</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Leaderboard */}
+            {leaderboard.length > 0 && (
+              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-6 border-b border-slate-700">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-amber-400" /> Leaderboard
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <div className="space-y-3">
+                    {leaderboard.map((entry, i) => (
+                      <div
+                        key={entry.model}
+                        className={`flex items-center gap-4 p-4 rounded-xl ${
+                          i === 0 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30' :
+                          i === 1 ? 'bg-gradient-to-r from-slate-400/20 to-slate-300/20 border border-slate-400/30' :
+                          i === 2 ? 'bg-gradient-to-r from-orange-600/20 to-orange-500/20 border border-orange-500/30' :
+                          'bg-slate-700/30 border border-slate-600'
+                        }`}
+                      >
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
+                          i === 0 ? 'bg-amber-500 text-amber-900' :
+                          i === 1 ? 'bg-slate-300 text-slate-700' :
+                          i === 2 ? 'bg-orange-500 text-orange-900' :
+                          'bg-slate-600 text-slate-300'
+                        }`}>
+                          {i + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
+                            <span className="font-bold text-white">{entry.name}</span>
+                            <span className="text-xs text-slate-400">{entry.provider}</span>
+                          </div>
+                          <p className="text-xs text-slate-400 mt-0.5">{entry.style}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-lg font-bold text-white">${entry.portfolioValue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                          <p className={`text-sm ${entry.totalReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {entry.totalReturn >= 0 ? '+' : ''}{entry.totalReturn?.toFixed(2)}%
+                          </p>
+                        </div>
+                        <div className="text-right text-sm">
+                          <p className="text-slate-400">Trades: {entry.tradeCount}</p>
+                          <p className="text-slate-400">Win: {entry.winRate?.toFixed(0)}%</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* AI Trader Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {aiTraders.map((trader) => {
+                const profile = AI_PROFILES[trader.model];
+                const decisions = aiDecisions[trader.model] || [];
+                const returnPct = ((trader.portfolioValue - 100000) / 100000) * 100;
+
+                return (
+                  <div
+                    key={trader.model}
+                    className={`bg-slate-800/50 backdrop-blur-xl rounded-xl border overflow-hidden ${
+                      trader.enabled ? 'border-slate-700' : 'border-slate-800 opacity-50'
+                    }`}
+                  >
+                    <div className="p-4 border-b border-slate-700 flex items-center justify-between" style={{ borderLeftWidth: 4, borderLeftColor: profile.color }}>
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: profile.color + '30' }}>
+                          <Brain className="w-5 h-5" style={{ color: profile.color }} />
+                        </div>
+                        <div>
+                          <p className="font-bold text-white">{profile.name}</p>
+                          <p className="text-xs text-slate-400">{profile.provider} • {profile.style}</p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => toggleTrader(trader.model)}
+                        className={`p-2 rounded-lg ${trader.enabled ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'}`}
+                      >
+                        <Power className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-4">
+                        <div>
+                          <p className="text-slate-400 text-xs">Portfolio Value</p>
+                          <p className="text-2xl font-bold text-white">
+                            ${trader.portfolioValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-slate-400 text-xs">Return</p>
+                          <p className={`text-xl font-bold ${returnPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {returnPct >= 0 ? '+' : ''}{returnPct.toFixed(2)}%
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Mini performance chart */}
+                      {trader.valueHistory.length > 1 && (
+                        <div className="h-16 mb-4">
+                          <ResponsiveContainer width="100%" height="100%">
+                            <AreaChart data={trader.valueHistory.map((v, i) => ({ i, v }))}>
+                              <defs>
+                                <linearGradient id={`gradient-${trader.model}`} x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor={profile.color} stopOpacity={0.3} />
+                                  <stop offset="95%" stopColor={profile.color} stopOpacity={0} />
+                                </linearGradient>
+                              </defs>
+                              <Area type="monotone" dataKey="v" stroke={profile.color} strokeWidth={2} fill={`url(#gradient-${trader.model})`} />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+
+                      {/* Recent Decisions */}
+                      {decisions.length > 0 && (
+                        <div>
+                          <p className="text-xs text-slate-400 mb-2">Latest Decisions</p>
+                          <div className="space-y-2">
+                            {decisions.slice(0, 2).map((d, i) => (
+                              <div key={i} className="bg-slate-700/30 rounded-lg p-2 text-sm">
+                                <div className="flex items-center justify-between">
+                                  <span className={`font-medium ${d.action === 'BUY' || d.action === 'ADD' ? 'text-green-400' : 'text-red-400'}`}>
+                                    {d.action} {d.symbol}
+                                  </span>
+                                  <span className="text-slate-400">{d.confidence}%</span>
+                                </div>
+                                <p className="text-xs text-slate-500 mt-1">{d.reasoning}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {decisions.length === 0 && trader.enabled && (
+                        <p className="text-center text-slate-500 text-sm py-4">
+                          Run a round to see decisions
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Competition Info */}
+            <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+              <h4 className="font-medium text-white mb-2">How It Works</h4>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-slate-400">
+                <div>
+                  <p className="text-amber-400 font-medium">Claude</p>
+                  <p>Balanced approach, focuses on risk-adjusted returns and diversification</p>
+                </div>
+                <div>
+                  <p className="text-green-400 font-medium">GPT-4</p>
+                  <p>Aggressive growth, momentum-focused with quick decision making</p>
+                </div>
+                <div>
+                  <p className="text-red-400 font-medium">Grok</p>
+                  <p>Contrarian plays, high conviction bets, unconventional picks</p>
+                </div>
+                <div>
+                  <p className="text-blue-400 font-medium">Gemini</p>
+                  <p>Data-driven conservative, pattern recognition, fundamental analysis</p>
+                </div>
               </div>
             </div>
           </div>
