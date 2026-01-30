@@ -16,6 +16,7 @@ This project combines portfolio management, AI-driven trade analysis, and person
 - **Multi-Agent AI System** - Research, analysis, and decision agents work together
 - **AI Trading Arena** - Watch Claude, GPT-4, Grok, and Gemini compete with virtual portfolios
 - **Complete Financial Picture** - Track investments, crypto, partnerships, debts, and calculate true net worth
+- **Spending Tracker** - Connect bank accounts via Plaid for transaction analysis and subscription detection
 - **Intelligent Advisor** - Get personalized recommendations on debt vs. investing decisions
 
 ## Features
@@ -75,6 +76,15 @@ Generate daily, weekly, monthly, or quarterly summaries including:
 - Action items
 - Key insights
 
+### Spending Tracker (Plaid Integration)
+Connect your bank accounts and credit cards for comprehensive spending analysis:
+- **Transaction Import** - Automatically pull transactions from connected accounts
+- **Category Analysis** - See spending breakdown by category with visual charts
+- **Top Merchants** - Identify where you spend the most
+- **Subscription Detection** - Find recurring charges and subscriptions
+- **Daily Spending Charts** - Visualize spending patterns over time
+- **Search & Filter** - Find specific transactions quickly
+
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
@@ -82,6 +92,7 @@ Generate daily, weekly, monthly, or quarterly summaries including:
 - **Charts**: Recharts
 - **Icons**: Lucide React
 - **Trading API**: Alpaca (paper trading)
+- **Banking API**: Plaid (transactions, balances, recurring)
 - **Deployment**: Vercel
 
 ## Getting Started
@@ -114,6 +125,14 @@ npm run dev
 3. Generate API keys from the API Keys section
 4. Enter keys in the app (paper trading only - no real money at risk)
 
+### Plaid API Setup (Optional - for Spending Tracker)
+
+1. Create a free account at [dashboard.plaid.com](https://dashboard.plaid.com/signup)
+2. Get your Client ID and Secret from the Keys section
+3. Use **Sandbox** mode for testing (no real bank connections)
+4. Sandbox test credentials: `user_good` / `pass_good`
+5. Upgrade to Development/Production for real bank connections
+
 ### Deploy to Vercel
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/Crawnicles/ai-portfolio-manager)
@@ -129,32 +148,56 @@ vercel
 
 ```
 app/
-├── page.js                    # Main application (2500+ lines)
+├── page.js                    # Main application (3000+ lines)
 ├── layout.js                  # Root layout
 ├── globals.css                # Global styles
-└── api/alpaca/
-    ├── account/route.js       # Account data proxy
-    ├── positions/route.js     # Positions proxy
-    ├── orders/route.js        # Orders proxy
-    ├── trade/route.js         # Trade execution
-    ├── news/route.js          # News & sentiment
-    ├── research/route.js      # Multi-agent research pipeline
-    ├── digest/route.js        # Periodic digest generation
-    ├── advisor/route.js       # AI financial advisor
-    ├── ai-competition/route.js # AI arena competition
-    └── partnership/route.js   # Partnership dashboard API
+├── api/alpaca/
+│   ├── account/route.js       # Account data proxy
+│   ├── positions/route.js     # Positions proxy
+│   ├── orders/route.js        # Orders proxy
+│   ├── trade/route.js         # Trade execution
+│   ├── news/route.js          # News & sentiment
+│   ├── research/route.js      # Multi-agent research pipeline
+│   ├── digest/route.js        # Periodic digest generation
+│   ├── advisor/route.js       # AI financial advisor
+│   ├── ai-competition/route.js # AI arena competition
+│   └── partnership/route.js   # Partnership dashboard API
+└── api/plaid/
+    ├── create-link-token/route.js  # Initialize Plaid Link
+    ├── exchange-token/route.js     # Exchange tokens
+    ├── transactions/route.js       # Fetch transactions
+    ├── balances/route.js           # Account balances
+    └── recurring/route.js          # Subscription detection
 ```
 
 ## Roadmap
 
-- [x] Phase 1: Auto-trading with safety limits
-- [x] Phase 2: Research agent pipeline
-- [x] Phase 3: Net worth overview & digests
-- [x] Phase 4: Crypto, partnerships, debts, AI advisor
-- [x] Phase 5: Multi-model AI arena
-- [x] Phase 6: Partnership dashboard (quarterly reports)
-- [ ] Phase 7: Read-only bank integrations (Plaid)
-- [ ] Phase 8: Podcast/transcript analysis for investment ideas
+### ✅ Completed
+- Phase 1: Auto-trading with safety limits
+- Phase 2: Research agent pipeline
+- Phase 3: Net worth overview & digests
+- Phase 4: Crypto, partnerships, debts, AI advisor
+- Phase 5: Multi-model AI arena
+- Phase 6: Partnership dashboard (quarterly reports)
+- Phase 7: Plaid bank integrations & spending tracker
+
+### 🚧 In Progress
+- Phase 8: Smart categorization & budgeting
+- Phase 9: Joint finance (multi-user support)
+
+### 📋 Planned
+- Phase 10: Trip & event expense tracking
+- Phase 11: Cost-benefit analysis engine
+- Phase 12: Cash flow forecasting
+- Phase 13: Portfolio analytics (attribution, risk metrics)
+- Phase 14: Tax optimization (tax-loss harvesting)
+- Phase 15: Automated DCA & rebalancing
+- Phase 16: Financial goals dashboard
+- Phase 17: Retirement & FIRE planning
+- Phase 18: Net worth projections
+- Phase 19: AI Financial Advisor 2.0 (weekly insights)
+- Phase 20: Podcast/transcript analysis for investment ideas
+- Phase 21: Family finance hub
 
 ## Security Notes
 
