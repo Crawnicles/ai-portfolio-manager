@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail, LogOut, UserPlus, LogIn, Share2, Copy } from 'lucide-react';
 
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
@@ -102,6 +103,19 @@ const generateAIAnalysis = (preferences, positions) => {
 const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
 
 export default function AIPortfolioManager() {
+  // Authentication
+  const { data: session, status } = useSession();
+  const [authMode, setAuthMode] = useState('login'); // 'login' or 'signup'
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authHouseholdCode, setAuthHouseholdCode] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
+  const [householdData, setHouseholdData] = useState(null);
+  const [showHouseholdShare, setShowHouseholdShare] = useState(false);
+  const [copiedCode, setCopiedCode] = useState(false);
+
   const [mode, setMode] = useState(null);
   const [apiKey, setApiKey] = useState('');
   const [secretKey, setSecretKey] = useState('');
@@ -227,6 +241,133 @@ export default function AIPortfolioManager() {
   const [editingBudget, setEditingBudget] = useState(null);
   const [monthlyIncome, setMonthlyIncome] = useState(0);
   const [spendingView, setSpendingView] = useState('overview'); // overview, budgets, transactions
+
+  // Authentication functions
+  const handleAuth = async (e) => {
+    e.preventDefault();
+    setAuthLoading(true);
+    setAuthError('');
+
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: authEmail,
+        password: authPassword,
+        name: authName,
+        action: authMode,
+        householdCode: authHouseholdCode,
+      });
+
+      if (result?.error) {
+        setAuthError(result.error);
+      } else {
+        // Clear form
+        setAuthEmail('');
+        setAuthPassword('');
+        setAuthName('');
+        setAuthHouseholdCode('');
+      }
+    } catch (err) {
+      setAuthError(err.message);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    setHouseholdData(null);
+  };
+
+  const copyHouseholdCode = () => {
+    if (session?.user?.householdCode) {
+      navigator.clipboard.writeText(session.user.householdCode);
+      setCopiedCode(true);
+      setTimeout(() => setCopiedCode(false), 2000);
+    }
+  };
+
+  // Fetch household data when session changes
+  useEffect(() => {
+    if (session?.user?.householdId) {
+      fetchHouseholdData();
+    }
+  }, [session?.user?.householdId]);
+
+  const fetchHouseholdData = async () => {
+    if (!session?.user?.householdId) return;
+    try {
+      const res = await fetch(`/api/household?householdId=${session.user.householdId}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setHouseholdData(data);
+
+      // Load shared data into state
+      if (data.data) {
+        if (data.data.accounts) setManualAccounts(data.data.accounts);
+        if (data.data.debts) setDebts(data.data.debts);
+        if (data.data.budgets) setBudgets(data.data.budgets);
+        if (data.data.monthlyIncome) setMonthlyIncome(data.data.monthlyIncome);
+        if (data.data.partnershipData) setPartnershipData(data.data.partnershipData);
+        if (data.data.plaidConfig) setPlaidConfig(data.data.plaidConfig);
+      }
+    } catch (err) {
+      console.error('Failed to fetch household data:', err);
+    }
+  };
+
+  const saveHouseholdData = async (field, value) => {
+    if (!session?.user?.householdId) return;
+    try {
+      await fetch('/api/household', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          householdId: session.user.householdId,
+          field,
+          data: value,
+        }),
+      });
+    } catch (err) {
+      console.error('Failed to save household data:', err);
+    }
+  };
+
+  // Auto-save shared data when it changes (debounced)
+  useEffect(() => {
+    if (session?.user?.householdId && manualAccounts.length > 0) {
+      const timeout = setTimeout(() => saveHouseholdData('accounts', manualAccounts), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [manualAccounts, session?.user?.householdId]);
+
+  useEffect(() => {
+    if (session?.user?.householdId && debts.length > 0) {
+      const timeout = setTimeout(() => saveHouseholdData('debts', debts), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [debts, session?.user?.householdId]);
+
+  useEffect(() => {
+    if (session?.user?.householdId && Object.keys(budgets).length > 0) {
+      const timeout = setTimeout(() => saveHouseholdData('budgets', budgets), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [budgets, session?.user?.householdId]);
+
+  useEffect(() => {
+    if (session?.user?.householdId && monthlyIncome > 0) {
+      const timeout = setTimeout(() => saveHouseholdData('monthlyIncome', monthlyIncome), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [monthlyIncome, session?.user?.householdId]);
+
+  useEffect(() => {
+    if (session?.user?.householdId && partnershipData.quarterlyReports?.length > 0) {
+      const timeout = setTimeout(() => saveHouseholdData('partnershipData', partnershipData), 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [partnershipData, session?.user?.householdId]);
 
   const generateHistory = (equity) => {
     const history = [];
@@ -1108,6 +1249,140 @@ export default function AIPortfolioManager() {
   }, {});
   const pieData = Object.entries(sectorAllocation).map(([name, value]) => ({ name, value }));
 
+  // Authentication Screen
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
+          <p className="text-slate-400">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status !== 'authenticated') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
+        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-8 max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
+            <p className="text-slate-400">Family Finance Command Center</p>
+          </div>
+
+          {/* Auth Mode Toggle */}
+          <div className="flex bg-slate-700/50 rounded-lg p-1 mb-6">
+            <button
+              onClick={() => { setAuthMode('login'); setAuthError(''); }}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                authMode === 'login' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setAuthMode('signup'); setAuthError(''); }}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                authMode === 'signup' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Create Account
+            </button>
+          </div>
+
+          <form onSubmit={handleAuth} className="space-y-4">
+            {authMode === 'signup' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Your Name</label>
+                <input
+                  type="text"
+                  value={authName}
+                  onChange={(e) => setAuthName(e.target.value)}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Andrew"
+                  required
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+              <input
+                type="email"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="you@email.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+              <input
+                type="password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="••••••••"
+                required
+                minLength={6}
+              />
+            </div>
+
+            {authMode === 'signup' && (
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">
+                  Household Code <span className="text-slate-500">(optional - join existing)</span>
+                </label>
+                <input
+                  type="text"
+                  value={authHouseholdCode}
+                  onChange={(e) => setAuthHouseholdCode(e.target.value.toUpperCase())}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                  placeholder="ABC123"
+                  maxLength={6}
+                />
+                <p className="text-xs text-slate-500 mt-1">
+                  Have a code from your spouse? Enter it to share finances.
+                </p>
+              </div>
+            )}
+
+            {authError && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-300 text-sm">
+                {authError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={authLoading}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {authLoading ? (
+                <RefreshCw className="w-5 h-5 animate-spin" />
+              ) : authMode === 'login' ? (
+                <><LogIn className="w-5 h-5" /> Sign In</>
+              ) : (
+                <><UserPlus className="w-5 h-5" /> Create Account</>
+              )}
+            </button>
+          </form>
+
+          {authMode === 'signup' && (
+            <p className="text-xs text-slate-500 text-center mt-4">
+              Create an account to save your data and share with family members.
+            </p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Connection Screen
   if (!connected) {
     return (
@@ -1190,6 +1465,83 @@ export default function AIPortfolioManager() {
             </nav>
 
             <div className="flex items-center gap-2">
+              {/* Household Share Button */}
+              {session?.user && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowHouseholdShare(!showHouseholdShare)}
+                    className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 flex items-center gap-1"
+                    title="Share with family"
+                  >
+                    <Users className="w-4 h-4" />
+                    {householdData?.members?.length > 1 && (
+                      <span className="text-xs">{householdData.members.length}</span>
+                    )}
+                  </button>
+                  {showHouseholdShare && (
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-4 z-50">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-white flex items-center gap-2">
+                          <Users className="w-4 h-4 text-purple-400" /> Household
+                        </h4>
+                        <button onClick={() => setShowHouseholdShare(false)} className="text-slate-400 hover:text-white">
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <div className="mb-4">
+                        <p className="text-xs text-slate-400 mb-1">Share code with family:</p>
+                        <div className="flex items-center gap-2">
+                          <code className="flex-1 bg-slate-700 px-3 py-2 rounded text-purple-400 font-mono">
+                            {session.user.householdCode}
+                          </code>
+                          <button
+                            onClick={copyHouseholdCode}
+                            className="p-2 bg-slate-700 hover:bg-slate-600 rounded text-slate-300"
+                          >
+                            {copiedCode ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="border-t border-slate-700 pt-3">
+                        <p className="text-xs text-slate-400 mb-2">Members:</p>
+                        <div className="space-y-1">
+                          {householdData?.members?.map((member, i) => (
+                            <div key={member.email} className="flex items-center gap-2 text-sm">
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                member.email === session.user.email ? 'bg-blue-500 text-white' : 'bg-slate-600 text-slate-300'
+                              }`}>
+                                {member.name?.[0]?.toUpperCase() || '?'}
+                              </div>
+                              <span className="text-slate-300">{member.name}</span>
+                              {member.email === session.user.email && (
+                                <span className="text-xs text-slate-500">(you)</span>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* User Menu */}
+              {session?.user && (
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-700/50 rounded-lg">
+                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                    {session.user.name?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <span className="text-sm text-slate-300 hidden sm:inline">{session.user.name}</span>
+                  <button
+                    onClick={handleSignOut}
+                    className="p-1 text-slate-400 hover:text-red-400"
+                    title="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+
               {mode === 'live' && (
                 <button onClick={refreshData} disabled={loading} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300">
                   <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
