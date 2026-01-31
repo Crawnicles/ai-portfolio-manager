@@ -419,6 +419,8 @@ export default function AIPortfolioManager() {
 
   const fetchHouseholdData = async () => {
     if (!session?.user?.householdId) return;
+    const localStorageKey = `household_${session.user.householdId}`;
+
     try {
       const res = await fetch(`/api/household?householdId=${session.user.householdId}`);
       const data = await res.json();
@@ -426,21 +428,69 @@ export default function AIPortfolioManager() {
       setHouseholdData(data);
 
       // Load shared data into state
-      if (data.data) {
+      if (data.data && Object.keys(data.data).length > 0) {
         if (data.data.accounts) setManualAccounts(data.data.accounts);
         if (data.data.debts) setDebts(data.data.debts);
         if (data.data.budgets) setBudgets(data.data.budgets);
         if (data.data.monthlyIncome) setMonthlyIncome(data.data.monthlyIncome);
         if (data.data.partnershipData) setPartnershipData(data.data.partnershipData);
         if (data.data.plaidConfig) setPlaidConfig(data.data.plaidConfig);
+
+        // Save to localStorage as backup
+        localStorage.setItem(localStorageKey, JSON.stringify(data.data));
+      } else {
+        // Server has no data - try to restore from localStorage
+        const localData = localStorage.getItem(localStorageKey);
+        if (localData) {
+          try {
+            const parsed = JSON.parse(localData);
+            console.log('Restoring household data from localStorage backup');
+            if (parsed.accounts) setManualAccounts(parsed.accounts);
+            if (parsed.debts) setDebts(parsed.debts);
+            if (parsed.budgets) setBudgets(parsed.budgets);
+            if (parsed.monthlyIncome) setMonthlyIncome(parsed.monthlyIncome);
+            if (parsed.partnershipData) setPartnershipData(parsed.partnershipData);
+            if (parsed.plaidConfig) setPlaidConfig(parsed.plaidConfig);
+
+            // Sync restored data back to server
+            setTimeout(async () => {
+              if (parsed.accounts) await saveHouseholdData('accounts', parsed.accounts);
+              if (parsed.debts) await saveHouseholdData('debts', parsed.debts);
+              if (parsed.budgets) await saveHouseholdData('budgets', parsed.budgets);
+              if (parsed.monthlyIncome) await saveHouseholdData('monthlyIncome', parsed.monthlyIncome);
+            }, 500);
+          } catch (e) { console.error('Failed to parse localStorage backup:', e); }
+        }
       }
     } catch (err) {
       console.error('Failed to fetch household data:', err);
+      // On fetch error, try localStorage backup
+      const localData = localStorage.getItem(localStorageKey);
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData);
+          console.log('Using localStorage backup (server unavailable)');
+          if (parsed.accounts) setManualAccounts(parsed.accounts);
+          if (parsed.debts) setDebts(parsed.debts);
+          if (parsed.budgets) setBudgets(parsed.budgets);
+          if (parsed.monthlyIncome) setMonthlyIncome(parsed.monthlyIncome);
+        } catch (e) {}
+      }
     }
   };
 
   const saveHouseholdData = async (field, value) => {
     if (!session?.user?.householdId) return;
+    const localStorageKey = `household_${session.user.householdId}`;
+
+    // Always save to localStorage first (instant backup)
+    try {
+      const existing = JSON.parse(localStorage.getItem(localStorageKey) || '{}');
+      existing[field] = value;
+      localStorage.setItem(localStorageKey, JSON.stringify(existing));
+    } catch (e) {}
+
+    // Then sync to server
     try {
       await fetch('/api/household', {
         method: 'POST',
@@ -452,7 +502,7 @@ export default function AIPortfolioManager() {
         }),
       });
     } catch (err) {
-      console.error('Failed to save household data:', err);
+      console.error('Failed to save household data to server:', err);
     }
   };
 
