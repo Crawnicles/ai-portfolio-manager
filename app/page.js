@@ -251,6 +251,71 @@ export default function AIPortfolioManager() {
   const [newTrip, setNewTrip] = useState({ name: '', startDate: '', endDate: '', budget: '', notes: '' });
   const [tripSuggestions, setTripSuggestions] = useState([]);
 
+  // Phase 11: Cost-Benefit Analysis
+  const [trackedItems, setTrackedItems] = useState([]);
+  const [usageHistories, setUsageHistories] = useState({});
+  const [costBenefitReport, setCostBenefitReport] = useState(null);
+  const [showAddTrackedItem, setShowAddTrackedItem] = useState(false);
+  const [newTrackedItem, setNewTrackedItem] = useState({
+    name: '', category: 'subscription', monthlyCost: '', targetCostPerUse: '', startDate: ''
+  });
+  const [selectedTrackedItem, setSelectedTrackedItem] = useState(null);
+  const [showLogUsage, setShowLogUsage] = useState(false);
+
+  // Phase 12: Cash Flow Forecasting
+  const [cashFlowForecast, setCashFlowForecast] = useState(null);
+  const [forecastMonths, setForecastMonths] = useState(6);
+  const [plannedExpenses, setPlannedExpenses] = useState([]);
+  const [showAddPlannedExpense, setShowAddPlannedExpense] = useState(false);
+  const [newPlannedExpense, setNewPlannedExpense] = useState({ date: '', amount: '', description: '' });
+  const [cashFlowLoading, setCashFlowLoading] = useState(false);
+
+  // Phase 13: Tax Optimization Dashboard
+  const [taxProfile, setTaxProfile] = useState({
+    filingStatus: 'single',
+    state: 'CA',
+    annualIncome: 0,
+    w2Withholding: 0,
+    estimatedPayments: 0,
+    retirementContributions: { traditional401k: 0, traditionalIRA: 0, rothIRA: 0, hsa: 0 },
+    deductions: { mortgage: 0, stateLocal: 0, charitable: 0, medical: 0 },
+    realizedGains: 0,
+  });
+  const [taxAnalysis, setTaxAnalysis] = useState(null);
+  const [taxLoading, setTaxLoading] = useState(false);
+  const [showTaxSetup, setShowTaxSetup] = useState(false);
+
+  // Phase 14: Goals & Milestones
+  const [financialGoals, setFinancialGoals] = useState([]);
+  const [goalContributions, setGoalContributions] = useState({}); // Monthly contributions per goal
+  const [goalsReport, setGoalsReport] = useState(null);
+  const [showAddGoal, setShowAddGoal] = useState(false);
+  const [newGoal, setNewGoal] = useState({
+    name: '', category: 'custom', targetAmount: '', currentAmount: '', deadline: '', notes: ''
+  });
+  const [selectedGoal, setSelectedGoal] = useState(null);
+  const [showLogContribution, setShowLogContribution] = useState(false);
+
+  // Phase 15: Retirement Planning
+  const [retirementProfile, setRetirementProfile] = useState({
+    currentAge: 30,
+    retirementAge: 65,
+    lifeExpectancy: 90,
+    currentSavings: 50000,
+    monthlyContribution: 500,
+    employerMatch: 250,
+    expectedReturn: 7,
+    inflationRate: 3,
+    currentExpenses: 5000,
+    retirementExpensePct: 80,
+    socialSecurityMonthly: 2000,
+    pensionMonthly: 0,
+    otherIncomeMonthly: 0,
+  });
+  const [retirementPlan, setRetirementPlan] = useState(null);
+  const [retirementLoading, setRetirementLoading] = useState(false);
+  const [showRetirementSetup, setShowRetirementSetup] = useState(false);
+
   // Authentication functions
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -1184,6 +1249,339 @@ export default function AIPortfolioManager() {
     localStorage.setItem('trips', JSON.stringify(trips));
   }, [trips]);
 
+  // Phase 11: Cost-Benefit Functions
+  const addTrackedItem = () => {
+    if (!newTrackedItem.name || !newTrackedItem.monthlyCost) return;
+    const item = {
+      id: `item_${Date.now()}`,
+      name: newTrackedItem.name,
+      category: newTrackedItem.category,
+      monthlyCost: parseFloat(newTrackedItem.monthlyCost) || 0,
+      targetCostPerUse: parseFloat(newTrackedItem.targetCostPerUse) || null,
+      startDate: newTrackedItem.startDate || new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString(),
+    };
+    setTrackedItems(prev => [...prev, item]);
+    setUsageHistories(prev => ({ ...prev, [item.id]: [] }));
+    setNewTrackedItem({ name: '', category: 'subscription', monthlyCost: '', targetCostPerUse: '', startDate: '' });
+    setShowAddTrackedItem(false);
+  };
+
+  const deleteTrackedItem = (itemId) => {
+    setTrackedItems(prev => prev.filter(i => i.id !== itemId));
+    setUsageHistories(prev => {
+      const updated = { ...prev };
+      delete updated[itemId];
+      return updated;
+    });
+    if (selectedTrackedItem?.id === itemId) {
+      setSelectedTrackedItem(null);
+    }
+  };
+
+  const logUsage = (itemId, uses = 1, date = new Date().toISOString().split('T')[0], notes = '') => {
+    setUsageHistories(prev => ({
+      ...prev,
+      [itemId]: [...(prev[itemId] || []), { id: `use_${Date.now()}`, date, uses, notes }],
+    }));
+    setShowLogUsage(false);
+  };
+
+  const removeUsageEntry = (itemId, entryId) => {
+    setUsageHistories(prev => ({
+      ...prev,
+      [itemId]: (prev[itemId] || []).filter(u => u.id !== entryId),
+    }));
+  };
+
+  const generateCostBenefitReport = async () => {
+    if (trackedItems.length === 0) return;
+    try {
+      const res = await fetch('/api/cost-benefit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'report', items: trackedItems, usageHistories }),
+      });
+      const data = await res.json();
+      setCostBenefitReport(data);
+    } catch (err) {
+      console.error('Cost-benefit report error:', err);
+    }
+  };
+
+  // Auto-generate report when items or usage changes
+  useEffect(() => {
+    if (trackedItems.length > 0) {
+      generateCostBenefitReport();
+    }
+  }, [trackedItems, usageHistories]);
+
+  // Load tracked items from localStorage
+  useEffect(() => {
+    const savedItems = localStorage.getItem('trackedItems');
+    const savedUsage = localStorage.getItem('usageHistories');
+    if (savedItems) {
+      try { setTrackedItems(JSON.parse(savedItems)); } catch (e) {}
+    }
+    if (savedUsage) {
+      try { setUsageHistories(JSON.parse(savedUsage)); } catch (e) {}
+    }
+  }, []);
+
+  // Save tracked items
+  useEffect(() => {
+    localStorage.setItem('trackedItems', JSON.stringify(trackedItems));
+  }, [trackedItems]);
+
+  // Save usage histories
+  useEffect(() => {
+    localStorage.setItem('usageHistories', JSON.stringify(usageHistories));
+  }, [usageHistories]);
+
+  // Phase 12: Cash Flow Forecasting Functions
+  const generateCashFlowForecast = async () => {
+    if (!monthlyIncome) return;
+    setCashFlowLoading(true);
+    try {
+      const res = await fetch('/api/cash-flow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'forecast',
+          monthlyIncome,
+          recurringExpenses: recurringExpenses?.subscriptions || [],
+          transactions,
+          budgets,
+          plannedExpenses,
+          forecastMonths,
+        }),
+      });
+      const data = await res.json();
+      setCashFlowForecast(data);
+    } catch (err) {
+      console.error('Cash flow forecast error:', err);
+    } finally {
+      setCashFlowLoading(false);
+    }
+  };
+
+  const addPlannedExpense = () => {
+    if (!newPlannedExpense.date || !newPlannedExpense.amount) return;
+    const expense = {
+      id: `planned_${Date.now()}`,
+      date: newPlannedExpense.date,
+      amount: parseFloat(newPlannedExpense.amount),
+      description: newPlannedExpense.description || 'Planned expense',
+    };
+    setPlannedExpenses(prev => [...prev, expense]);
+    setNewPlannedExpense({ date: '', amount: '', description: '' });
+    setShowAddPlannedExpense(false);
+  };
+
+  const deletePlannedExpense = (id) => {
+    setPlannedExpenses(prev => prev.filter(e => e.id !== id));
+  };
+
+  // Load planned expenses from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('plannedExpenses');
+    if (saved) {
+      try { setPlannedExpenses(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  // Save planned expenses
+  useEffect(() => {
+    localStorage.setItem('plannedExpenses', JSON.stringify(plannedExpenses));
+  }, [plannedExpenses]);
+
+  // Auto-generate cash flow forecast when data changes
+  useEffect(() => {
+    if (monthlyIncome > 0 && transactions.length > 0) {
+      const timeout = setTimeout(() => generateCashFlowForecast(), 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [monthlyIncome, transactions, plannedExpenses, forecastMonths]);
+
+  // Phase 13: Tax Functions
+  const analyzeTax = async () => {
+    if (!taxProfile.annualIncome) return;
+    setTaxLoading(true);
+    try {
+      // Calculate unrealized gains from positions
+      const unrealizedGains = {};
+      positions.forEach(pos => {
+        unrealizedGains[pos.symbol] = parseFloat(pos.unrealized_pl) || 0;
+      });
+
+      const res = await fetch('/api/tax', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'analyze',
+          ...taxProfile,
+          unrealizedGains,
+        }),
+      });
+      const data = await res.json();
+      setTaxAnalysis(data);
+    } catch (err) {
+      console.error('Tax analysis error:', err);
+    } finally {
+      setTaxLoading(false);
+    }
+  };
+
+  // Load tax profile from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('taxProfile');
+    if (saved) {
+      try { setTaxProfile(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  // Save tax profile
+  useEffect(() => {
+    localStorage.setItem('taxProfile', JSON.stringify(taxProfile));
+  }, [taxProfile]);
+
+  // Auto-analyze tax when profile changes
+  useEffect(() => {
+    if (taxProfile.annualIncome > 0) {
+      const timeout = setTimeout(() => analyzeTax(), 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [taxProfile, positions]);
+
+  // Phase 14: Goals Functions
+  const generateGoalsReport = async () => {
+    if (financialGoals.length === 0) return;
+    try {
+      const res = await fetch('/api/goals', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'report',
+          goals: financialGoals,
+          monthlyContributions: goalContributions,
+          monthlyIncome,
+          totalSavings: manualAccounts.filter(a => a.type === 'savings').reduce((sum, a) => sum + a.balance, 0),
+        }),
+      });
+      const data = await res.json();
+      setGoalsReport(data);
+    } catch (err) {
+      console.error('Goals report error:', err);
+    }
+  };
+
+  const addGoal = () => {
+    if (!newGoal.name || !newGoal.targetAmount) return;
+    const goal = {
+      id: `goal_${Date.now()}`,
+      name: newGoal.name,
+      category: newGoal.category,
+      targetAmount: parseFloat(newGoal.targetAmount) || 0,
+      currentAmount: parseFloat(newGoal.currentAmount) || 0,
+      deadline: newGoal.deadline || null,
+      notes: newGoal.notes || '',
+      createdAt: new Date().toISOString(),
+    };
+    setFinancialGoals(prev => [...prev, goal]);
+    setNewGoal({ name: '', category: 'custom', targetAmount: '', currentAmount: '', deadline: '', notes: '' });
+    setShowAddGoal(false);
+  };
+
+  const deleteGoal = (goalId) => {
+    setFinancialGoals(prev => prev.filter(g => g.id !== goalId));
+    setGoalContributions(prev => {
+      const updated = { ...prev };
+      delete updated[goalId];
+      return updated;
+    });
+    if (selectedGoal?.id === goalId) setSelectedGoal(null);
+  };
+
+  const updateGoalProgress = (goalId, amount) => {
+    setFinancialGoals(prev => prev.map(g =>
+      g.id === goalId ? { ...g, currentAmount: Math.max(0, g.currentAmount + amount) } : g
+    ));
+  };
+
+  const setGoalContribution = (goalId, monthlyAmount) => {
+    setGoalContributions(prev => ({ ...prev, [goalId]: parseFloat(monthlyAmount) || 0 }));
+  };
+
+  // Load goals from localStorage
+  useEffect(() => {
+    const savedGoals = localStorage.getItem('financialGoals');
+    const savedContributions = localStorage.getItem('goalContributions');
+    if (savedGoals) {
+      try { setFinancialGoals(JSON.parse(savedGoals)); } catch (e) {}
+    }
+    if (savedContributions) {
+      try { setGoalContributions(JSON.parse(savedContributions)); } catch (e) {}
+    }
+  }, []);
+
+  // Save goals
+  useEffect(() => {
+    localStorage.setItem('financialGoals', JSON.stringify(financialGoals));
+  }, [financialGoals]);
+
+  // Save goal contributions
+  useEffect(() => {
+    localStorage.setItem('goalContributions', JSON.stringify(goalContributions));
+  }, [goalContributions]);
+
+  // Auto-generate goals report
+  useEffect(() => {
+    if (financialGoals.length > 0) {
+      const timeout = setTimeout(() => generateGoalsReport(), 500);
+      return () => clearTimeout(timeout);
+    }
+  }, [financialGoals, goalContributions, monthlyIncome]);
+
+  // Phase 15: Retirement Planning Functions
+  const calculateRetirementPlan = async () => {
+    setRetirementLoading(true);
+    try {
+      const res = await fetch('/api/retirement', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'calculate',
+          ...retirementProfile,
+        }),
+      });
+      const data = await res.json();
+      setRetirementPlan(data);
+    } catch (err) {
+      console.error('Retirement calculation error:', err);
+    } finally {
+      setRetirementLoading(false);
+    }
+  };
+
+  // Load retirement profile from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('retirementProfile');
+    if (saved) {
+      try { setRetirementProfile(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  // Save retirement profile
+  useEffect(() => {
+    localStorage.setItem('retirementProfile', JSON.stringify(retirementProfile));
+  }, [retirementProfile]);
+
+  // Auto-calculate retirement when profile changes
+  useEffect(() => {
+    const timeout = setTimeout(() => calculateRetirementPlan(), 500);
+    return () => clearTimeout(timeout);
+  }, [retirementProfile]);
+
   // Load partnership data from localStorage
   useEffect(() => {
     const savedPartnership = localStorage.getItem('partnershipData');
@@ -1571,9 +1969,9 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'spending', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['overview', 'spending', 'goals', 'retirement', 'taxes', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab}
+                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab === 'taxes' ? '📋 Taxes' : tab === 'goals' ? '🎯 Goals' : tab === 'retirement' ? '🏖️ Retire' : tab}
                 </button>
               ))}
             </nav>
@@ -2287,18 +2685,18 @@ export default function AIPortfolioManager() {
 
             {/* Sub-navigation */}
             {plaidConnections.length > 0 && (
-              <div className="flex gap-2 border-b border-slate-700 pb-2">
-                {['overview', 'budgets', 'transactions', 'trips'].map((view) => (
+              <div className="flex gap-2 border-b border-slate-700 pb-2 overflow-x-auto">
+                {['overview', 'budgets', 'transactions', 'trips', 'value', 'forecast'].map((view) => (
                   <button
                     key={view}
                     onClick={() => setSpendingView(view)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors whitespace-nowrap ${
                       spendingView === view
                         ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
                         : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
                     }`}
                   >
-                    {view === 'trips' ? '✈️ Trips' : view}
+                    {view === 'trips' ? '✈️ Trips' : view === 'value' ? '💰 Value' : view === 'forecast' ? '📈 Forecast' : view}
                   </button>
                 ))}
               </div>
@@ -2979,6 +3377,416 @@ export default function AIPortfolioManager() {
                   </div>
                 )}
 
+                {/* VALUE VIEW - Cost-Benefit Analysis */}
+                {spendingView === 'value' && (
+                  <div className="space-y-6">
+                    {/* Value Header */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                          💰 Cost-Benefit Tracker
+                        </h3>
+                        <p className="text-sm text-slate-400">Track if your subscriptions are worth it</p>
+                      </div>
+                      <button
+                        onClick={() => setShowAddTrackedItem(true)}
+                        className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" /> Track Item
+                      </button>
+                    </div>
+
+                    {/* Summary Cards */}
+                    {costBenefitReport?.summary && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Monthly Cost</p>
+                          <p className="text-xl font-bold text-white">${costBenefitReport.summary.totalMonthlyCost?.toLocaleString()}</p>
+                          <p className="text-xs text-slate-500">${costBenefitReport.summary.totalAnnualCost?.toLocaleString()}/year</p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Avg Cost/Use</p>
+                          <p className="text-xl font-bold text-amber-400">${costBenefitReport.summary.averageCostPerUse}</p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Potential Savings</p>
+                          <p className="text-xl font-bold text-green-400">${costBenefitReport.summary.potentialMonthlySavings?.toLocaleString()}/mo</p>
+                          <p className="text-xs text-slate-500">From poor value items</p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Value Breakdown</p>
+                          <div className="flex gap-1 mt-1">
+                            <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.excellent} ✓</span>
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.good}</span>
+                            <span className="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.fair}</span>
+                            <span className="text-xs bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.poor} !</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Tracked Items */}
+                    {trackedItems.length === 0 ? (
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                        <div className="text-4xl mb-4">📊</div>
+                        <h4 className="text-lg font-semibold text-white mb-2">No Items Tracked</h4>
+                        <p className="text-slate-400 mb-4">Track subscriptions to see if they're worth the money.</p>
+                        <button
+                          onClick={() => setShowAddTrackedItem(true)}
+                          className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2 rounded-lg"
+                        >
+                          Add Your First Item
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {costBenefitReport?.analyses?.map(item => {
+                          const ratingColors = {
+                            excellent: 'border-green-500/50 bg-green-500/5',
+                            good: 'border-blue-500/50 bg-blue-500/5',
+                            fair: 'border-amber-500/50 bg-amber-500/5',
+                            poor: 'border-red-500/50 bg-red-500/5',
+                          };
+                          const ratingIcons = { excellent: '🌟', good: '👍', fair: '🤔', poor: '⚠️' };
+                          return (
+                            <div
+                              key={item.itemId}
+                              className={`bg-slate-800/50 rounded-xl border p-4 ${ratingColors[item.valueRating]}`}
+                            >
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-semibold text-white flex items-center gap-2">
+                                    {item.name}
+                                    <span>{ratingIcons[item.valueRating]}</span>
+                                  </h4>
+                                  <p className="text-xs text-slate-400">${item.monthlyCost}/month</p>
+                                </div>
+                                <button
+                                  onClick={() => deleteTrackedItem(item.itemId)}
+                                  className="text-red-400 hover:text-red-300 p-1"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-3 mb-3">
+                                <div>
+                                  <p className="text-xs text-slate-400">Cost/Use</p>
+                                  <p className="text-lg font-bold text-white">${item.costPerUse}</p>
+                                </div>
+                                <div>
+                                  <p className="text-xs text-slate-400">Total Uses</p>
+                                  <p className="text-lg font-bold text-white">{item.totalUses}</p>
+                                </div>
+                              </div>
+
+                              <p className="text-xs text-slate-300 mb-3">{item.recommendation}</p>
+
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => {
+                                    setSelectedTrackedItem(trackedItems.find(i => i.id === item.itemId));
+                                    setShowLogUsage(true);
+                                  }}
+                                  className="flex-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg flex items-center justify-center gap-1"
+                                >
+                                  <Plus className="w-3 h-3" /> Log Use
+                                </button>
+                                <button
+                                  onClick={() => setSelectedTrackedItem(trackedItems.find(i => i.id === item.itemId))}
+                                  className="px-3 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg"
+                                >
+                                  History
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Recommendations */}
+                    {costBenefitReport?.recommendations?.length > 0 && (
+                      <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
+                        <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4 text-amber-400" /> Recommendations
+                        </h4>
+                        <div className="space-y-2">
+                          {costBenefitReport.recommendations.slice(0, 5).map((rec, i) => (
+                            <div key={i} className={`p-3 rounded-lg ${rec.type === 'cancel' ? 'bg-red-500/10' : 'bg-amber-500/10'}`}>
+                              <p className="text-sm text-white">{rec.message}</p>
+                              {rec.savings && (
+                                <p className="text-xs text-green-400 mt-1">Save ${rec.savings}/month</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Usage History Modal/Panel */}
+                    {selectedTrackedItem && !showLogUsage && (
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                        <div className="flex items-center justify-between mb-4">
+                          <h4 className="font-semibold text-white">{selectedTrackedItem.name} - Usage History</h4>
+                          <button onClick={() => setSelectedTrackedItem(null)} className="text-slate-400 hover:text-white">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="space-y-2 max-h-48 overflow-y-auto">
+                          {(usageHistories[selectedTrackedItem.id] || []).sort((a, b) => b.date.localeCompare(a.date)).map(entry => (
+                            <div key={entry.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                              <div>
+                                <p className="text-sm text-white">{new Date(entry.date).toLocaleDateString()}</p>
+                                {entry.notes && <p className="text-xs text-slate-400">{entry.notes}</p>}
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-slate-300">{entry.uses}x</span>
+                                <button
+                                  onClick={() => removeUsageEntry(selectedTrackedItem.id, entry.id)}
+                                  className="text-red-400 hover:text-red-300 p-1"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                          {(usageHistories[selectedTrackedItem.id] || []).length === 0 && (
+                            <p className="text-center text-slate-400 py-4">No usage logged yet</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* FORECAST VIEW - Cash Flow Forecasting (Phase 12) */}
+                {spendingView === 'forecast' && (
+                  <div className="space-y-6">
+                    {/* Forecast Header */}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                          📈 Cash Flow Forecast
+                        </h3>
+                        <p className="text-sm text-slate-400">Predict your financial runway</p>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <select
+                          value={forecastMonths}
+                          onChange={(e) => setForecastMonths(parseInt(e.target.value))}
+                          className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm"
+                        >
+                          <option value={3}>3 months</option>
+                          <option value={6}>6 months</option>
+                          <option value={12}>12 months</option>
+                        </select>
+                        <button
+                          onClick={() => setShowAddPlannedExpense(true)}
+                          className="bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 px-3 py-2 rounded-lg text-sm flex items-center gap-1"
+                        >
+                          <Plus className="w-4 h-4" /> Add Planned
+                        </button>
+                        <button
+                          onClick={generateCashFlowForecast}
+                          disabled={cashFlowLoading}
+                          className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                        >
+                          <RefreshCw className={`w-4 h-4 ${cashFlowLoading ? 'animate-spin' : ''}`} /> Refresh
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Income Input */}
+                    {!monthlyIncome && (
+                      <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                        <p className="text-amber-400 text-sm mb-2">Set your monthly income to enable forecasting</p>
+                        <p className="text-slate-400 text-xs">Go to Budgets tab and set your monthly income</p>
+                      </div>
+                    )}
+
+                    {/* Summary Cards */}
+                    {cashFlowForecast?.summary && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Monthly Income</p>
+                          <p className="text-xl font-bold text-green-400">${cashFlowForecast.summary.monthlyIncome?.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Avg Spending</p>
+                          <p className="text-xl font-bold text-red-400">${cashFlowForecast.summary.avgMonthlySpending?.toLocaleString()}</p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Avg Net Cash Flow</p>
+                          <p className={`text-xl font-bold ${cashFlowForecast.summary.avgNetCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {cashFlowForecast.summary.avgNetCashFlow >= 0 ? '+' : ''}${cashFlowForecast.summary.avgNetCashFlow?.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                          <p className="text-xs text-slate-400">Avg Savings Rate</p>
+                          <p className={`text-xl font-bold ${cashFlowForecast.summary.avgSavingsRate >= 20 ? 'text-green-400' : cashFlowForecast.summary.avgSavingsRate >= 10 ? 'text-amber-400' : 'text-red-400'}`}>
+                            {cashFlowForecast.summary.avgSavingsRate}%
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Insights */}
+                    {cashFlowForecast?.insights?.length > 0 && (
+                      <div className="space-y-2">
+                        {cashFlowForecast.insights.map((insight, i) => {
+                          const insightColors = {
+                            warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+                            alert: 'bg-red-500/10 border-red-500/30 text-red-400',
+                            opportunity: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+                            positive: 'bg-green-500/10 border-green-500/30 text-green-400',
+                          };
+                          const insightIcons = { warning: '⚠️', alert: '🚨', opportunity: '💡', positive: '✅' };
+                          return (
+                            <div key={i} className={`p-4 rounded-xl border ${insightColors[insight.type]}`}>
+                              <div className="flex items-start gap-2">
+                                <span>{insightIcons[insight.type]}</span>
+                                <div>
+                                  <p className="font-semibold">{insight.title}</p>
+                                  <p className="text-sm text-slate-300">{insight.message}</p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Monthly Forecast Cards */}
+                    {cashFlowForecast?.forecasts?.length > 0 && (
+                      <div className="space-y-3">
+                        <h4 className="text-sm font-semibold text-slate-400">Monthly Breakdown</h4>
+                        <div className="grid gap-3">
+                          {cashFlowForecast.forecasts.map((month, i) => {
+                            const statusColors = {
+                              healthy: 'border-green-500/30 bg-green-500/5',
+                              surplus: 'border-emerald-500/30 bg-emerald-500/5',
+                              tight: 'border-amber-500/30 bg-amber-500/5',
+                              deficit: 'border-red-500/30 bg-red-500/5',
+                            };
+                            const statusIcons = { healthy: '✅', surplus: '🎉', tight: '⚠️', deficit: '🔴' };
+                            return (
+                              <div key={month.month} className={`bg-slate-800/50 rounded-xl border p-4 ${statusColors[month.status]}`}>
+                                <div className="flex items-center justify-between mb-3">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-lg">{statusIcons[month.status]}</span>
+                                    <h5 className="font-semibold text-white">{month.monthName}</h5>
+                                  </div>
+                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                                    month.status === 'surplus' ? 'bg-emerald-500/20 text-emerald-400' :
+                                    month.status === 'healthy' ? 'bg-green-500/20 text-green-400' :
+                                    month.status === 'tight' ? 'bg-amber-500/20 text-amber-400' :
+                                    'bg-red-500/20 text-red-400'
+                                  }`}>
+                                    {month.savingsRate}% saved
+                                  </span>
+                                </div>
+                                <div className="grid grid-cols-4 gap-4 text-sm">
+                                  <div>
+                                    <p className="text-slate-400 text-xs">Income</p>
+                                    <p className="text-green-400 font-medium">+${month.projectedIncome?.toLocaleString()}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-400 text-xs">Expenses</p>
+                                    <p className="text-red-400 font-medium">-${month.projectedExpenses?.toLocaleString()}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-400 text-xs">Net</p>
+                                    <p className={`font-bold ${month.netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                      {month.netCashFlow >= 0 ? '+' : ''}${month.netCashFlow?.toLocaleString()}
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p className="text-slate-400 text-xs">Running Balance</p>
+                                    <p className={`font-medium ${month.endingBalance >= 0 ? 'text-white' : 'text-red-400'}`}>
+                                      ${month.endingBalance?.toLocaleString()}
+                                    </p>
+                                  </div>
+                                </div>
+                                {/* Expense breakdown */}
+                                <div className="mt-3 pt-3 border-t border-slate-700 flex gap-4 text-xs">
+                                  <span className="text-slate-400">
+                                    Recurring: <span className="text-slate-300">${month.recurringExpenses?.toLocaleString()}</span>
+                                  </span>
+                                  <span className="text-slate-400">
+                                    Variable: <span className="text-slate-300">${month.variableExpenses?.toLocaleString()}</span>
+                                  </span>
+                                  {month.plannedExpenses > 0 && (
+                                    <span className="text-violet-400">
+                                      Planned: <span className="text-violet-300">${month.plannedExpenses?.toLocaleString()}</span>
+                                    </span>
+                                  )}
+                                </div>
+                                {/* Show planned items */}
+                                {month.plannedItems?.length > 0 && (
+                                  <div className="mt-2 flex flex-wrap gap-1">
+                                    {month.plannedItems.map(item => (
+                                      <span key={item.id} className="text-xs bg-violet-500/20 text-violet-300 px-2 py-0.5 rounded">
+                                        {item.description}: ${item.amount}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Planned Expenses */}
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-sm font-semibold text-slate-400">Planned Expenses</h4>
+                        <button
+                          onClick={() => setShowAddPlannedExpense(true)}
+                          className="text-violet-400 hover:text-violet-300 text-sm flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" /> Add
+                        </button>
+                      </div>
+                      {plannedExpenses.length === 0 ? (
+                        <p className="text-slate-500 text-sm text-center py-4">
+                          No planned expenses. Add upcoming purchases, vacations, or large expenses.
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          {plannedExpenses.sort((a, b) => a.date.localeCompare(b.date)).map(expense => (
+                            <div key={expense.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                              <div>
+                                <p className="text-sm text-white">{expense.description}</p>
+                                <p className="text-xs text-slate-400">{new Date(expense.date).toLocaleDateString()}</p>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className="text-sm font-medium text-red-400">-${expense.amount.toLocaleString()}</span>
+                                <button
+                                  onClick={() => deletePlannedExpense(expense.id)}
+                                  className="text-red-400 hover:text-red-300"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* No forecast yet */}
+                    {!cashFlowForecast && monthlyIncome > 0 && (
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-8 text-center">
+                        <div className="text-4xl mb-4">📊</div>
+                        <p className="text-slate-400">Generating your cash flow forecast...</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Connected Accounts - Always visible */}
                 <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
                   <h3 className="text-sm font-semibold text-slate-400 mb-3">Connected Accounts</h3>
@@ -2998,6 +3806,640 @@ export default function AIPortfolioManager() {
                   </div>
                 </div>
               </>
+            )}
+          </div>
+        )}
+
+        {/* GOALS TAB - Phase 14 */}
+        {activeTab === 'goals' && (
+          <div className="space-y-6">
+            {/* Goals Header */}
+            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Financial Goals</h2>
+                    <p className="text-slate-400 text-sm">Track progress towards your money goals</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowAddGoal(true)}
+                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Plus className="w-4 h-4" /> Add Goal
+                </button>
+              </div>
+            </div>
+
+            {/* Goals Summary */}
+            {goalsReport?.summary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Total Goals</p>
+                  <p className="text-xl font-bold text-white">{goalsReport.summary.totalGoals}</p>
+                  <p className="text-xs text-green-400">{goalsReport.summary.completedGoals} completed</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Overall Progress</p>
+                  <p className="text-xl font-bold text-purple-400">{goalsReport.summary.overallProgress}%</p>
+                  <div className="w-full h-1.5 bg-slate-700 rounded-full mt-2">
+                    <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all" style={{ width: `${Math.min(100, goalsReport.summary.overallProgress)}%` }} />
+                  </div>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Total Targeted</p>
+                  <p className="text-xl font-bold text-white">${goalsReport.summary.totalTargeted?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">${goalsReport.summary.totalProgress?.toLocaleString()} saved</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Still Needed</p>
+                  <p className="text-xl font-bold text-amber-400">${goalsReport.summary.totalRemaining?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">{goalsReport.summary.onTrackGoals} on track</p>
+                </div>
+              </div>
+            )}
+
+            {/* Goal Cards */}
+            {financialGoals.length === 0 ? (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <div className="text-4xl mb-4">🎯</div>
+                <h4 className="text-lg font-semibold text-white mb-2">Set Your First Goal</h4>
+                <p className="text-slate-400 mb-4">Track progress towards emergency funds, vacations, down payments, and more.</p>
+                <button
+                  onClick={() => setShowAddGoal(true)}
+                  className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-4 py-2 rounded-lg"
+                >
+                  Create a Goal
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {goalsReport?.analyses?.map(goal => {
+                  const statusColors = {
+                    completed: 'border-green-500/50 bg-green-500/5',
+                    almost_there: 'border-emerald-500/50 bg-emerald-500/5',
+                    halfway: 'border-blue-500/50 bg-blue-500/5',
+                    making_progress: 'border-purple-500/50 bg-purple-500/5',
+                    on_track: 'border-slate-500/50 bg-slate-500/5',
+                    behind: 'border-red-500/50 bg-red-500/5',
+                    just_started: 'border-slate-500/50 bg-slate-500/5',
+                  };
+                  const statusIcons = {
+                    completed: '🎉', almost_there: '🔥', halfway: '💪',
+                    making_progress: '📈', on_track: '✅', behind: '⚠️', just_started: '🚀',
+                  };
+                  const categoryIcons = {
+                    emergency_fund: '🛡️', vacation: '✈️', down_payment: '🏠', car: '🚗',
+                    debt_payoff: '💳', investment: '📈', education: '🎓', wedding: '💒', custom: '🎯',
+                  };
+                  return (
+                    <div key={goal.goalId} className={`bg-slate-800/50 rounded-xl border p-5 ${statusColors[goal.status]}`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">{categoryIcons[goal.category] || '🎯'}</span>
+                          <div>
+                            <h4 className="font-semibold text-white flex items-center gap-2">
+                              {goal.name}
+                              <span>{statusIcons[goal.status]}</span>
+                            </h4>
+                            <p className="text-xs text-slate-400">
+                              ${goal.currentAmount?.toLocaleString()} of ${goal.targetAmount?.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => deleteGoal(goal.goalId)}
+                          className="text-red-400 hover:text-red-300 p-1"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+
+                      {/* Progress Bar */}
+                      <div className="mb-3">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-slate-400">{goal.progress}% complete</span>
+                          <span className="text-slate-400">${goal.remaining?.toLocaleString()} to go</span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-700 rounded-full">
+                          <div
+                            className={`h-full rounded-full transition-all ${
+                              goal.status === 'completed' ? 'bg-green-500' :
+                              goal.status === 'behind' ? 'bg-red-500' :
+                              'bg-gradient-to-r from-purple-500 to-pink-500'
+                            }`}
+                            style={{ width: `${Math.min(100, goal.progress)}%` }}
+                          />
+                        </div>
+                      </div>
+
+                      {/* Milestones */}
+                      <div className="flex gap-1 mb-3">
+                        {goal.milestones?.map((m, i) => (
+                          <div
+                            key={i}
+                            className={`flex-1 h-1 rounded ${m.reached ? 'bg-green-500' : 'bg-slate-700'}`}
+                            title={m.label}
+                          />
+                        ))}
+                      </div>
+
+                      {/* Stats */}
+                      <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
+                        <div>
+                          <p className="text-xs text-slate-400">Monthly Contribution</p>
+                          <p className="text-white font-medium">
+                            ${(goalContributions[goal.goalId] || 0).toLocaleString()}/mo
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-slate-400">Time to Goal</p>
+                          <p className="text-white font-medium">
+                            {goal.monthsToGoal === 0 ? 'Done!' :
+                             goal.monthsToGoal ? `${goal.monthsToGoal} months` : 'Set contribution'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Deadline Warning */}
+                      {goal.deadline && !goal.onTrack && goal.status !== 'completed' && (
+                        <div className="bg-red-500/10 border border-red-500/30 rounded-lg p-2 mb-3">
+                          <p className="text-xs text-red-400">
+                            ⚠️ Need ${goal.requiredMonthly?.toLocaleString()}/mo to meet deadline
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => {
+                            setSelectedGoal(financialGoals.find(g => g.id === goal.goalId));
+                            setShowLogContribution(true);
+                          }}
+                          className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-sm py-2 rounded-lg flex items-center justify-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" /> Add Money
+                        </button>
+                        <input
+                          type="number"
+                          placeholder="$/mo"
+                          value={goalContributions[goal.goalId] || ''}
+                          onChange={(e) => setGoalContribution(goal.goalId, e.target.value)}
+                          className="w-24 bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-2 text-white text-sm text-center"
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {goalsReport?.recommendations?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-purple-500/30 p-6">
+                <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-purple-400" /> Recommendations
+                </h4>
+                <div className="space-y-2">
+                  {goalsReport.recommendations.map((rec, i) => (
+                    <div key={i} className={`p-3 rounded-lg ${
+                      rec.priority === 'high' ? 'bg-amber-500/10' : 'bg-slate-700/30'
+                    }`}>
+                      <p className="text-sm text-white">
+                        <span className="font-medium text-purple-400">{rec.goalName}:</span> {rec.message}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Suggested Allocations */}
+            {goalsReport?.suggestedAllocations?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <h4 className="text-sm font-semibold text-white mb-3">Suggested Monthly Allocations</h4>
+                <div className="space-y-2">
+                  {goalsReport.suggestedAllocations.map(alloc => (
+                    <div key={alloc.goalId} className="flex items-center justify-between">
+                      <span className="text-slate-300">{alloc.name}</span>
+                      <div className="flex items-center gap-3">
+                        <div className="w-32 h-2 bg-slate-700 rounded-full">
+                          <div
+                            className="h-full bg-purple-500 rounded-full"
+                            style={{ width: `${alloc.percent}%` }}
+                          />
+                        </div>
+                        <span className="text-sm text-white font-medium w-20 text-right">
+                          ${alloc.suggested?.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* RETIREMENT TAB - Phase 15 */}
+        {activeTab === 'retirement' && (
+          <div className="space-y-6">
+            {/* Retirement Header */}
+            <div className="bg-gradient-to-r from-teal-500/10 to-cyan-500/10 rounded-xl border border-teal-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-cyan-600 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🏖️</span>
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Retirement Planner</h2>
+                    <p className="text-slate-400 text-sm">Plan your path to financial freedom</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowRetirementSetup(true)}
+                  className="bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" /> Adjust Plan
+                </button>
+              </div>
+            </div>
+
+            {/* Retirement Summary Cards */}
+            {retirementPlan?.summary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Years to Retirement</p>
+                  <p className="text-2xl font-bold text-white">{retirementPlan.summary.yearsToRetirement}</p>
+                  <p className="text-xs text-slate-500">Age {retirementPlan.summary.retirementAge}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Projected at Retirement</p>
+                  <p className="text-2xl font-bold text-teal-400">${retirementPlan.summary.projectedAtRetirement?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">${retirementPlan.summary.totalMonthlyContribution?.toLocaleString()}/mo</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Amount Needed</p>
+                  <p className="text-2xl font-bold text-white">${retirementPlan.summary.amountNeeded?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">For {retirementPlan.summary.yearsInRetirement} years</p>
+                </div>
+                <div className={`bg-slate-800/50 rounded-xl border p-4 ${retirementPlan.summary.onTrack ? 'border-green-500/50' : 'border-red-500/50'}`}>
+                  <p className="text-xs text-slate-400">Status</p>
+                  <p className={`text-2xl font-bold ${retirementPlan.summary.onTrack ? 'text-green-400' : 'text-red-400'}`}>
+                    {retirementPlan.summary.onTrack ? '✅ On Track' : '⚠️ Behind'}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {retirementPlan.summary.gap >= 0 ? `$${Math.abs(retirementPlan.summary.gap).toLocaleString()} surplus` : `$${Math.abs(retirementPlan.summary.gap).toLocaleString()} gap`}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Retirement Income Breakdown */}
+            {retirementPlan?.income && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <h4 className="text-sm font-semibold text-white mb-4">Monthly Income in Retirement</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Social Security</span>
+                      <span className="text-white font-medium">${retirementPlan.income.socialSecurity?.toLocaleString()}</span>
+                    </div>
+                    {retirementPlan.income.pension > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400">Pension</span>
+                        <span className="text-white font-medium">${retirementPlan.income.pension?.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {retirementPlan.income.otherIncome > 0 && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-400">Other Income</span>
+                        <span className="text-white font-medium">${retirementPlan.income.otherIncome?.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-700">
+                      <span className="text-slate-300 font-medium">Guaranteed Income</span>
+                      <span className="text-teal-400 font-bold">${retirementPlan.income.totalGuaranteed?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">From Savings (4% rule)</span>
+                      <span className="text-white font-medium">${retirementPlan.income.monthlyFromSavings?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t border-slate-700">
+                      <span className="text-white font-semibold">Total Monthly Income</span>
+                      <span className="text-green-400 font-bold">
+                        ${(retirementPlan.income.totalGuaranteed + retirementPlan.income.monthlyFromSavings)?.toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <h4 className="text-sm font-semibold text-white mb-4">Monthly Expenses in Retirement</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-slate-400">Projected Expenses</span>
+                      <span className="text-red-400 font-medium">${retirementPlan.income.monthlyExpensesInRetirement?.toLocaleString()}</span>
+                    </div>
+                    <p className="text-xs text-slate-500">
+                      Based on {retirementProfile.retirementExpensePct}% of current expenses, adjusted for inflation
+                    </p>
+                    <div className="pt-3 mt-3 border-t border-slate-700">
+                      <div className="flex justify-between items-center">
+                        <span className="text-slate-300">Monthly Surplus/Shortfall</span>
+                        <span className={`font-bold ${
+                          (retirementPlan.income.totalGuaranteed + retirementPlan.income.monthlyFromSavings) >= retirementPlan.income.monthlyExpensesInRetirement
+                            ? 'text-green-400' : 'text-red-400'
+                        }`}>
+                          ${((retirementPlan.income.totalGuaranteed + retirementPlan.income.monthlyFromSavings) - retirementPlan.income.monthlyExpensesInRetirement)?.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Insights */}
+            {retirementPlan?.insights?.length > 0 && (
+              <div className="space-y-2">
+                {retirementPlan.insights.map((insight, i) => {
+                  const insightColors = {
+                    warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+                    alert: 'bg-red-500/10 border-red-500/30 text-red-400',
+                    opportunity: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+                    positive: 'bg-green-500/10 border-green-500/30 text-green-400',
+                    info: 'bg-slate-500/10 border-slate-500/30 text-slate-400',
+                  };
+                  const icons = { warning: '⚠️', alert: '🚨', opportunity: '💡', positive: '✅', info: 'ℹ️' };
+                  return (
+                    <div key={i} className={`p-4 rounded-xl border ${insightColors[insight.type]}`}>
+                      <div className="flex items-start gap-2">
+                        <span>{icons[insight.type]}</span>
+                        <div>
+                          <p className="font-semibold">{insight.title}</p>
+                          <p className="text-sm text-slate-300">{insight.message}</p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Projection Chart (simplified table view) */}
+            {retirementPlan?.projections?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <h4 className="text-sm font-semibold text-white mb-4">Savings Projection</h4>
+                <div className="grid grid-cols-6 gap-2 text-center">
+                  {retirementPlan.projections.filter((_, i) => i % 5 === 0).slice(0, 12).map(p => (
+                    <div key={p.age} className={`p-2 rounded-lg ${p.phase === 'retirement' ? 'bg-teal-500/10' : 'bg-slate-700/30'}`}>
+                      <p className="text-xs text-slate-400">Age {p.age}</p>
+                      <p className={`text-sm font-bold ${p.balance > 0 ? 'text-white' : 'text-red-400'}`}>
+                        ${(p.balance / 1000).toFixed(0)}k
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-slate-700/50 rounded" /> Accumulation
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-3 h-3 bg-teal-500/20 rounded" /> Retirement
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Action Required */}
+            {retirementPlan?.summary && !retirementPlan.summary.onTrack && (
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5">
+                <h4 className="text-sm font-semibold text-red-400 mb-2">Action Required</h4>
+                <p className="text-slate-300 mb-3">
+                  To close your retirement gap, consider increasing your monthly contribution to{' '}
+                  <span className="text-white font-bold">${retirementPlan.summary.requiredMonthly?.toLocaleString()}</span>
+                  {' '}(currently ${retirementPlan.summary.monthlyContribution?.toLocaleString()}).
+                </p>
+                <button
+                  onClick={() => setShowRetirementSetup(true)}
+                  className="bg-red-500/20 hover:bg-red-500/30 text-red-400 px-4 py-2 rounded-lg text-sm"
+                >
+                  Adjust Retirement Plan
+                </button>
+              </div>
+            )}
+
+            {/* Assumptions */}
+            {retirementPlan?.assumptions && (
+              <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+                <h4 className="text-xs font-semibold text-slate-400 mb-2">Planning Assumptions</h4>
+                <div className="flex flex-wrap gap-4 text-xs">
+                  <span className="text-slate-400">Expected Return: <span className="text-white">{retirementPlan.assumptions.expectedReturn}%</span></span>
+                  <span className="text-slate-400">Inflation: <span className="text-white">{retirementPlan.assumptions.inflationRate}%</span></span>
+                  <span className="text-slate-400">Real Return: <span className="text-white">{retirementPlan.assumptions.realReturn}%</span></span>
+                  <span className="text-slate-400">Withdrawal Rate: <span className="text-white">{retirementPlan.assumptions.withdrawalRate}%</span></span>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAXES TAB - Phase 13 */}
+        {activeTab === 'taxes' && (
+          <div className="space-y-6">
+            {/* Tax Header */}
+            <div className="bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-xl border border-amber-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl flex items-center justify-center">
+                    <FileText className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-white">Tax Optimization Dashboard</h2>
+                    <p className="text-slate-400 text-sm">Estimate taxes and find savings opportunities</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setShowTaxSetup(true)}
+                  className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2 rounded-lg flex items-center gap-2"
+                >
+                  <Settings className="w-4 h-4" /> Update Profile
+                </button>
+              </div>
+            </div>
+
+            {/* Tax Summary Cards */}
+            {taxAnalysis?.summary && (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Taxable Income</p>
+                  <p className="text-xl font-bold text-white">${taxAnalysis.summary.taxableIncome?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">After ${taxAnalysis.summary.deduction?.toLocaleString()} {taxAnalysis.summary.deductionType}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Total Tax</p>
+                  <p className="text-xl font-bold text-red-400">${taxAnalysis.summary.totalTax?.toLocaleString()}</p>
+                  <p className="text-xs text-slate-500">{taxAnalysis.summary.effectiveRate}% effective rate</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Marginal Rate</p>
+                  <p className="text-xl font-bold text-amber-400">{(taxAnalysis.summary.marginalRate * 100).toFixed(0)}%</p>
+                  <p className="text-xs text-slate-500">Federal bracket</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <p className="text-xs text-slate-400">Balance</p>
+                  <p className={`text-xl font-bold ${taxAnalysis.summary.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                    {taxAnalysis.summary.balance >= 0 ? '+' : ''}${taxAnalysis.summary.balance?.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-slate-500">{taxAnalysis.summary.balance >= 0 ? 'Refund estimate' : 'Estimated owed'}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Tax Breakdown */}
+            {taxAnalysis?.breakdown && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    🏛️ Federal Tax
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Ordinary Income</span>
+                      <span className="text-white">${taxAnalysis.breakdown.federal.ordinaryIncome?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Capital Gains</span>
+                      <span className="text-white">${taxAnalysis.breakdown.federal.capitalGains?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
+                      <span className="text-slate-300 font-medium">Total Federal</span>
+                      <span className="text-white font-bold">${taxAnalysis.breakdown.federal.total?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    🏠 State Tax ({taxProfile.state})
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">State Rate</span>
+                      <span className="text-white">{(taxAnalysis.breakdown.state.rate * 100).toFixed(2)}%</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
+                      <span className="text-slate-300 font-medium">Total State</span>
+                      <span className="text-white font-bold">${taxAnalysis.breakdown.state.tax?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                    💼 FICA (SS + Medicare)
+                  </h4>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Social Security</span>
+                      <span className="text-white">${taxAnalysis.breakdown.fica.socialSecurity?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-slate-400">Medicare</span>
+                      <span className="text-white">${taxAnalysis.breakdown.fica.medicare?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
+                      <span className="text-slate-300 font-medium">Total FICA</span>
+                      <span className="text-white font-bold">${taxAnalysis.breakdown.fica.total?.toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tax Optimization Opportunities */}
+            {taxAnalysis?.opportunities?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-emerald-500/30 p-6">
+                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-emerald-400" /> Tax Optimization Opportunities
+                </h4>
+                <div className="space-y-3">
+                  {taxAnalysis.opportunities.map((opp, i) => {
+                    const priorityColors = {
+                      urgent: 'border-red-500/50 bg-red-500/5',
+                      high: 'border-amber-500/50 bg-amber-500/5',
+                      medium: 'border-blue-500/50 bg-blue-500/5',
+                      low: 'border-slate-500/50 bg-slate-500/5',
+                    };
+                    const priorityBadge = {
+                      urgent: 'bg-red-500/20 text-red-400',
+                      high: 'bg-amber-500/20 text-amber-400',
+                      medium: 'bg-blue-500/20 text-blue-400',
+                      low: 'bg-slate-500/20 text-slate-400',
+                    };
+                    return (
+                      <div key={i} className={`p-4 rounded-xl border ${priorityColors[opp.priority]}`}>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <h5 className="font-semibold text-white">{opp.title}</h5>
+                              <span className={`text-xs px-2 py-0.5 rounded ${priorityBadge[opp.priority]}`}>
+                                {opp.priority}
+                              </span>
+                            </div>
+                            <p className="text-sm text-slate-300 mb-2">{opp.description}</p>
+                            <p className="text-sm text-slate-400">{opp.action}</p>
+                          </div>
+                          {opp.potentialSavings > 0 && (
+                            <div className="text-right ml-4">
+                              <p className="text-xs text-slate-400">Potential Savings</p>
+                              <p className="text-lg font-bold text-green-400">${opp.potentialSavings.toLocaleString()}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Monthly Projections */}
+            {taxAnalysis?.projections && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+                  <p className="text-xs text-slate-400 mb-1">Monthly Tax Burden</p>
+                  <p className="text-2xl font-bold text-red-400">${taxAnalysis.projections.monthlyTaxBurden?.toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+                  <p className="text-xs text-slate-400 mb-1">Monthly Take-Home</p>
+                  <p className="text-2xl font-bold text-green-400">${taxAnalysis.projections.takeHomePay?.toLocaleString()}</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
+                  <p className="text-xs text-slate-400 mb-1">Tax Saved from Deductions</p>
+                  <p className="text-2xl font-bold text-emerald-400">${taxAnalysis.projections.savingsFromDeductions?.toLocaleString()}</p>
+                </div>
+              </div>
+            )}
+
+            {/* No Tax Profile Yet */}
+            {!taxAnalysis && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <div className="text-4xl mb-4">📋</div>
+                <h4 className="text-lg font-semibold text-white mb-2">Set Up Your Tax Profile</h4>
+                <p className="text-slate-400 mb-4">Enter your income and tax information to see estimates and optimization opportunities.</p>
+                <button
+                  onClick={() => setShowTaxSetup(true)}
+                  className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-6 py-3 rounded-xl"
+                >
+                  Get Started
+                </button>
+              </div>
             )}
           </div>
         )}
@@ -4505,6 +5947,952 @@ export default function AIPortfolioManager() {
                 className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Create Trip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Tracked Item Modal (Phase 11: Cost-Benefit) */}
+      {showAddTrackedItem && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  📊 Track Subscription/Service
+                </h2>
+                <button onClick={() => setShowAddTrackedItem(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Track cost-per-use to see if you're getting value</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Name</label>
+                <input
+                  type="text"
+                  value={newTrackedItem.name}
+                  onChange={(e) => setNewTrackedItem({ ...newTrackedItem, name: e.target.value })}
+                  placeholder="Gym Membership, Netflix, Costco..."
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Category</label>
+                <select
+                  value={newTrackedItem.category}
+                  onChange={(e) => setNewTrackedItem({ ...newTrackedItem, category: e.target.value })}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                >
+                  <option value="subscription">Streaming/Subscription</option>
+                  <option value="gym">Gym/Fitness</option>
+                  <option value="membership">Membership (Costco, etc.)</option>
+                  <option value="software">Software/Apps</option>
+                  <option value="service">Service (Cleaning, etc.)</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Monthly Cost</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newTrackedItem.monthlyCost}
+                      onChange={(e) => setNewTrackedItem({ ...newTrackedItem, monthlyCost: e.target.value })}
+                      placeholder="50"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Target $/Use</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={newTrackedItem.targetCostPerUse}
+                      onChange={(e) => setNewTrackedItem({ ...newTrackedItem, targetCostPerUse: e.target.value })}
+                      placeholder="5"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    />
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">Leave blank for auto</p>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Start Date</label>
+                <input
+                  type="date"
+                  value={newTrackedItem.startDate}
+                  onChange={(e) => setNewTrackedItem({ ...newTrackedItem, startDate: e.target.value })}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+              <button
+                onClick={addTrackedItem}
+                disabled={!newTrackedItem.name || !newTrackedItem.monthlyCost}
+                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Item to Track
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Log Usage Modal (Phase 11: Cost-Benefit) */}
+      {showLogUsage && selectedTrackedItem && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  ✅ Log Usage
+                </h2>
+                <button onClick={() => { setShowLogUsage(false); setSelectedTrackedItem(null); }} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Record when you use <span className="text-white">{selectedTrackedItem.name}</span></p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Date</label>
+                <input
+                  type="date"
+                  id="usageDate"
+                  defaultValue={new Date().toISOString().split('T')[0]}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Number of Uses</label>
+                <input
+                  type="number"
+                  id="usageCount"
+                  min="1"
+                  defaultValue="1"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+                <p className="text-xs text-slate-500 mt-1">E.g., watched 3 shows = 3 uses</p>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <input
+                  type="text"
+                  id="usageNotes"
+                  placeholder="Watched The Last of Us S2"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                />
+              </div>
+
+              {/* Quick Log Buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    logUsage(selectedTrackedItem.id, 1, new Date().toISOString().split('T')[0], '');
+                  }}
+                  className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium py-2.5 rounded-lg"
+                >
+                  Quick +1
+                </button>
+                <button
+                  onClick={() => {
+                    logUsage(selectedTrackedItem.id, 2, new Date().toISOString().split('T')[0], '');
+                  }}
+                  className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium py-2.5 rounded-lg"
+                >
+                  Quick +2
+                </button>
+                <button
+                  onClick={() => {
+                    logUsage(selectedTrackedItem.id, 5, new Date().toISOString().split('T')[0], '');
+                  }}
+                  className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 font-medium py-2.5 rounded-lg"
+                >
+                  Quick +5
+                </button>
+              </div>
+
+              <button
+                onClick={() => {
+                  const date = document.getElementById('usageDate').value;
+                  const uses = parseInt(document.getElementById('usageCount').value) || 1;
+                  const notes = document.getElementById('usageNotes').value;
+                  logUsage(selectedTrackedItem.id, uses, date, notes);
+                }}
+                className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" /> Log Custom Usage
+              </button>
+
+              {/* Recent Usage History */}
+              {usageHistories[selectedTrackedItem.id]?.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-slate-700">
+                  <p className="text-sm text-slate-400 mb-2">Recent Usage</p>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {usageHistories[selectedTrackedItem.id].slice(-5).reverse().map(entry => (
+                      <div key={entry.id} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2">
+                          <span className="text-slate-400">{entry.date}</span>
+                          <span className="text-white">×{entry.uses}</span>
+                          {entry.notes && <span className="text-slate-500 text-xs truncate max-w-[120px]">{entry.notes}</span>}
+                        </div>
+                        <button
+                          onClick={() => removeUsageEntry(selectedTrackedItem.id, entry.id)}
+                          className="text-red-400 hover:text-red-300"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Planned Expense Modal (Phase 12: Cash Flow) */}
+      {showAddPlannedExpense && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  📅 Add Planned Expense
+                </h2>
+                <button onClick={() => setShowAddPlannedExpense(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Add upcoming expenses to forecast</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Description</label>
+                <input
+                  type="text"
+                  value={newPlannedExpense.description}
+                  onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, description: e.target.value })}
+                  placeholder="New laptop, vacation, car repair..."
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Date</label>
+                  <input
+                    type="date"
+                    value={newPlannedExpense.date}
+                    onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, date: e.target.value })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={newPlannedExpense.amount}
+                      onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, amount: e.target.value })}
+                      placeholder="500"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={addPlannedExpense}
+                disabled={!newPlannedExpense.date || !newPlannedExpense.amount}
+                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Planned Expense
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tax Setup Modal (Phase 13) */}
+      {showTaxSetup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl my-8">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  📋 Tax Profile Setup
+                </h2>
+                <button onClick={() => setShowTaxSetup(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Enter your tax information for estimates</p>
+            </div>
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Filing Status</label>
+                  <select
+                    value={taxProfile.filingStatus}
+                    onChange={(e) => setTaxProfile({ ...taxProfile, filingStatus: e.target.value })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="single">Single</option>
+                    <option value="married">Married Filing Jointly</option>
+                    <option value="headOfHousehold">Head of Household</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">State</label>
+                  <select
+                    value={taxProfile.state}
+                    onChange={(e) => setTaxProfile({ ...taxProfile, state: e.target.value })}
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  >
+                    <option value="CA">California</option>
+                    <option value="NY">New York</option>
+                    <option value="TX">Texas (No Income Tax)</option>
+                    <option value="FL">Florida (No Income Tax)</option>
+                    <option value="WA">Washington (No Income Tax)</option>
+                    <option value="NV">Nevada (No Income Tax)</option>
+                    <option value="IL">Illinois</option>
+                    <option value="PA">Pennsylvania</option>
+                    <option value="OH">Ohio</option>
+                    <option value="GA">Georgia</option>
+                    <option value="NC">North Carolina</option>
+                    <option value="NJ">New Jersey</option>
+                    <option value="VA">Virginia</option>
+                    <option value="MA">Massachusetts</option>
+                    <option value="AZ">Arizona</option>
+                    <option value="CO">Colorado</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Income */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Income</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Annual Income (W2/1099)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.annualIncome || ''}
+                        onChange={(e) => setTaxProfile({ ...taxProfile, annualIncome: parseFloat(e.target.value) || 0 })}
+                        placeholder="100,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Realized Capital Gains</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.realizedGains || ''}
+                        onChange={(e) => setTaxProfile({ ...taxProfile, realizedGains: parseFloat(e.target.value) || 0 })}
+                        placeholder="0"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Withholding */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Tax Payments (YTD)</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">W2 Withholding</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.w2Withholding || ''}
+                        onChange={(e) => setTaxProfile({ ...taxProfile, w2Withholding: parseFloat(e.target.value) || 0 })}
+                        placeholder="15,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Estimated Payments</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.estimatedPayments || ''}
+                        onChange={(e) => setTaxProfile({ ...taxProfile, estimatedPayments: parseFloat(e.target.value) || 0 })}
+                        placeholder="0"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Retirement Contributions */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Retirement Contributions</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Traditional 401(k)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.retirementContributions?.traditional401k || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          retirementContributions: { ...taxProfile.retirementContributions, traditional401k: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="Max: 23,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Traditional IRA</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.retirementContributions?.traditionalIRA || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          retirementContributions: { ...taxProfile.retirementContributions, traditionalIRA: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="Max: 7,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Roth IRA</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.retirementContributions?.rothIRA || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          retirementContributions: { ...taxProfile.retirementContributions, rothIRA: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="Max: 7,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">HSA</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.retirementContributions?.hsa || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          retirementContributions: { ...taxProfile.retirementContributions, hsa: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="Max: 4,150/8,300"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Deductions */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Itemized Deductions (if itemizing)</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Mortgage Interest</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.deductions?.mortgage || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          deductions: { ...taxProfile.deductions, mortgage: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="0"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">State & Local Taxes (SALT)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.deductions?.stateLocal || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          deductions: { ...taxProfile.deductions, stateLocal: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="Max: 10,000"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Charitable Donations</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.deductions?.charitable || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          deductions: { ...taxProfile.deductions, charitable: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="0"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Medical Expenses</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={taxProfile.deductions?.medical || ''}
+                        onChange={(e) => setTaxProfile({
+                          ...taxProfile,
+                          deductions: { ...taxProfile.deductions, medical: parseFloat(e.target.value) || 0 }
+                        })}
+                        placeholder="0"
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { analyzeTax(); setShowTaxSetup(false); }}
+                className="w-full bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" /> Save & Analyze
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add Goal Modal (Phase 14) */}
+      {showAddGoal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  🎯 New Financial Goal
+                </h2>
+                <button onClick={() => setShowAddGoal(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Set a savings goal to track</p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Goal Type</label>
+                <select
+                  value={newGoal.category}
+                  onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                >
+                  <option value="emergency_fund">🛡️ Emergency Fund</option>
+                  <option value="vacation">✈️ Vacation Fund</option>
+                  <option value="down_payment">🏠 Home Down Payment</option>
+                  <option value="car">🚗 New Car Fund</option>
+                  <option value="debt_payoff">💳 Debt Payoff</option>
+                  <option value="investment">📈 Investment Goal</option>
+                  <option value="education">🎓 Education Fund</option>
+                  <option value="wedding">💒 Wedding Fund</option>
+                  <option value="custom">🎯 Custom Goal</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Goal Name</label>
+                <input
+                  type="text"
+                  value={newGoal.name}
+                  onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
+                  placeholder="Hawaii Vacation 2026"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Target Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={newGoal.targetAmount}
+                      onChange={(e) => setNewGoal({ ...newGoal, targetAmount: e.target.value })}
+                      placeholder="5,000"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-300 mb-1 block">Current Progress</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={newGoal.currentAmount}
+                      onChange={(e) => setNewGoal({ ...newGoal, currentAmount: e.target.value })}
+                      placeholder="0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Target Date (optional)</label>
+                <input
+                  type="date"
+                  value={newGoal.deadline}
+                  onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <input
+                  type="text"
+                  value={newGoal.notes}
+                  onChange={(e) => setNewGoal({ ...newGoal, notes: e.target.value })}
+                  placeholder="Anniversary trip, saving for 20% down..."
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <button
+                onClick={addGoal}
+                disabled={!newGoal.name || !newGoal.targetAmount}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Create Goal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Log Contribution Modal (Phase 14) */}
+      {showLogContribution && selectedGoal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  💰 Add to {selectedGoal.name}
+                </h2>
+                <button onClick={() => { setShowLogContribution(false); setSelectedGoal(null); }} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">
+                Current: ${selectedGoal.currentAmount?.toLocaleString()} / ${selectedGoal.targetAmount?.toLocaleString()}
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              {/* Quick Add Buttons */}
+              <div className="grid grid-cols-4 gap-2">
+                {[50, 100, 250, 500].map(amount => (
+                  <button
+                    key={amount}
+                    onClick={() => {
+                      updateGoalProgress(selectedGoal.id, amount);
+                      setShowLogContribution(false);
+                      setSelectedGoal(null);
+                    }}
+                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 py-3 rounded-lg font-medium"
+                  >
+                    +${amount}
+                  </button>
+                ))}
+              </div>
+
+              <div className="text-center text-slate-400 text-sm">or enter custom amount</div>
+
+              <div>
+                <label className="text-sm text-slate-300 mb-1 block">Custom Amount</label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <input
+                    type="number"
+                    id="contributionAmount"
+                    placeholder="Enter amount"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  const amount = parseFloat(document.getElementById('contributionAmount').value) || 0;
+                  if (amount > 0) {
+                    updateGoalProgress(selectedGoal.id, amount);
+                    setShowLogContribution(false);
+                    setSelectedGoal(null);
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add to Goal
+              </button>
+
+              <div className="pt-4 border-t border-slate-700">
+                <button
+                  onClick={() => {
+                    const amount = parseFloat(document.getElementById('contributionAmount').value) || 0;
+                    if (amount > 0) {
+                      updateGoalProgress(selectedGoal.id, -amount);
+                      setShowLogContribution(false);
+                      setSelectedGoal(null);
+                    }
+                  }}
+                  className="w-full text-red-400 hover:text-red-300 text-sm"
+                >
+                  Withdraw from goal instead
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Retirement Setup Modal (Phase 15) */}
+      {showRetirementSetup && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl my-8">
+            <div className="p-6 border-b border-slate-700">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  🏖️ Retirement Plan Settings
+                </h2>
+                <button onClick={() => setShowRetirementSetup(false)} className="text-slate-400 hover:text-white">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <p className="text-slate-400 text-sm mt-1">Adjust your retirement planning assumptions</p>
+            </div>
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
+              {/* Age & Timeline */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Timeline</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Current Age</label>
+                    <input
+                      type="number"
+                      value={retirementProfile.currentAge}
+                      onChange={(e) => setRetirementProfile({ ...retirementProfile, currentAge: parseInt(e.target.value) || 30 })}
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Retirement Age</label>
+                    <input
+                      type="number"
+                      value={retirementProfile.retirementAge}
+                      onChange={(e) => setRetirementProfile({ ...retirementProfile, retirementAge: parseInt(e.target.value) || 65 })}
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Life Expectancy</label>
+                    <input
+                      type="number"
+                      value={retirementProfile.lifeExpectancy}
+                      onChange={(e) => setRetirementProfile({ ...retirementProfile, lifeExpectancy: parseInt(e.target.value) || 90 })}
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Current Savings & Contributions */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Savings</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Current Retirement Savings</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.currentSavings}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, currentSavings: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Monthly Contribution</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.monthlyContribution}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, monthlyContribution: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Employer Match</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.employerMatch}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, employerMatch: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Expenses */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Expenses</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Current Monthly Expenses</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.currentExpenses}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, currentExpenses: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Retirement Expense % (of current)</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        value={retirementProfile.retirementExpensePct}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, retirementExpensePct: parseFloat(e.target.value) || 80 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">Typically 70-80% of pre-retirement</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Retirement Income */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Retirement Income Sources</h4>
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Social Security (monthly)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.socialSecurityMonthly}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, socialSecurityMonthly: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Pension (monthly)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.pensionMonthly}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, pensionMonthly: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Other Income (monthly)</label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <input
+                        type="number"
+                        value={retirementProfile.otherIncomeMonthly}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, otherIncomeMonthly: parseFloat(e.target.value) || 0 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Assumptions */}
+              <div>
+                <h4 className="text-sm font-semibold text-white mb-3">Market Assumptions</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Expected Annual Return</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={retirementProfile.expectedReturn}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, expectedReturn: parseFloat(e.target.value) || 7 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">Historical S&P 500: ~10%, Conservative: 6-7%</p>
+                  </div>
+                  <div>
+                    <label className="text-sm text-slate-300 mb-1 block">Expected Inflation</label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.5"
+                        value={retirementProfile.inflationRate}
+                        onChange={(e) => setRetirementProfile({ ...retirementProfile, inflationRate: parseFloat(e.target.value) || 3 })}
+                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      />
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">Historical average: 2-3%</p>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => { calculateRetirementPlan(); setShowRetirementSetup(false); }}
+                className="w-full bg-gradient-to-r from-teal-500 to-cyan-600 hover:from-teal-600 hover:to-cyan-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+              >
+                <Check className="w-4 h-4" /> Update Retirement Plan
               </button>
             </div>
           </div>
