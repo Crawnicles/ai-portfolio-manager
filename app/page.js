@@ -342,6 +342,29 @@ export default function AIPortfolioManager() {
   const [projectionYears, setProjectionYears] = useState(10);
   const [expectedReturn, setExpectedReturn] = useState(7);
 
+  // Phase 20: Legendary Investors
+  const [legendaryInvestors, setLegendaryInvestors] = useState([]);
+  const [selectedInvestor, setSelectedInvestor] = useState(null);
+  const [investorWisdom, setInvestorWisdom] = useState([]);
+  const [legendaryHoldings, setLegendaryHoldings] = useState([]);
+  const [investorsLoading, setInvestorsLoading] = useState(false);
+  const [dailyQuote, setDailyQuote] = useState(null);
+  const [mastersView, setMastersView] = useState('investors'); // investors, holdings, wisdom
+
+  // Phase 21: Market Movers & Insider Trading
+  const [marketMovers, setMarketMovers] = useState(null);
+  const [marketCategory, setMarketCategory] = useState('all'); // all, metals, crypto, commodities, stocks
+  const [moversLoading, setMoversLoading] = useState(false);
+  const [insiderTrades, setInsiderTrades] = useState(null);
+  const [insiderType, setInsiderType] = useState('all'); // all, politicians, insiders, notable
+  const [insidersLoading, setInsidersLoading] = useState(false);
+  const [marketView, setMarketView] = useState('movers'); // movers, perspectives, insiders
+  const [perspectiveFilter, setPerspectiveFilter] = useState('all'); // all, value, momentum, contrarian
+
+  // Navigation State
+  const [activeSection, setActiveSection] = useState('home'); // For section highlighting
+  const [showNavDropdown, setShowNavDropdown] = useState(null); // Which dropdown is open
+
   // Authentication functions
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -1789,6 +1812,95 @@ export default function AIPortfolioManager() {
     }
   };
 
+  // Phase 20: Legendary Investors Functions
+  const fetchLegendaryInvestors = async () => {
+    setInvestorsLoading(true);
+    try {
+      const [investorsRes, wisdomRes, holdingsRes, quoteRes] = await Promise.all([
+        fetch('/api/legendary-investors?action=list'),
+        fetch('/api/legendary-investors?action=wisdom'),
+        fetch('/api/legendary-investors?action=holdings'),
+        fetch('/api/legendary-investors?action=random-quote'),
+      ]);
+      const investorsData = await investorsRes.json();
+      const wisdomData = await wisdomRes.json();
+      const holdingsData = await holdingsRes.json();
+      const quoteData = await quoteRes.json();
+
+      if (investorsData.success) setLegendaryInvestors(investorsData.investors);
+      if (wisdomData.success) setInvestorWisdom(wisdomData.wisdom);
+      if (holdingsData.success) setLegendaryHoldings(holdingsData.holdings);
+      if (quoteData.success) setDailyQuote(quoteData.quote);
+    } catch (err) {
+      console.error('Failed to fetch legendary investors:', err);
+    } finally {
+      setInvestorsLoading(false);
+    }
+  };
+
+  const fetchInvestorDetail = async (investorId) => {
+    try {
+      const res = await fetch(`/api/legendary-investors?action=detail&id=${investorId}`);
+      const data = await res.json();
+      if (data.success) setSelectedInvestor(data.investor);
+    } catch (err) {
+      console.error('Failed to fetch investor detail:', err);
+    }
+  };
+
+  const checkWhoOwns = async (symbol) => {
+    try {
+      const res = await fetch('/api/legendary-investors', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'whoOwns', symbol }),
+      });
+      const data = await res.json();
+      return data.owners || [];
+    } catch (err) {
+      console.error('Failed to check who owns:', err);
+      return [];
+    }
+  };
+
+  // Phase 21: Market Movers Functions
+  const fetchMarketMovers = async (category = 'all') => {
+    setMoversLoading(true);
+    try {
+      const res = await fetch(`/api/market-movers?category=${category}`);
+      const data = await res.json();
+      setMarketMovers(data);
+    } catch (err) {
+      console.error('Failed to fetch market movers:', err);
+    } finally {
+      setMoversLoading(false);
+    }
+  };
+
+  const fetchInsiderTrades = async (type = 'all') => {
+    setInsidersLoading(true);
+    try {
+      const res = await fetch(`/api/insider-trades?type=${type}`);
+      const data = await res.json();
+      setInsiderTrades(data);
+    } catch (err) {
+      console.error('Failed to fetch insider trades:', err);
+    } finally {
+      setInsidersLoading(false);
+    }
+  };
+
+  // Load market data on mount
+  useEffect(() => {
+    fetchMarketMovers();
+    fetchInsiderTrades();
+  }, []);
+
+  // Load legendary investors on mount
+  useEffect(() => {
+    fetchLegendaryInvestors();
+  }, []);
+
   // Load partnership data from localStorage
   useEffect(() => {
     const savedPartnership = localStorage.getItem('partnershipData');
@@ -2175,51 +2287,133 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
-            <nav className="flex gap-1 overflow-x-auto pb-1">
-              {/* Grouped Navigation */}
-              <div className="flex items-center gap-1 pr-2 border-r border-slate-700">
-                <button onClick={() => setActiveTab('home')} className={`px-3 py-2 rounded-lg font-medium transition-all whitespace-nowrap text-sm flex items-center gap-1.5 ${activeTab === 'home' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  <Home className="w-4 h-4" /> Home
+            <nav className="flex items-center gap-1">
+              {/* Home Button */}
+              <button onClick={() => setActiveTab('home')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'home' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:bg-slate-700'}`}>
+                <Home className="w-4 h-4" /> Home
+              </button>
+
+              {/* Wealth Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNavDropdown(showNavDropdown === 'wealth' ? null : 'wealth')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['overview', 'timeline', 'goals', 'retirement'].includes(activeTab) ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  💰 Wealth <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'wealth' ? 'rotate-90' : ''}`} />
                 </button>
+                {showNavDropdown === 'wealth' && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                    {[
+                      { tab: 'overview', icon: '💰', label: 'Net Worth' },
+                      { tab: 'timeline', icon: '📊', label: 'Timeline' },
+                      { tab: 'goals', icon: '🎯', label: 'Goals' },
+                      { tab: 'retirement', icon: '🏖️', label: 'Retirement' },
+                    ].map(({ tab, icon, label }) => (
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                        <span>{icon}</span> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Wealth Section */}
-              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
-                <span className="text-xs text-slate-500 font-medium px-1">WEALTH</span>
-                {['overview', 'timeline', 'goals', 'retirement'].map((tab) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                    {tab === 'overview' ? '💰' : tab === 'timeline' ? '📊' : tab === 'goals' ? '🎯' : '🏖️'} {tab === 'retirement' ? 'Retire' : tab}
-                  </button>
-                ))}
+              {/* Money Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNavDropdown(showNavDropdown === 'money' ? null : 'money')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['spending', 'debt-payoff', 'taxes', 'advisor'].includes(activeTab) ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  💳 Money <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'money' ? 'rotate-90' : ''}`} />
+                </button>
+                {showNavDropdown === 'money' && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                    {[
+                      { tab: 'spending', icon: '💳', label: 'Spending' },
+                      { tab: 'debt-payoff', icon: '📉', label: 'Debt Payoff' },
+                      { tab: 'taxes', icon: '📋', label: 'Taxes' },
+                      { tab: 'advisor', icon: '🧠', label: 'AI Advisor' },
+                    ].map(({ tab, icon, label }) => (
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                        <span>{icon}</span> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Money Section */}
-              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
-                <span className="text-xs text-slate-500 font-medium px-1">MONEY</span>
-                {['spending', 'debt-payoff', 'taxes', 'advisor'].map((tab) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                    {tab === 'spending' ? '💳' : tab === 'debt-payoff' ? '📉' : tab === 'taxes' ? '📋' : '🧠'} {tab === 'debt-payoff' ? 'Debt' : tab === 'advisor' ? 'Advisor' : tab}
-                  </button>
-                ))}
+              {/* Invest Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNavDropdown(showNavDropdown === 'invest' ? null : 'invest')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['dashboard', 'trade', 'suggestions', 'research', 'ai-arena', 'history'].includes(activeTab) ? 'bg-purple-500/20 text-purple-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  📈 Invest <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'invest' ? 'rotate-90' : ''}`} />
+                </button>
+                {showNavDropdown === 'invest' && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                    {[
+                      { tab: 'dashboard', icon: '📈', label: 'Portfolio' },
+                      { tab: 'trade', icon: '⚡', label: 'Trade' },
+                      { tab: 'suggestions', icon: '🤖', label: 'AI Suggestions' },
+                      { tab: 'research', icon: '🔬', label: 'Research' },
+                      { tab: 'ai-arena', icon: '🏆', label: 'AI Arena' },
+                      { tab: 'history', icon: '📜', label: 'History' },
+                    ].map(({ tab, icon, label }) => (
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-purple-500/20 text-purple-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                        <span>{icon}</span> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* Invest Section */}
-              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
-                <span className="text-xs text-slate-500 font-medium px-1">INVEST</span>
-                {['dashboard', 'trade', 'suggestions', 'research', 'ai-arena', 'history'].map((tab) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                    {tab === 'dashboard' ? '📈' : tab === 'trade' ? '⚡' : tab === 'suggestions' ? '🤖' : tab === 'research' ? '🔬' : tab === 'ai-arena' ? '🏆' : '📜'} {tab === 'dashboard' ? 'Portfolio' : tab === 'ai-arena' ? 'Arena' : tab === 'suggestions' ? 'AI' : tab}
-                  </button>
-                ))}
+              {/* Markets Dropdown - NEW */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNavDropdown(showNavDropdown === 'markets' ? null : 'markets')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['markets', 'insiders'].includes(activeTab) ? 'bg-red-500/20 text-red-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                >
+                  🌍 Markets <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'markets' ? 'rotate-90' : ''}`} />
+                </button>
+                {showNavDropdown === 'markets' && (
+                  <div className="absolute top-full left-0 mt-1 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                    {[
+                      { tab: 'markets', icon: '📊', label: 'Market Movers' },
+                      { tab: 'insiders', icon: '🏛️', label: 'Insider Trades' },
+                    ].map(({ tab, icon, label }) => (
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-red-500/20 text-red-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                        <span>{icon}</span> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {/* More Section */}
-              <div className="flex items-center gap-1 pl-2">
-                {['partnership', 'settings'].map((tab) => (
-                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-slate-500/20 text-slate-300' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                    {tab === 'partnership' ? '🤝' : '⚙️'} {tab === 'partnership' ? 'Partner' : ''}
-                  </button>
-                ))}
+              {/* Masters Button */}
+              <button onClick={() => setActiveTab('masters')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'masters' ? 'bg-yellow-500/20 text-yellow-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                🎓 Masters
+              </button>
+
+              {/* More Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowNavDropdown(showNavDropdown === 'more' ? null : 'more')}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['partnership', 'settings'].includes(activeTab) ? 'bg-slate-500/20 text-slate-300' : 'text-slate-400 hover:bg-slate-700'}`}
+                >
+                  ⚙️ More <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'more' ? 'rotate-90' : ''}`} />
+                </button>
+                {showNavDropdown === 'more' && (
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                    {[
+                      { tab: 'partnership', icon: '🤝', label: 'Partnership' },
+                      { tab: 'settings', icon: '⚙️', label: 'Settings' },
+                    ].map(({ tab, icon, label }) => (
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-slate-500/20 text-slate-300' : 'text-slate-300 hover:bg-slate-700'}`}>
+                        <span>{icon}</span> {label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </nav>
 
@@ -6613,6 +6807,764 @@ export default function AIPortfolioManager() {
                 >
                   Go to Overview
                 </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MASTERS TAB - Phase 20: Legendary Investors */}
+        {activeTab === 'masters' && (
+          <div className="space-y-6">
+            {/* Header with Daily Quote */}
+            <div className="bg-gradient-to-r from-yellow-600/20 via-amber-600/20 to-orange-600/20 rounded-2xl border border-yellow-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    🎓 Investment Masters
+                  </h2>
+                  <p className="text-slate-300 mt-1">Learn from the greatest investors of all time</p>
+                </div>
+                {dailyQuote && (
+                  <div className="max-w-md text-right">
+                    <p className="text-amber-300 italic text-sm">"{dailyQuote.text}"</p>
+                    <p className="text-slate-400 text-xs mt-1">— {dailyQuote.author}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* View Toggle */}
+            <div className="flex gap-2">
+              {[
+                { view: 'investors', label: '👤 Investors', desc: 'Profiles & Holdings' },
+                { view: 'holdings', label: '📊 Holdings', desc: 'Who Owns What' },
+                { view: 'wisdom', label: '📚 Wisdom', desc: 'Principles & Quotes' },
+              ].map(({ view, label, desc }) => (
+                <button
+                  key={view}
+                  onClick={() => setMastersView(view)}
+                  className={`px-4 py-3 rounded-xl font-medium transition-all flex-1 ${mastersView === view ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:border-slate-600'}`}
+                >
+                  <div className="text-lg">{label}</div>
+                  <div className="text-xs opacity-70">{desc}</div>
+                </button>
+              ))}
+            </div>
+
+            {/* Investors View */}
+            {mastersView === 'investors' && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Investor List */}
+                <div className="lg:col-span-1 space-y-3">
+                  <h3 className="text-sm font-medium text-slate-400 mb-2">Select an Investor</h3>
+                  {investorsLoading ? (
+                    <div className="text-center py-8 text-slate-400">
+                      <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
+                      Loading...
+                    </div>
+                  ) : (
+                    legendaryInvestors.map((inv) => (
+                      <button
+                        key={inv.id}
+                        onClick={() => fetchInvestorDetail(inv.id)}
+                        className={`w-full p-4 rounded-xl text-left transition-all ${selectedInvestor?.id === inv.id ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-slate-800/50 border border-slate-700 hover:border-slate-600'}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="text-3xl">{inv.image}</span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-white font-medium truncate">{inv.name}</div>
+                            <div className="text-slate-400 text-sm truncate">{inv.firm}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-emerald-400 font-bold text-sm">{inv.annualReturn}</div>
+                            <div className="text-slate-500 text-xs">/year</div>
+                          </div>
+                        </div>
+                      </button>
+                    ))
+                  )}
+                </div>
+
+                {/* Investor Detail */}
+                <div className="lg:col-span-2">
+                  {selectedInvestor ? (
+                    <div className="space-y-6">
+                      {/* Profile Header */}
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                        <div className="flex items-start gap-4">
+                          <span className="text-5xl">{selectedInvestor.image}</span>
+                          <div className="flex-1">
+                            <h3 className="text-2xl font-bold text-white">{selectedInvestor.name}</h3>
+                            <p className="text-slate-400">{selectedInvestor.title} at {selectedInvestor.firm}</p>
+                            <div className="flex gap-4 mt-3">
+                              <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-sm">
+                                {selectedInvestor.annualReturn} annual return
+                              </div>
+                              <div className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm">
+                                Since {selectedInvestor.since}
+                              </div>
+                              <div className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm">
+                                {selectedInvestor.style}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-slate-300 mt-4">{selectedInvestor.bio}</p>
+                      </div>
+
+                      {/* Holdings */}
+                      {selectedInvestor.holdings?.length > 0 && (
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <Briefcase className="w-5 h-5 text-blue-400" /> Current Holdings (13F)
+                          </h4>
+                          <div className="space-y-2">
+                            {selectedInvestor.holdings.slice(0, 8).map((h, i) => (
+                              <div key={i} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                                <div className="flex items-center gap-3">
+                                  <span className="text-white font-bold w-16">{h.symbol}</span>
+                                  <span className="text-slate-400 text-sm">{h.company}</span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <span className="text-slate-300 text-sm">{h.portfolioPct}%</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded ${h.change === 'increased' ? 'bg-green-500/20 text-green-400' : h.change === 'reduced' ? 'bg-red-500/20 text-red-400' : h.change === 'new' ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-600 text-slate-400'}`}>
+                                    {h.change}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Principles */}
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          <Target className="w-5 h-5 text-amber-400" /> Investment Principles
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          {selectedInvestor.principles?.map((p, i) => (
+                            <div key={i} className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                              <div className="text-amber-400 font-medium text-sm mb-1">{p.title}</div>
+                              <div className="text-slate-300 text-xs">{p.description}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Quotes */}
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                          💬 Famous Quotes
+                        </h4>
+                        <div className="space-y-3">
+                          {selectedInvestor.quotes?.slice(0, 5).map((q, i) => (
+                            <div key={i} className="p-4 bg-slate-700/30 rounded-lg border-l-2 border-yellow-500/50">
+                              <p className="text-slate-200 italic">"{q.text}"</p>
+                              <p className="text-slate-500 text-xs mt-2">{q.context}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Resources */}
+                      {selectedInvestor.resources?.length > 0 && (
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            📖 Resources
+                          </h4>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {selectedInvestor.resources.map((r, i) => (
+                              <a
+                                key={i}
+                                href={r.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 transition-colors"
+                              >
+                                <div className="text-blue-400 font-medium text-sm">{r.title}</div>
+                                <div className="text-slate-400 text-xs mt-1">{r.description}</div>
+                                {r.author && <div className="text-slate-500 text-xs mt-1">by {r.author}</div>}
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                      <span className="text-6xl mb-4 block">🎓</span>
+                      <h3 className="text-xl font-semibold text-white mb-2">Select an Investor</h3>
+                      <p className="text-slate-400">Choose a legendary investor to view their profile, holdings, and wisdom</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Holdings View - Who Owns What */}
+            {mastersView === 'holdings' && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-blue-400" /> Popular Holdings Among Legends
+                </h3>
+                <p className="text-slate-400 text-sm mb-4">See which stocks are owned by multiple legendary investors</p>
+                <div className="space-y-3">
+                  {legendaryHoldings
+                    .filter(h => h.investors.length > 1)
+                    .sort((a, b) => b.investors.length - a.investors.length)
+                    .slice(0, 15)
+                    .map((holding, i) => (
+                      <div key={i} className="p-4 bg-slate-700/30 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-3">
+                            <span className="text-white font-bold text-lg">{holding.symbol}</span>
+                            <span className="text-slate-400">{holding.company}</span>
+                          </div>
+                          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm">
+                            {holding.investors.length} investors
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {holding.investors.map((inv, j) => (
+                            <span key={j} className="px-2 py-1 bg-slate-600/50 text-slate-300 rounded text-xs">
+                              {inv.name} ({(inv.value / 1000000000).toFixed(1)}B)
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                {legendaryHoldings.filter(h => h.investors.length > 1).length === 0 && (
+                  <div className="text-center py-8 text-slate-400">
+                    Loading holdings data...
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Wisdom View - Principles & Quotes */}
+            {mastersView === 'wisdom' && (
+              <div className="space-y-6">
+                {investorWisdom.map((category, i) => (
+                  <div key={i} className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <span className="text-2xl">{category.icon}</span> {category.category}
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {category.lessons.map((lesson, j) => (
+                        <div key={j} className="p-4 bg-slate-700/30 rounded-lg border-l-2 border-yellow-500/50">
+                          <p className="text-slate-200 italic mb-2">"{lesson.text}"</p>
+                          <p className="text-yellow-400 text-sm">— {lesson.author}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {investorWisdom.length === 0 && (
+                  <div className="text-center py-12 text-slate-400">
+                    <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
+                    Loading wisdom...
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* MARKETS TAB - Phase 21: Market Movers & Volatility Explainer */}
+        {activeTab === 'markets' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-red-600/20 via-orange-600/20 to-yellow-600/20 rounded-2xl border border-red-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    📊 Market Movers & Why
+                  </h2>
+                  <p className="text-slate-400 mt-1">Understand what's driving price action across all markets</p>
+                </div>
+                <button
+                  onClick={() => fetchMarketMovers(marketCategory)}
+                  disabled={moversLoading}
+                  className="px-6 py-3 bg-red-500 hover:bg-red-600 text-white font-medium rounded-xl flex items-center gap-2 disabled:opacity-50"
+                >
+                  {moversLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Category Filters */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: 'all', label: '🌍 All Markets', color: 'slate' },
+                { key: 'metals', label: '🥇 Precious Metals', color: 'yellow' },
+                { key: 'crypto', label: '₿ Crypto', color: 'orange' },
+                { key: 'commodities', label: '🛢️ Commodities', color: 'green' },
+                { key: 'stocks', label: '📈 Stocks', color: 'blue' },
+              ].map(({ key, label, color }) => (
+                <button
+                  key={key}
+                  onClick={() => { setMarketCategory(key); fetchMarketMovers(key); }}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    marketCategory === key
+                      ? `bg-${color}-500/20 text-${color}-400 border border-${color}-500/50`
+                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Market Analysis Summary */}
+            {marketMovers?.analysis && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white">Market Sentiment</h3>
+                  <div className="flex items-center gap-4">
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                      marketMovers.analysis.overallSentiment === 'bullish' ? 'bg-green-500/20 text-green-400' :
+                      marketMovers.analysis.overallSentiment === 'bearish' ? 'bg-red-500/20 text-red-400' :
+                      'bg-yellow-500/20 text-yellow-400'
+                    }`}>
+                      {marketMovers.analysis.overallSentiment.toUpperCase()}
+                    </span>
+                    <span className="text-slate-400">VIX: <span className="text-white font-medium">{marketMovers.analysis.volatilityIndex}</span></span>
+                    <span className="text-slate-400">Fear/Greed: <span className={`font-medium ${marketMovers.analysis.fearGreedIndex < 40 ? 'text-red-400' : marketMovers.analysis.fearGreedIndex > 60 ? 'text-green-400' : 'text-yellow-400'}`}>{marketMovers.analysis.fearGreedIndex}</span></span>
+                  </div>
+                </div>
+                <p className="text-slate-300">{marketMovers.analysis.summary}</p>
+
+                {/* Key Themes */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {marketMovers.analysis.keyThemes?.map((theme, i) => (
+                    <div key={i} className="p-3 bg-slate-700/30 rounded-lg border-l-2 border-blue-500/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-white font-medium">{theme.theme}</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          theme.impact === 'bullish' ? 'bg-green-500/20 text-green-400' :
+                          theme.impact === 'bearish' ? 'bg-red-500/20 text-red-400' :
+                          'bg-slate-500/20 text-slate-400'
+                        }`}>{theme.impact}</span>
+                      </div>
+                      <p className="text-slate-400 text-sm">{theme.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Investment Perspectives */}
+            {marketMovers?.analysis && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {/* Contrarian Opportunities */}
+                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-4">
+                  <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🔄 Contrarian Plays</h4>
+                  <div className="space-y-2">
+                    {marketMovers.analysis.contraianOpportunities?.map((opp, i) => (
+                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium">{opp.symbol}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            opp.risk === 'low' ? 'bg-green-500/20 text-green-400' :
+                            opp.risk === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
+                            'bg-red-500/20 text-red-400'
+                          }`}>{opp.risk} risk</span>
+                        </div>
+                        <p className="text-slate-400 text-xs mt-1">{opp.thesis}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Boring Compounders */}
+                <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 p-4">
+                  <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🐢 Boring Compounders</h4>
+                  <div className="space-y-2">
+                    {marketMovers.analysis.boringCompounders?.map((stock, i) => (
+                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium">{stock.symbol}</span>
+                          <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">{stock.moat} moat</span>
+                        </div>
+                        <p className="text-slate-400 text-xs mt-1">{stock.thesis}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Momentum Plays */}
+                <div className="bg-gradient-to-br from-orange-500/10 to-red-500/10 rounded-xl border border-orange-500/30 p-4">
+                  <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🚀 Momentum Plays</h4>
+                  <div className="space-y-2">
+                    {marketMovers.analysis.momentumPlays?.map((stock, i) => (
+                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium">{stock.symbol}</span>
+                          <span className={`text-xs px-2 py-0.5 rounded ${
+                            stock.risk === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>{stock.risk} risk</span>
+                        </div>
+                        <p className="text-slate-400 text-xs mt-1">{stock.thesis}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Market Movers Grid */}
+            {marketMovers?.movers && Object.entries(marketMovers.movers).map(([category, items]) => (
+              <div key={category} className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
+                  <h3 className="text-lg font-semibold text-white capitalize flex items-center gap-2">
+                    {category === 'metals' && '🥇'} {category === 'crypto' && '₿'} {category === 'commodities' && '🛢️'} {category === 'stocks' && '📈'}
+                    {category}
+                  </h3>
+                </div>
+                <div className="divide-y divide-slate-700">
+                  {items.map((item, i) => (
+                    <div key={i} className="p-4 hover:bg-slate-700/30 transition-colors">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-bold text-white">{item.symbol}</span>
+                          <span className="text-slate-400">{item.name}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                            item.volatility === 'extreme' ? 'bg-red-500/20 text-red-400' :
+                            item.volatility === 'high' ? 'bg-orange-500/20 text-orange-400' :
+                            'bg-green-500/20 text-green-400'
+                          }`}>{item.volatility} vol</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-white font-medium">${typeof item.price === 'number' ? item.price.toLocaleString() : item.price}</span>
+                          <span className={`flex items-center gap-1 font-medium ${item.changePercent >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {item.changePercent >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+                            {item.changePercent >= 0 ? '+' : ''}{item.changePercent.toFixed(2)}%
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Drivers */}
+                      <div className="mb-3">
+                        <p className="text-slate-400 text-sm mb-2">Key Drivers:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {item.drivers?.slice(0, 4).map((driver, j) => (
+                            <div key={j} className={`px-3 py-1.5 rounded-lg text-xs ${
+                              driver.impact === 'bullish' ? 'bg-green-500/10 border border-green-500/30 text-green-400' :
+                              driver.impact === 'bearish' ? 'bg-red-500/10 border border-red-500/30 text-red-400' :
+                              'bg-slate-700/50 border border-slate-600 text-slate-300'
+                            }`}>
+                              <span className="font-medium">{driver.factor}</span> ({driver.weight}%)
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Outlook */}
+                      <div className="p-3 bg-slate-700/30 rounded-lg">
+                        <p className="text-slate-300 text-sm">{item.outlook}</p>
+                        {item.technicals && (
+                          <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
+                            <span>Support: <span className="text-white">${item.technicals.support}</span></span>
+                            <span>Resistance: <span className="text-white">${item.technicals.resistance}</span></span>
+                            <span>RSI: <span className={item.technicals.rsi > 70 ? 'text-red-400' : item.technicals.rsi < 30 ? 'text-green-400' : 'text-white'}>{item.technicals.rsi}</span></span>
+                            <span>Trend: <span className={item.technicals.trend === 'bullish' ? 'text-green-400' : item.technicals.trend === 'bearish' ? 'text-red-400' : 'text-yellow-400'}>{item.technicals.trend}</span></span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {moversLoading && (
+              <div className="text-center py-12">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-red-400" />
+                <p className="text-slate-400">Loading market data...</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* INSIDERS TAB - Phase 21: Politician & Insider Trading Tracker */}
+        {activeTab === 'insiders' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/20 rounded-2xl border border-indigo-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    🏛️ Insider & Politician Trades
+                  </h2>
+                  <p className="text-slate-400 mt-1">Track what Congress, corporate insiders, and legendary investors are buying</p>
+                </div>
+                <button
+                  onClick={() => fetchInsiderTrades(insiderType)}
+                  disabled={insidersLoading}
+                  className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-xl flex items-center gap-2 disabled:opacity-50"
+                >
+                  {insidersLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            {/* Type Filters */}
+            <div className="flex flex-wrap gap-2">
+              {[
+                { key: 'all', label: '📋 All Activity', color: 'slate' },
+                { key: 'politicians', label: '🏛️ Politicians', color: 'indigo' },
+                { key: 'insiders', label: '👔 Corporate Insiders', color: 'purple' },
+                { key: 'notable', label: '🎯 Notable Investors', color: 'pink' },
+              ].map(({ key, label, color }) => (
+                <button
+                  key={key}
+                  onClick={() => { setInsiderType(key); fetchInsiderTrades(key); }}
+                  className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                    insiderType === key
+                      ? `bg-${color}-500/20 text-${color}-400 border border-${color}-500/50`
+                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            {/* Signal Aggregation */}
+            {insiderTrades?.signals && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-gradient-to-br from-green-500/10 to-emerald-500/10 rounded-xl border border-green-500/30 p-4">
+                  <h4 className="text-white font-semibold mb-3">📈 Most Bought by Politicians</h4>
+                  <div className="space-y-2">
+                    {insiderTrades.signals.mostBoughtByPoliticians?.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
+                        <span className="text-white font-medium">{item.symbol}</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="text-green-400">{item.buyers} buyers</span>
+                          <span className="text-red-400">{item.sellers} sellers</span>
+                          <span className="text-emerald-400 font-medium">{item.netAmount}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-red-500/10 to-orange-500/10 rounded-xl border border-red-500/30 p-4">
+                  <h4 className="text-white font-semibold mb-3">📉 Most Sold by Politicians</h4>
+                  <div className="space-y-2">
+                    {insiderTrades.signals.mostSoldByPoliticians?.map((item, i) => (
+                      <div key={i} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
+                        <span className="text-white font-medium">{item.symbol}</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="text-green-400">{item.buyers} buyers</span>
+                          <span className="text-red-400">{item.sellers} sellers</span>
+                          <span className="text-red-400 font-medium">{item.netAmount}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Unusual Activity Alert */}
+            {insiderTrades?.signals?.unusualActivity?.length > 0 && (
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+                <h4 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" /> Unusual Activity Detected
+                </h4>
+                <div className="space-y-2">
+                  {insiderTrades.signals.unusualActivity.map((alert, i) => (
+                    <div key={i} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                      <div>
+                        <span className="text-white font-medium">{alert.symbol}</span>
+                        <p className="text-slate-400 text-sm">{alert.pattern}</p>
+                      </div>
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                        alert.suspicionScore > 80 ? 'bg-red-500/20 text-red-400' :
+                        alert.suspicionScore > 60 ? 'bg-yellow-500/20 text-yellow-400' :
+                        'bg-slate-500/20 text-slate-400'
+                      }`}>
+                        {alert.suspicionScore}% suspicious
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Politicians Section */}
+            {insiderTrades?.politicians?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
+                  <h3 className="text-lg font-semibold text-white">🏛️ Congressional Trades</h3>
+                </div>
+                <div className="divide-y divide-slate-700">
+                  {insiderTrades.politicians.map((pol, i) => (
+                    <div key={i} className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <span className="text-lg font-bold text-white">{pol.name}</span>
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${pol.party === 'D' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}`}>
+                            {pol.party === 'D' ? 'Democrat' : 'Republican'}
+                          </span>
+                          <span className="text-slate-400 text-sm">{pol.chamber} - {pol.state}</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <span className="text-slate-400 text-sm">YTD: <span className="text-green-400 font-medium">+{pol.ytdReturn}%</span></span>
+                          <span className="text-slate-400 text-sm">Watch Score: <span className="text-yellow-400 font-medium">{pol.watchScore}</span></span>
+                        </div>
+                      </div>
+                      <p className="text-slate-400 text-sm mb-3">{pol.notablePattern}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
+                        {pol.recentTrades.map((trade, j) => (
+                          <div key={j} className={`p-3 rounded-lg ${
+                            trade.action === 'buy' || trade.action === 'call_options' ? 'bg-green-500/10 border border-green-500/30' : 'bg-red-500/10 border border-red-500/30'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-white font-medium">{trade.symbol}</span>
+                              <span className={`text-xs font-medium ${trade.action.includes('buy') || trade.action.includes('call') ? 'text-green-400' : 'text-red-400'}`}>
+                                {trade.action.toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="text-slate-400 text-xs mt-1">
+                              {trade.amount} • {trade.date}
+                            </div>
+                            <div className="text-slate-500 text-xs">Disclosed after {trade.daysToDisclose} days</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Notable Investors Section */}
+            {insiderTrades?.notableInvestors?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
+                  <h3 className="text-lg font-semibold text-white">🎯 Notable Investor 13F Changes</h3>
+                </div>
+                <div className="divide-y divide-slate-700">
+                  {insiderTrades.notableInvestors.map((investor, i) => (
+                    <div key={i} className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-lg font-bold text-white">{investor.name}</span>
+                          <span className="text-slate-400 ml-2">— {investor.firm}</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="text-slate-400">AUM: <span className="text-white">{investor.aum}</span></span>
+                          <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">{investor.style}</span>
+                        </div>
+                      </div>
+                      {investor.recentCommentary && (
+                        <p className="text-slate-300 text-sm italic mb-3">"{investor.recentCommentary}"</p>
+                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <h5 className="text-slate-400 text-sm mb-2">Q4 2025 Changes</h5>
+                          <div className="space-y-1">
+                            {investor.q4_2025_changes?.slice(0, 5).map((change, j) => (
+                              <div key={j} className={`flex items-center justify-between p-2 rounded ${
+                                change.action === 'NEW' || change.action === 'ADDED' ? 'bg-green-500/10' : 'bg-red-500/10'
+                              }`}>
+                                <span className="text-white font-medium">{change.symbol}</span>
+                                <div className="flex items-center gap-2">
+                                  <span className={`text-xs font-medium ${change.action === 'NEW' || change.action === 'ADDED' ? 'text-green-400' : 'text-red-400'}`}>
+                                    {change.action}
+                                  </span>
+                                  <span className="text-slate-400 text-xs">{change.portfolioPct}%</span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <h5 className="text-slate-400 text-sm mb-2">Top Holdings</h5>
+                          <div className="space-y-1">
+                            {investor.topHoldings?.slice(0, 5).map((holding, j) => (
+                              <div key={j} className="flex items-center justify-between p-2 bg-slate-700/30 rounded">
+                                <span className="text-white">{holding.symbol}</span>
+                                <span className="text-slate-400 text-sm">{holding.portfolioPct}%</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Corporate Insiders Section */}
+            {insiderTrades?.insiders?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
+                  <h3 className="text-lg font-semibold text-white">👔 Corporate Insider Activity</h3>
+                </div>
+                <div className="divide-y divide-slate-700">
+                  {insiderTrades.insiders.map((company, i) => (
+                    <div key={i} className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <span className="text-lg font-bold text-white">{company.symbol}</span>
+                          <span className="text-slate-400 ml-2">— {company.company}</span>
+                        </div>
+                        <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                          company.insiderSentiment === 'buying' ? 'bg-green-500/20 text-green-400' :
+                          company.insiderSentiment === 'selling' ? 'bg-red-500/20 text-red-400' :
+                          'bg-slate-500/20 text-slate-400'
+                        }`}>
+                          {company.insiderSentiment}
+                        </span>
+                      </div>
+                      {company.note && (
+                        <p className="text-slate-400 text-sm mb-3">ℹ️ {company.note}</p>
+                      )}
+                      <div className="space-y-2">
+                        {company.recentFilings.map((filing, j) => (
+                          <div key={j} className={`p-3 rounded-lg ${
+                            filing.action === 'buy' ? 'bg-green-500/10 border border-green-500/30' :
+                            filing.action === 'sell' ? 'bg-red-500/10 border border-red-500/30' :
+                            'bg-slate-700/30 border border-slate-600'
+                          }`}>
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="text-white font-medium">{filing.insider}</span>
+                                <span className="text-slate-400 ml-2">({filing.title})</span>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <span className={`text-sm font-medium ${
+                                  filing.action === 'buy' ? 'text-green-400' :
+                                  filing.action === 'sell' ? 'text-red-400' :
+                                  'text-slate-400'
+                                }`}>
+                                  {filing.action.toUpperCase()}
+                                </span>
+                                <span className="text-white">{filing.shares?.toLocaleString()} shares</span>
+                                <span className="text-slate-400">${(filing.value / 1000000).toFixed(1)}M</span>
+                              </div>
+                            </div>
+                            <div className="text-slate-500 text-xs mt-1">{filing.date} • {filing.purpose}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {insidersLoading && (
+              <div className="text-center py-12">
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-indigo-400" />
+                <p className="text-slate-400">Loading insider data...</p>
               </div>
             )}
           </div>

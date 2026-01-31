@@ -1,32 +1,74 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { readFileSync, writeFileSync, existsSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join } from 'path';
 
-const DATA_DIR = process.env.DATA_DIR || '/tmp';
+// Use a more persistent location - create .data folder in project root for local dev
+// On Vercel, we'll rely on client-side sync mechanism
+const DATA_DIR = process.env.DATA_DIR || (process.env.VERCEL ? '/tmp' : join(process.cwd(), '.data'));
 const HOUSEHOLDS_FILE = join(DATA_DIR, 'households.json');
 const USERS_FILE = join(DATA_DIR, 'users.json');
 
+// Ensure data directory exists
+try {
+  if (!existsSync(DATA_DIR)) {
+    mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (e) {
+  console.error('Failed to create data directory:', e);
+}
+
+// In-memory cache for serverless environments
+let householdsCache = null;
+let usersCache = null;
+let lastCacheTime = 0;
+const CACHE_TTL = 5000; // 5 seconds
+
 function getHouseholds() {
   try {
-    if (existsSync(HOUSEHOLDS_FILE)) {
-      return JSON.parse(readFileSync(HOUSEHOLDS_FILE, 'utf-8'));
+    // Check cache first
+    if (householdsCache && Date.now() - lastCacheTime < CACHE_TTL) {
+      return householdsCache;
     }
-  } catch (e) {}
-  return [];
+
+    if (existsSync(HOUSEHOLDS_FILE)) {
+      householdsCache = JSON.parse(readFileSync(HOUSEHOLDS_FILE, 'utf-8'));
+      lastCacheTime = Date.now();
+      return householdsCache;
+    }
+  } catch (e) {
+    console.error('Error reading households:', e);
+  }
+  return householdsCache || [];
 }
 
 function saveHouseholds(households) {
-  writeFileSync(HOUSEHOLDS_FILE, JSON.stringify(households, null, 2));
+  try {
+    writeFileSync(HOUSEHOLDS_FILE, JSON.stringify(households, null, 2));
+    householdsCache = households;
+    lastCacheTime = Date.now();
+  } catch (e) {
+    console.error('Error saving households:', e);
+    // Still update cache even if file write fails
+    householdsCache = households;
+    lastCacheTime = Date.now();
+  }
 }
 
 function getUsers() {
   try {
-    if (existsSync(USERS_FILE)) {
-      return JSON.parse(readFileSync(USERS_FILE, 'utf-8'));
+    if (usersCache && Date.now() - lastCacheTime < CACHE_TTL) {
+      return usersCache;
     }
-  } catch (e) {}
-  return [];
+
+    if (existsSync(USERS_FILE)) {
+      usersCache = JSON.parse(readFileSync(USERS_FILE, 'utf-8'));
+      return usersCache;
+    }
+  } catch (e) {
+    console.error('Error reading users:', e);
+  }
+  return usersCache || [];
 }
 
 // GET - Retrieve household data
