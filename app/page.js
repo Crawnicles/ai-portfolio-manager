@@ -361,6 +361,16 @@ export default function AIPortfolioManager() {
   const [marketView, setMarketView] = useState('movers'); // movers, perspectives, insiders
   const [perspectiveFilter, setPerspectiveFilter] = useState('all'); // all, value, momentum, contrarian
 
+  // Phase 22: Insurance Dashboard
+  const [insurancePolicies, setInsurancePolicies] = useState([]);
+  const [insuranceAnalysis, setInsuranceAnalysis] = useState(null);
+  const [showAddInsurance, setShowAddInsurance] = useState(false);
+  const [editingInsurance, setEditingInsurance] = useState(null);
+  const [newInsurance, setNewInsurance] = useState({
+    name: '', type: 'auto', provider: '', premium: '', paymentFrequency: 'monthly',
+    coverage: '', deductible: '', renewalDate: '', policyNumber: '', notes: ''
+  });
+
   // Navigation State
   const [activeSection, setActiveSection] = useState('home'); // For section highlighting
   const [showNavDropdown, setShowNavDropdown] = useState(null); // Which dropdown is open
@@ -1946,6 +1956,63 @@ export default function AIPortfolioManager() {
     fetchInsiderTrades();
   }, []);
 
+  // Phase 22: Insurance Functions
+  const analyzeInsurance = async () => {
+    try {
+      const res = await fetch('/api/insurance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'analyze', policies: insurancePolicies }),
+      });
+      const data = await res.json();
+      if (data.success) setInsuranceAnalysis(data.analysis);
+    } catch (err) {
+      console.error('Failed to analyze insurance:', err);
+    }
+  };
+
+  const addInsurancePolicy = () => {
+    if (!newInsurance.name || !newInsurance.premium) return;
+    const policy = {
+      id: Date.now(),
+      ...newInsurance,
+      premium: parseFloat(newInsurance.premium) || 0,
+      coverage: parseFloat(newInsurance.coverage) || 0,
+      deductible: parseFloat(newInsurance.deductible) || 0,
+      createdAt: new Date().toISOString(),
+    };
+    setInsurancePolicies([...insurancePolicies, policy]);
+    setNewInsurance({
+      name: '', type: 'auto', provider: '', premium: '', paymentFrequency: 'monthly',
+      coverage: '', deductible: '', renewalDate: '', policyNumber: '', notes: ''
+    });
+    setShowAddInsurance(false);
+  };
+
+  const updateInsurancePolicy = (id, updates) => {
+    setInsurancePolicies(insurancePolicies.map(p => p.id === id ? { ...p, ...updates } : p));
+    setEditingInsurance(null);
+  };
+
+  const deleteInsurancePolicy = (id) => {
+    setInsurancePolicies(insurancePolicies.filter(p => p.id !== id));
+  };
+
+  // Load & save insurance data
+  useEffect(() => {
+    const saved = localStorage.getItem('insurancePolicies');
+    if (saved) {
+      try { setInsurancePolicies(JSON.parse(saved)); } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (insurancePolicies.length > 0) {
+      localStorage.setItem('insurancePolicies', JSON.stringify(insurancePolicies));
+      analyzeInsurance();
+    }
+  }, [insurancePolicies]);
+
   // Load legendary investors on mount
   useEffect(() => {
     fetchLegendaryInvestors();
@@ -2371,7 +2438,7 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'money' ? null : 'money')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['spending', 'debt-payoff', 'taxes', 'advisor'].includes(activeTab) ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['spending', 'debt-payoff', 'insurance', 'taxes', 'advisor'].includes(activeTab) ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}
                 >
                   💳 Money <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'money' ? 'rotate-90' : ''}`} />
                 </button>
@@ -2380,6 +2447,7 @@ export default function AIPortfolioManager() {
                     {[
                       { tab: 'spending', icon: '💳', label: 'Spending' },
                       { tab: 'debt-payoff', icon: '📉', label: 'Debt Payoff' },
+                      { tab: 'insurance', icon: '🛡️', label: 'Insurance' },
                       { tab: 'taxes', icon: '📋', label: 'Taxes' },
                       { tab: 'advisor', icon: '🧠', label: 'AI Advisor' },
                     ].map(({ tab, icon, label }) => (
@@ -6862,6 +6930,223 @@ export default function AIPortfolioManager() {
           </div>
         )}
 
+        {/* INSURANCE TAB - Phase 22: Insurance Dashboard */}
+        {activeTab === 'insurance' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-cyan-600/20 via-teal-600/20 to-emerald-600/20 rounded-2xl border border-cyan-500/30 p-6">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    🛡️ Insurance Dashboard
+                  </h2>
+                  <p className="text-slate-400 mt-1">Track all your policies, premiums, and coverage in one place</p>
+                </div>
+                <button
+                  onClick={() => setShowAddInsurance(true)}
+                  className="px-6 py-3 bg-cyan-500 hover:bg-cyan-600 text-white font-medium rounded-xl flex items-center gap-2"
+                >
+                  <Plus className="w-5 h-5" /> Add Policy
+                </button>
+              </div>
+            </div>
+
+            {/* Summary Cards */}
+            {insuranceAnalysis && (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-sm">Total Annual</span>
+                    <Shield className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mt-2">${insuranceAnalysis.totalAnnualPremiums?.toLocaleString() || 0}</p>
+                  <p className="text-slate-500 text-xs mt-1">{insurancePolicies.length} policies</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-sm">Monthly Cost</span>
+                    <Calendar className="w-5 h-5 text-teal-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mt-2">${Math.round(insuranceAnalysis.totalMonthlyPremiums || 0).toLocaleString()}</p>
+                  <p className="text-slate-500 text-xs mt-1">avg per month</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-sm">Coverage Gaps</span>
+                    <AlertTriangle className="w-5 h-5 text-amber-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-amber-400 mt-2">{insuranceAnalysis.coverageGaps?.length || 0}</p>
+                  <p className="text-slate-500 text-xs mt-1">areas to review</p>
+                </div>
+                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-400 text-sm">5-Year Projection</span>
+                    <TrendingUp className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-white mt-2">
+                    ${(insuranceAnalysis.projectedCosts?.[5]?.annual || 0).toLocaleString()}
+                  </p>
+                  <p className="text-slate-500 text-xs mt-1">estimated in 2031</p>
+                </div>
+              </div>
+            )}
+
+            {/* Coverage Gaps Alert */}
+            {insuranceAnalysis?.coverageGaps?.length > 0 && (
+              <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
+                <h3 className="text-amber-400 font-semibold mb-3 flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5" /> Coverage Gaps Detected
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {insuranceAnalysis.coverageGaps.map((gap, i) => (
+                    <div key={i} className={`p-3 rounded-lg ${gap.severity === 'high' ? 'bg-red-500/10 border border-red-500/30' : 'bg-yellow-500/10 border border-yellow-500/30'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-white font-medium capitalize">{gap.type} Insurance</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${gap.severity === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                          {gap.severity} priority
+                        </span>
+                      </div>
+                      <p className="text-slate-300 text-sm">{gap.recommendation}</p>
+                      <p className="text-slate-500 text-xs mt-1">{gap.estimatedCost}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {insuranceAnalysis?.recommendations?.length > 0 && (
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+                <h3 className="text-blue-400 font-semibold mb-3">💡 Recommendations</h3>
+                <div className="space-y-2">
+                  {insuranceAnalysis.recommendations.map((rec, i) => (
+                    <div key={i} className="p-3 bg-slate-800/50 rounded-lg flex items-start gap-3">
+                      <span className={`text-xs px-2 py-0.5 rounded mt-0.5 ${
+                        rec.type === 'renewal' ? 'bg-amber-500/20 text-amber-400' :
+                        rec.type === 'bundle' ? 'bg-green-500/20 text-green-400' :
+                        'bg-slate-500/20 text-slate-400'
+                      }`}>
+                        {rec.type}
+                      </span>
+                      <div>
+                        <span className="text-white font-medium">{rec.policy}</span>
+                        <p className="text-slate-400 text-sm">{rec.message}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Policies by Category */}
+            {insuranceAnalysis?.byCategory && Object.keys(insuranceAnalysis.byCategory).length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                <h3 className="text-white font-semibold mb-4">Annual Cost by Category</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {Object.entries(insuranceAnalysis.byCategory).map(([category, amount]) => (
+                    <div key={category} className="p-3 bg-slate-700/30 rounded-lg">
+                      <p className="text-slate-400 text-sm">{category}</p>
+                      <p className="text-xl font-bold text-white">${amount.toLocaleString()}</p>
+                      <p className="text-slate-500 text-xs">{Math.round((amount / insuranceAnalysis.totalAnnualPremiums) * 100)}% of total</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Cost Projection Chart */}
+            {insuranceAnalysis?.projectedCosts?.length > 0 && (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                <h3 className="text-white font-semibold mb-4">5-Year Premium Projection (4% annual increase)</h3>
+                <div className="grid grid-cols-6 gap-2">
+                  {insuranceAnalysis.projectedCosts.map((proj, i) => (
+                    <div key={i} className={`p-3 rounded-lg text-center ${i === 0 ? 'bg-cyan-500/20 border border-cyan-500/50' : 'bg-slate-700/30'}`}>
+                      <p className="text-slate-400 text-sm">{proj.year}</p>
+                      <p className={`text-lg font-bold ${i === 0 ? 'text-cyan-400' : 'text-white'}`}>${proj.annual.toLocaleString()}</p>
+                      <p className="text-slate-500 text-xs">${proj.monthly}/mo</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Policies List */}
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
+              <div className="p-4 border-b border-slate-700 bg-slate-700/30">
+                <h3 className="text-lg font-semibold text-white">Your Policies</h3>
+              </div>
+              {insurancePolicies.length > 0 ? (
+                <div className="divide-y divide-slate-700">
+                  {insurancePolicies.map((policy) => (
+                    <div key={policy.id} className="p-4 hover:bg-slate-700/30 transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-3">
+                          <span className="text-2xl">
+                            {policy.type === 'auto' && '🚗'}
+                            {policy.type === 'home' && '🏠'}
+                            {policy.type === 'renters' && '🏢'}
+                            {policy.type === 'life' && '❤️'}
+                            {policy.type === 'term-life' && '❤️'}
+                            {policy.type === 'health' && '🏥'}
+                            {policy.type === 'dental' && '🦷'}
+                            {policy.type === 'vision' && '👁️'}
+                            {policy.type === 'disability' && '🛡️'}
+                            {policy.type === 'umbrella' && '☂️'}
+                            {policy.type === 'pet' && '🐾'}
+                            {!['auto', 'home', 'renters', 'life', 'term-life', 'health', 'dental', 'vision', 'disability', 'umbrella', 'pet'].includes(policy.type) && '📋'}
+                          </span>
+                          <div>
+                            <h4 className="text-white font-medium">{policy.name}</h4>
+                            <p className="text-slate-400 text-sm">{policy.provider} • {policy.type}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <p className="text-white font-medium">${policy.premium.toLocaleString()}/{policy.paymentFrequency === 'monthly' ? 'mo' : policy.paymentFrequency === 'annual' ? 'yr' : policy.paymentFrequency}</p>
+                            {policy.coverage > 0 && <p className="text-slate-400 text-xs">${policy.coverage.toLocaleString()} coverage</p>}
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => setEditingInsurance(policy)}
+                              className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg"
+                            >
+                              <Edit3 className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => deleteInsurancePolicy(policy.id)}
+                              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-3 text-xs text-slate-500 mt-2">
+                        {policy.deductible > 0 && <span>Deductible: ${policy.deductible.toLocaleString()}</span>}
+                        {policy.renewalDate && <span>Renews: {new Date(policy.renewalDate).toLocaleDateString()}</span>}
+                        {policy.policyNumber && <span>Policy #: {policy.policyNumber}</span>}
+                      </div>
+                      {policy.notes && <p className="text-slate-500 text-sm mt-2">{policy.notes}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-12 text-center">
+                  <Shield className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">No Insurance Policies</h3>
+                  <p className="text-slate-400 mb-6">Add your policies to track premiums and find coverage gaps</p>
+                  <button
+                    onClick={() => setShowAddInsurance(true)}
+                    className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-xl"
+                  >
+                    Add Your First Policy
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* MASTERS TAB - Phase 20: Legendary Investors */}
         {activeTab === 'masters' && (
           <div className="space-y-6">
@@ -7912,6 +8197,218 @@ export default function AIPortfolioManager() {
                 className="w-full bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-medium py-3 rounded-xl"
               >
                 {editingDebt ? 'Save Changes' : 'Add Debt'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add/Edit Insurance Modal */}
+      {(showAddInsurance || editingInsurance) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-xl font-bold text-white">
+                {editingInsurance ? 'Edit Policy' : 'Add Insurance Policy'}
+              </h3>
+              <button
+                onClick={() => { setShowAddInsurance(false); setEditingInsurance(null); }}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Policy Name</label>
+                <input
+                  type="text"
+                  value={editingInsurance ? editingInsurance.name : newInsurance.name}
+                  onChange={(e) => editingInsurance
+                    ? setEditingInsurance({ ...editingInsurance, name: e.target.value })
+                    : setNewInsurance({ ...newInsurance, name: e.target.value })
+                  }
+                  placeholder="e.g., Auto Insurance, Term Life"
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                  <select
+                    value={editingInsurance ? editingInsurance.type : newInsurance.type}
+                    onChange={(e) => editingInsurance
+                      ? setEditingInsurance({ ...editingInsurance, type: e.target.value })
+                      : setNewInsurance({ ...newInsurance, type: e.target.value })
+                    }
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <optgroup label="Vehicle">
+                      <option value="auto">Auto</option>
+                      <option value="motorcycle">Motorcycle</option>
+                      <option value="boat">Boat</option>
+                      <option value="rv">RV</option>
+                    </optgroup>
+                    <optgroup label="Property">
+                      <option value="home">Homeowners</option>
+                      <option value="renters">Renters</option>
+                      <option value="condo">Condo</option>
+                      <option value="flood">Flood</option>
+                      <option value="earthquake">Earthquake</option>
+                    </optgroup>
+                    <optgroup label="Life & Income">
+                      <option value="life">Life</option>
+                      <option value="term-life">Term Life</option>
+                      <option value="whole-life">Whole Life</option>
+                      <option value="disability">Disability</option>
+                    </optgroup>
+                    <optgroup label="Health">
+                      <option value="health">Health</option>
+                      <option value="dental">Dental</option>
+                      <option value="vision">Vision</option>
+                    </optgroup>
+                    <optgroup label="Other">
+                      <option value="umbrella">Umbrella</option>
+                      <option value="pet">Pet</option>
+                      <option value="travel">Travel</option>
+                      <option value="jewelry">Jewelry/Valuables</option>
+                      <option value="business">Business</option>
+                    </optgroup>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Provider</label>
+                  <input
+                    type="text"
+                    value={editingInsurance ? editingInsurance.provider : newInsurance.provider}
+                    onChange={(e) => editingInsurance
+                      ? setEditingInsurance({ ...editingInsurance, provider: e.target.value })
+                      : setNewInsurance({ ...newInsurance, provider: e.target.value })
+                    }
+                    placeholder="e.g., State Farm, Geico"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Premium Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={editingInsurance ? editingInsurance.premium : newInsurance.premium}
+                      onChange={(e) => editingInsurance
+                        ? setEditingInsurance({ ...editingInsurance, premium: parseFloat(e.target.value) || 0 })
+                        : setNewInsurance({ ...newInsurance, premium: e.target.value })
+                      }
+                      placeholder="0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Payment Frequency</label>
+                  <select
+                    value={editingInsurance ? editingInsurance.paymentFrequency : newInsurance.paymentFrequency}
+                    onChange={(e) => editingInsurance
+                      ? setEditingInsurance({ ...editingInsurance, paymentFrequency: e.target.value })
+                      : setNewInsurance({ ...newInsurance, paymentFrequency: e.target.value })
+                    }
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="quarterly">Quarterly</option>
+                    <option value="semi-annual">Semi-Annual</option>
+                    <option value="annual">Annual</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Coverage Amount</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={editingInsurance ? editingInsurance.coverage : newInsurance.coverage}
+                      onChange={(e) => editingInsurance
+                        ? setEditingInsurance({ ...editingInsurance, coverage: parseFloat(e.target.value) || 0 })
+                        : setNewInsurance({ ...newInsurance, coverage: e.target.value })
+                      }
+                      placeholder="0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Deductible</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <input
+                      type="number"
+                      value={editingInsurance ? editingInsurance.deductible : newInsurance.deductible}
+                      onChange={(e) => editingInsurance
+                        ? setEditingInsurance({ ...editingInsurance, deductible: parseFloat(e.target.value) || 0 })
+                        : setNewInsurance({ ...newInsurance, deductible: e.target.value })
+                      }
+                      placeholder="0"
+                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Renewal Date</label>
+                  <input
+                    type="date"
+                    value={editingInsurance ? editingInsurance.renewalDate : newInsurance.renewalDate}
+                    onChange={(e) => editingInsurance
+                      ? setEditingInsurance({ ...editingInsurance, renewalDate: e.target.value })
+                      : setNewInsurance({ ...newInsurance, renewalDate: e.target.value })
+                    }
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Policy Number</label>
+                  <input
+                    type="text"
+                    value={editingInsurance ? editingInsurance.policyNumber : newInsurance.policyNumber}
+                    onChange={(e) => editingInsurance
+                      ? setEditingInsurance({ ...editingInsurance, policyNumber: e.target.value })
+                      : setNewInsurance({ ...newInsurance, policyNumber: e.target.value })
+                    }
+                    placeholder="Optional"
+                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Notes</label>
+                <textarea
+                  value={editingInsurance ? editingInsurance.notes : newInsurance.notes}
+                  onChange={(e) => editingInsurance
+                    ? setEditingInsurance({ ...editingInsurance, notes: e.target.value })
+                    : setNewInsurance({ ...newInsurance, notes: e.target.value })
+                  }
+                  placeholder="Any additional details..."
+                  rows={2}
+                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                />
+              </div>
+              <button
+                onClick={() => {
+                  if (editingInsurance) {
+                    updateInsurancePolicy(editingInsurance.id, editingInsurance);
+                  } else {
+                    addInsurancePolicy();
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-cyan-500 to-teal-600 hover:from-cyan-600 hover:to-teal-700 text-white font-medium py-3 rounded-xl"
+              >
+                {editingInsurance ? 'Save Changes' : 'Add Policy'}
               </button>
             </div>
           </div>
