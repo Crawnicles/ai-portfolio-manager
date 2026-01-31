@@ -123,7 +123,7 @@ export default function AIPortfolioManager() {
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('home');
 
   const [account, setAccount] = useState(null);
   const [positions, setPositions] = useState([]);
@@ -2175,12 +2175,52 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
-            <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'spending', 'goals', 'retirement', 'taxes', 'advisor', 'timeline', 'debt-payoff', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
-                <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab === 'taxes' ? '📋 Taxes' : tab === 'goals' ? '🎯 Goals' : tab === 'retirement' ? '🏖️ Retire' : tab === 'advisor' ? '🧠 Advisor' : tab === 'timeline' ? '📊 Timeline' : tab === 'debt-payoff' ? '💳 Debt' : tab}
+            <nav className="flex gap-1 overflow-x-auto pb-1">
+              {/* Grouped Navigation */}
+              <div className="flex items-center gap-1 pr-2 border-r border-slate-700">
+                <button onClick={() => setActiveTab('home')} className={`px-3 py-2 rounded-lg font-medium transition-all whitespace-nowrap text-sm flex items-center gap-1.5 ${activeTab === 'home' ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                  <Home className="w-4 h-4" /> Home
                 </button>
-              ))}
+              </div>
+
+              {/* Wealth Section */}
+              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
+                <span className="text-xs text-slate-500 font-medium px-1">WEALTH</span>
+                {['overview', 'timeline', 'goals', 'retirement'].map((tab) => (
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                    {tab === 'overview' ? '💰' : tab === 'timeline' ? '📊' : tab === 'goals' ? '🎯' : '🏖️'} {tab === 'retirement' ? 'Retire' : tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Money Section */}
+              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
+                <span className="text-xs text-slate-500 font-medium px-1">MONEY</span>
+                {['spending', 'debt-payoff', 'taxes', 'advisor'].map((tab) => (
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-amber-500/20 text-amber-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                    {tab === 'spending' ? '💳' : tab === 'debt-payoff' ? '📉' : tab === 'taxes' ? '📋' : '🧠'} {tab === 'debt-payoff' ? 'Debt' : tab === 'advisor' ? 'Advisor' : tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* Invest Section */}
+              <div className="flex items-center gap-1 px-2 border-r border-slate-700">
+                <span className="text-xs text-slate-500 font-medium px-1">INVEST</span>
+                {['dashboard', 'trade', 'suggestions', 'research', 'ai-arena', 'history'].map((tab) => (
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                    {tab === 'dashboard' ? '📈' : tab === 'trade' ? '⚡' : tab === 'suggestions' ? '🤖' : tab === 'research' ? '🔬' : tab === 'ai-arena' ? '🏆' : '📜'} {tab === 'dashboard' ? 'Portfolio' : tab === 'ai-arena' ? 'Arena' : tab === 'suggestions' ? 'AI' : tab}
+                  </button>
+                ))}
+              </div>
+
+              {/* More Section */}
+              <div className="flex items-center gap-1 pl-2">
+                {['partnership', 'settings'].map((tab) => (
+                  <button key={tab} onClick={() => setActiveTab(tab)} className={`px-2.5 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-slate-500/20 text-slate-300' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+                    {tab === 'partnership' ? '🤝' : '⚙️'} {tab === 'partnership' ? 'Partner' : ''}
+                  </button>
+                ))}
+              </div>
             </nav>
 
             <div className="flex items-center gap-2">
@@ -2282,6 +2322,296 @@ export default function AIPortfolioManager() {
               <p className="text-red-300 text-sm">Auto-trading has been paused due to exceeding daily loss limit.</p>
             </div>
             <button onClick={() => setCircuitBreakerTripped(false)} className="px-4 py-2 bg-red-500/30 hover:bg-red-500/50 text-red-300 rounded-lg text-sm">Reset</button>
+          </div>
+        )}
+
+        {/* HOME DASHBOARD - Unified Overview */}
+        {activeTab === 'home' && (
+          <div className="space-y-6">
+            {/* Welcome Header */}
+            <div className="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-2xl border border-blue-500/30 p-8">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold text-white mb-2">
+                    Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! 👋
+                  </h1>
+                  <p className="text-slate-300">Here's your financial snapshot for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-slate-400 mb-1">Total Net Worth</p>
+                  <p className={`text-4xl font-bold ${calculateTrueNetWorth() >= 0 ? 'text-white' : 'text-red-400'}`}>
+                    ${calculateTrueNetWorth().toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-emerald-500/50 transition-colors">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <span className="text-slate-400 text-sm">Total Assets</span>
+                </div>
+                <p className="text-2xl font-bold text-white">${calculateNetWorth().toLocaleString()}</p>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-red-500/50 transition-colors">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-red-400" />
+                  </div>
+                  <span className="text-slate-400 text-sm">Total Debt</span>
+                </div>
+                <p className="text-2xl font-bold text-red-400">${calculateTotalDebts().toLocaleString()}</p>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-blue-500/50 transition-colors">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Briefcase className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <span className="text-slate-400 text-sm">Investments</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  ${positions.reduce((sum, p) => sum + parseFloat(p.market_value || 0), 0).toLocaleString()}
+                </p>
+              </div>
+
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-purple-500/50 transition-colors">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                    <PiggyBank className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <span className="text-slate-400 text-sm">Savings Rate</span>
+                </div>
+                <p className="text-2xl font-bold text-white">
+                  {monthlyIncome > 0 ? Math.round(((monthlyIncome - Object.values(budgets).reduce((s, b) => s + b, 0)) / monthlyIncome) * 100) : 0}%
+                </p>
+              </div>
+            </div>
+
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Financial Health Score */}
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-blue-400" /> Financial Health
+                  </h3>
+                  <button onClick={() => setActiveTab('advisor')} className="text-blue-400 text-sm hover:underline">Details →</button>
+                </div>
+                {aiAdvisorAnalysis ? (
+                  <div className="text-center">
+                    <div className="relative inline-flex items-center justify-center w-32 h-32 mb-4">
+                      <svg className="w-full h-full transform -rotate-90">
+                        <circle cx="64" cy="64" r="56" stroke="#334155" strokeWidth="8" fill="none" />
+                        <circle
+                          cx="64" cy="64" r="56"
+                          stroke={aiAdvisorAnalysis.overallScore >= 70 ? '#10B981' : aiAdvisorAnalysis.overallScore >= 50 ? '#F59E0B' : '#EF4444'}
+                          strokeWidth="8"
+                          fill="none"
+                          strokeLinecap="round"
+                          strokeDasharray={`${aiAdvisorAnalysis.overallScore * 3.52} 352`}
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-3xl font-bold text-white">{aiAdvisorAnalysis.overallScore}</span>
+                        <span className="text-xs text-slate-400">/ 100</span>
+                      </div>
+                    </div>
+                    <p className={`text-sm font-medium ${aiAdvisorAnalysis.overallScore >= 70 ? 'text-emerald-400' : aiAdvisorAnalysis.overallScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                      {aiAdvisorAnalysis.overallScore >= 70 ? 'Excellent Health' : aiAdvisorAnalysis.overallScore >= 50 ? 'Good Progress' : 'Needs Attention'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                    <p className="text-slate-400 text-sm mb-3">Get your financial health score</p>
+                    <button onClick={fetchAIAdvisorAnalysis} disabled={aiAdvisorLoading} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto">
+                      {aiAdvisorLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                      Analyze
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Top Recommendations */}
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Target className="w-5 h-5 text-amber-400" /> Top Priorities
+                  </h3>
+                </div>
+                {aiAdvisorAnalysis?.recommendations?.length > 0 ? (
+                  <div className="space-y-3">
+                    {aiAdvisorAnalysis.recommendations.slice(0, 3).map((rec, i) => (
+                      <div key={i} className={`p-3 rounded-lg ${rec.priority === 'HIGH' ? 'bg-red-500/10 border border-red-500/30' : rec.priority === 'MEDIUM' ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-700/30 border border-slate-600'}`}>
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className={`w-2 h-2 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-400' : rec.priority === 'MEDIUM' ? 'bg-amber-400' : 'bg-slate-400'}`} />
+                          <span className="text-white font-medium text-sm">{rec.title}</span>
+                        </div>
+                        <p className="text-slate-400 text-xs pl-4">{rec.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-slate-400 text-sm">
+                    Run the AI Advisor to get personalized recommendations
+                  </div>
+                )}
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-yellow-400" /> Quick Actions
+                </h3>
+                <div className="space-y-2">
+                  <button onClick={() => setActiveTab('trade')} className="w-full p-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                    <Play className="w-4 h-4" /> Make a Trade
+                  </button>
+                  <button onClick={() => setActiveTab('spending')} className="w-full p-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                    <Wallet className="w-4 h-4" /> Review Spending
+                  </button>
+                  <button onClick={() => { setShowAddAccount(true); }} className="w-full p-3 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                    <Plus className="w-4 h-4" /> Add Account
+                  </button>
+                  <button onClick={() => setActiveTab('goals')} className="w-full p-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-amber-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                    <Target className="w-4 h-4" /> Set a Goal
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Portfolio & Goals Row */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Portfolio Summary */}
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-blue-400" /> Portfolio
+                  </h3>
+                  <button onClick={() => setActiveTab('dashboard')} className="text-blue-400 text-sm hover:underline">View All →</button>
+                </div>
+                {positions.length > 0 ? (
+                  <div className="space-y-3">
+                    {positions.slice(0, 5).map((pos) => {
+                      const pl = parseFloat(pos.unrealized_pl || 0);
+                      const plPct = parseFloat(pos.unrealized_plpc || 0) * 100;
+                      return (
+                        <div key={pos.symbol} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400">
+                              {pos.symbol.slice(0, 2)}
+                            </div>
+                            <div>
+                              <p className="text-white font-medium text-sm">{pos.symbol}</p>
+                              <p className="text-slate-400 text-xs">{pos.qty} shares</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-white font-medium text-sm">${parseFloat(pos.market_value || 0).toLocaleString()}</p>
+                            <p className={`text-xs ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                              {pl >= 0 ? '+' : ''}{plPct.toFixed(1)}%
+                            </p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-400">
+                    <Briefcase className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Connect Alpaca to see your portfolio</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Goals Progress */}
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Target className="w-5 h-5 text-amber-400" /> Goals Progress
+                  </h3>
+                  <button onClick={() => setActiveTab('goals')} className="text-blue-400 text-sm hover:underline">View All →</button>
+                </div>
+                {financialGoals.length > 0 ? (
+                  <div className="space-y-4">
+                    {financialGoals.slice(0, 3).map((goal) => {
+                      const progress = Math.min(100, (goal.currentAmount / goal.targetAmount) * 100);
+                      return (
+                        <div key={goal.id}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-white font-medium">{goal.name}</span>
+                            <span className="text-slate-400">{progress.toFixed(0)}%</span>
+                          </div>
+                          <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' : progress >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`}
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-xs text-slate-400 mt-1">
+                            <span>${goal.currentAmount?.toLocaleString()}</span>
+                            <span>${goal.targetAmount?.toLocaleString()}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-400">
+                    <Target className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No goals yet. Set your first goal!</p>
+                    <button onClick={() => setActiveTab('goals')} className="mt-2 text-blue-400 text-sm hover:underline">Create Goal →</button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
+                <Clock className="w-5 h-5 text-slate-400" /> Recent Activity
+              </h3>
+              {tradeHistory.length > 0 || transactions.length > 0 ? (
+                <div className="space-y-2">
+                  {tradeHistory.slice(0, 3).map((trade) => (
+                    <div key={trade.id} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${trade.side === 'buy' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
+                        {trade.side === 'buy' ? <ArrowUpCircle className="w-4 h-4 text-green-400" /> : <ArrowDownCircle className="w-4 h-4 text-red-400" />}
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm">{trade.side.toUpperCase()} {trade.qty} {trade.symbol}</p>
+                        <p className="text-slate-400 text-xs">{new Date(trade.timestamp).toLocaleString()}</p>
+                      </div>
+                      <span className="text-slate-300 text-sm">${(trade.qty * trade.price).toFixed(2)}</span>
+                    </div>
+                  ))}
+                  {tradeHistory.length === 0 && transactions.slice(0, 3).map((tx, i) => (
+                    <div key={i} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
+                      <div className="w-8 h-8 rounded-lg bg-slate-600/50 flex items-center justify-center">
+                        <DollarSign className="w-4 h-4 text-slate-400" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-white text-sm">{tx.name || tx.merchantName}</p>
+                        <p className="text-slate-400 text-xs">{tx.primaryCategory}</p>
+                      </div>
+                      <span className={`text-sm ${tx.amount < 0 ? 'text-green-400' : 'text-red-400'}`}>
+                        ${Math.abs(tx.amount).toFixed(2)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-slate-400 text-sm">
+                  No recent activity. Start trading or connect your bank to see activity here.
+                </div>
+              )}
+            </div>
           </div>
         )}
 
