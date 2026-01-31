@@ -316,6 +316,32 @@ export default function AIPortfolioManager() {
   const [retirementLoading, setRetirementLoading] = useState(false);
   const [showRetirementSetup, setShowRetirementSetup] = useState(false);
 
+  // Phase 16: AI Financial Advisor
+  const [aiAdvisorAnalysis, setAiAdvisorAnalysis] = useState(null);
+  const [aiAdvisorLoading, setAiAdvisorLoading] = useState(false);
+  const [advisorQuestion, setAdvisorQuestion] = useState('');
+  const [advisorResponse, setAdvisorResponse] = useState(null);
+  const [advisorResponseLoading, setAdvisorResponseLoading] = useState(false);
+
+  // Phase 17: Market Insights
+  const [marketInsights, setMarketInsights] = useState(null);
+  const [marketNews, setMarketNews] = useState([]);
+  const [insightsLoading, setInsightsLoading] = useState(false);
+
+  // Phase 18: Debt Optimizer
+  const [debtPayoffPlan, setDebtPayoffPlan] = useState(null);
+  const [debtComparison, setDebtComparison] = useState(null);
+  const [debtInsights, setDebtInsights] = useState(null);
+  const [debtPayoffBudget, setDebtPayoffBudget] = useState(0);
+  const [debtStrategy, setDebtStrategy] = useState('avalanche');
+  const [debtLoading, setDebtLoading] = useState(false);
+
+  // Phase 19: Net Worth Timeline
+  const [netWorthTimeline, setNetWorthTimeline] = useState(null);
+  const [netWorthLoading, setNetWorthLoading] = useState(false);
+  const [projectionYears, setProjectionYears] = useState(10);
+  const [expectedReturn, setExpectedReturn] = useState(7);
+
   // Authentication functions
   const handleAuth = async (e) => {
     e.preventDefault();
@@ -1582,6 +1608,187 @@ export default function AIPortfolioManager() {
     return () => clearTimeout(timeout);
   }, [retirementProfile]);
 
+  // Phase 16: AI Financial Advisor Functions
+  const fetchAIAdvisorAnalysis = async () => {
+    setAiAdvisorLoading(true);
+    try {
+      const totalAssets = manualAccounts.reduce((sum, a) => sum + parseFloat(a.balance || 0), 0) +
+        positions.reduce((sum, p) => sum + parseFloat(p.market_value || 0), 0);
+      const totalDebtsAmount = debts.reduce((sum, d) => sum + parseFloat(d.balance || 0), 0);
+      const monthlyExpenses = Object.values(budgets).reduce((sum, b) => sum + b, 0) || 5000;
+
+      const res = await fetch('/api/ai-advisor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'analyze',
+          data: {
+            accounts: manualAccounts,
+            debts,
+            monthlyIncome: monthlyIncome || 8000,
+            monthlyExpenses,
+            budgets,
+            goals: financialGoals,
+            taxProfile,
+            retirementProfile,
+            positions,
+            transactions,
+            trackedItems,
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setAiAdvisorAnalysis(data.analysis);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAiAdvisorLoading(false);
+    }
+  };
+
+  const askAdvisorQuestion = async () => {
+    if (!advisorQuestion.trim()) return;
+    setAdvisorResponseLoading(true);
+    try {
+      const res = await fetch('/api/ai-advisor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'ask',
+          data: {
+            question: advisorQuestion,
+            financialData: aiAdvisorAnalysis || {},
+          },
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setAdvisorResponse(data.response);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setAdvisorResponseLoading(false);
+    }
+  };
+
+  // Phase 17: Market Insights Functions
+  const fetchMarketInsights = async () => {
+    setInsightsLoading(true);
+    try {
+      const [insightsRes, newsRes] = await Promise.all([
+        fetch('/api/market-insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'getInsights',
+            positions,
+            riskTolerance: preferences.riskTolerance,
+          }),
+        }),
+        fetch('/api/market-insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'getNews' }),
+        }),
+      ]);
+      const insightsData = await insightsRes.json();
+      const newsData = await newsRes.json();
+      if (insightsData.error) throw new Error(insightsData.error);
+      setMarketInsights(insightsData.insights);
+      setMarketNews(newsData.news || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setInsightsLoading(false);
+    }
+  };
+
+  // Phase 18: Debt Optimizer Functions
+  const calculateDebtPayoff = async () => {
+    if (debts.length === 0 || debtPayoffBudget <= 0) return;
+    setDebtLoading(true);
+    try {
+      const res = await fetch('/api/debt-optimizer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'compare',
+          debts,
+          monthlyBudget: debtPayoffBudget,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setDebtComparison(data.comparison);
+      setDebtPayoffPlan(data.comparison.results[debtStrategy]);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDebtLoading(false);
+    }
+  };
+
+  const fetchDebtInsights = async () => {
+    if (debts.length === 0) return;
+    try {
+      const res = await fetch('/api/debt-optimizer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'insights', debts }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setDebtInsights(data);
+    } catch (err) {
+      console.error('Debt insights error:', err);
+    }
+  };
+
+  // Auto-fetch debt insights when debts change
+  useEffect(() => {
+    if (debts.length > 0) {
+      fetchDebtInsights();
+      // Set default budget to sum of minimum payments + 20%
+      const minTotal = debts.reduce((sum, d) => sum + parseFloat(d.minimumPayment || 0), 0);
+      if (debtPayoffBudget === 0) setDebtPayoffBudget(Math.round(minTotal * 1.2));
+    }
+  }, [debts]);
+
+  // Phase 19: Net Worth Timeline Functions
+  const fetchNetWorthTimeline = async () => {
+    setNetWorthLoading(true);
+    try {
+      const totalAssets = manualAccounts.reduce((sum, a) => sum + parseFloat(a.balance || 0), 0) +
+        positions.reduce((sum, p) => sum + parseFloat(p.market_value || 0), 0);
+      const totalDebtsAmount = debts.reduce((sum, d) => sum + parseFloat(d.balance || 0), 0);
+      const currentNetWorth = totalAssets - totalDebtsAmount;
+      const monthlyExpenses = Object.values(budgets).reduce((sum, b) => sum + b, 0) || 5000;
+      const monthlyContribution = (monthlyIncome || 8000) - monthlyExpenses;
+
+      const res = await fetch('/api/net-worth-timeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'getTimeline',
+          currentNetWorth,
+          accounts: manualAccounts,
+          debts,
+          monthlyContribution: Math.max(0, monthlyContribution),
+          projectionYears,
+          expectedReturn: expectedReturn / 100,
+        }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setNetWorthTimeline(data.timeline);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setNetWorthLoading(false);
+    }
+  };
+
   // Load partnership data from localStorage
   useEffect(() => {
     const savedPartnership = localStorage.getItem('partnershipData');
@@ -1969,9 +2176,9 @@ export default function AIPortfolioManager() {
             </div>
 
             <nav className="flex gap-1 overflow-x-auto">
-              {['overview', 'spending', 'goals', 'retirement', 'taxes', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
+              {['overview', 'spending', 'goals', 'retirement', 'taxes', 'advisor', 'timeline', 'debt-payoff', 'partnership', 'dashboard', 'ai-arena', 'research', 'trade', 'suggestions', 'history', 'settings'].map((tab) => (
                 <button key={tab} onClick={() => setActiveTab(tab)} className={`px-3 py-2 rounded-lg font-medium transition-all capitalize whitespace-nowrap text-sm ${activeTab === tab ? 'bg-blue-500/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
-                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab === 'taxes' ? '📋 Taxes' : tab === 'goals' ? '🎯 Goals' : tab === 'retirement' ? '🏖️ Retire' : tab}
+                  {tab === 'ai-arena' ? '🤖 AI Arena' : tab === 'partnership' ? '🤝 Partnership' : tab === 'taxes' ? '📋 Taxes' : tab === 'goals' ? '🎯 Goals' : tab === 'retirement' ? '🏖️ Retire' : tab === 'advisor' ? '🧠 Advisor' : tab === 'timeline' ? '📊 Timeline' : tab === 'debt-payoff' ? '💳 Debt' : tab}
                 </button>
               ))}
             </nav>
@@ -5034,6 +5241,139 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
+            {/* Market Insights - Phase 17 */}
+            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-cyan-400" /> Market Insights
+                </h3>
+                <button
+                  onClick={fetchMarketInsights}
+                  disabled={insightsLoading}
+                  className="bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 px-4 py-2 rounded-lg flex items-center gap-2 text-sm"
+                >
+                  {insightsLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  {insightsLoading ? 'Loading...' : 'Refresh'}
+                </button>
+              </div>
+
+              {marketInsights ? (
+                <div className="space-y-6">
+                  {/* Market Themes */}
+                  <div>
+                    <h4 className="text-sm font-medium text-slate-400 mb-3">Current Themes</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {marketInsights.themes?.slice(0, 6).map((theme, i) => (
+                        <div key={i} className={`p-3 rounded-lg border ${theme.sentiment === 'bullish' ? 'bg-green-500/10 border-green-500/30' : theme.sentiment === 'cautious' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-700/30 border-slate-600'}`}>
+                          <div className="flex items-center justify-between mb-2">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${theme.sentiment === 'bullish' ? 'bg-green-500/20 text-green-400' : theme.sentiment === 'cautious' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                              {theme.sentiment}
+                            </span>
+                            <span className="text-xs text-slate-400">{theme.confidence}% conf</span>
+                          </div>
+                          <div className="text-white font-medium text-sm mb-1">{theme.theme}</div>
+                          <div className="text-slate-400 text-xs">{theme.description}</div>
+                          {theme.hasExposure && (
+                            <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
+                              <Check className="w-3 h-3" /> You have exposure
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Investment Ideas */}
+                  {marketInsights.investmentIdeas?.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-400 mb-3">Investment Ideas for You</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {marketInsights.investmentIdeas.map((idea, i) => (
+                          <div key={i} className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-white font-bold">{idea.symbol}</span>
+                              <span className="text-xs text-blue-400">{idea.confidence}% confidence</span>
+                            </div>
+                            <div className="text-slate-300 text-sm mb-2">{idea.theme}</div>
+                            <div className="text-slate-400 text-xs">{idea.reason}</div>
+                            <button
+                              onClick={() => openTradePanel(idea.symbol, 'buy')}
+                              className="w-full mt-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm flex items-center justify-center gap-2"
+                            >
+                              <Zap className="w-4 h-4" /> Research {idea.symbol}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Diversification Analysis */}
+                  {marketInsights.diversification && (
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="p-4 bg-slate-700/30 rounded-lg">
+                        <div className="flex items-center justify-between mb-3">
+                          <h4 className="text-sm font-medium text-white">Diversification Score</h4>
+                          <span className={`text-2xl font-bold ${marketInsights.diversification.diversificationScore >= 70 ? 'text-green-400' : marketInsights.diversification.diversificationScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                            {marketInsights.diversification.diversificationScore}/100
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {marketInsights.diversification.sectorExposure?.slice(0, 5).map((sector, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm">
+                              <span className="text-slate-400">{sector.sector}</span>
+                              <span className="text-white">{sector.weight}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="p-4 bg-slate-700/30 rounded-lg">
+                        <h4 className="text-sm font-medium text-white mb-3">Recommendations</h4>
+                        <div className="space-y-2">
+                          {marketInsights.diversification.recommendations?.slice(0, 4).map((rec, i) => (
+                            <div key={i} className="text-sm text-slate-300 flex items-start gap-2">
+                              <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                              {rec}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Market News from Insights */}
+                  {marketNews.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-slate-400 mb-3">Market News</h4>
+                      <div className="space-y-2">
+                        {marketNews.map((news, i) => (
+                          <div key={i} className="p-3 bg-slate-700/30 rounded-lg flex items-start gap-3">
+                            <div className={`p-1.5 rounded ${news.sentiment === 'bullish' ? 'bg-green-500/20' : news.sentiment === 'bearish' ? 'bg-red-500/20' : 'bg-slate-500/20'}`}>
+                              {news.sentiment === 'bullish' ? <TrendingUp className="w-4 h-4 text-green-400" /> : news.sentiment === 'bearish' ? <TrendingDown className="w-4 h-4 text-red-400" /> : <Minus className="w-4 h-4 text-slate-400" />}
+                            </div>
+                            <div className="flex-1">
+                              <div className="text-white text-sm font-medium">{news.headline}</div>
+                              <div className="text-slate-400 text-xs mt-1">{news.source} • {news.time}</div>
+                              <div className="flex gap-2 mt-2">
+                                {news.relatedStocks?.map((stock, j) => (
+                                  <span key={j} className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">{stock}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-slate-400">
+                  <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                  <p>Click "Refresh" to load market insights</p>
+                </div>
+              )}
+            </div>
+
             {/* Research Pipeline Status */}
             {researchData && (
               <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
@@ -5401,6 +5741,550 @@ export default function AIPortfolioManager() {
                 circuit breaker at <strong className="text-red-400">{autoTradeSettings.dailyLossLimit}%</strong> daily loss.
               </p>
             </div>
+          </div>
+        )}
+
+        {/* ADVISOR TAB - Phase 16 */}
+        {activeTab === 'advisor' && (
+          <div className="space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <Brain className="w-7 h-7 text-purple-400" /> AI Financial Advisor
+                </h2>
+                <p className="text-slate-400 mt-1">Personalized wealth-building recommendations</p>
+              </div>
+              <button
+                onClick={fetchAIAdvisorAnalysis}
+                disabled={aiAdvisorLoading}
+                className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+              >
+                {aiAdvisorLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
+                {aiAdvisorLoading ? 'Analyzing...' : 'Analyze My Finances'}
+              </button>
+            </div>
+
+            {aiAdvisorAnalysis ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Financial Health Scores */}
+                <div className="lg:col-span-1 space-y-6">
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-blue-400" /> Financial Health
+                    </h3>
+                    <div className="text-center mb-6">
+                      <div className="text-5xl font-bold text-white mb-2">{aiAdvisorAnalysis.overallScore}</div>
+                      <div className="text-slate-400">Overall Score</div>
+                      <div className={`text-sm mt-1 ${aiAdvisorAnalysis.overallScore >= 70 ? 'text-green-400' : aiAdvisorAnalysis.overallScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                        {aiAdvisorAnalysis.overallScore >= 70 ? 'Excellent' : aiAdvisorAnalysis.overallScore >= 50 ? 'Good' : 'Needs Work'}
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {Object.entries(aiAdvisorAnalysis.scores).map(([key, value]) => (
+                        <div key={key}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="text-slate-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                            <span className="text-white font-medium">{value}/100</span>
+                          </div>
+                          <div className="w-full bg-slate-700 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${value >= 70 ? 'bg-green-500' : value >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
+                              style={{ width: `${value}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Key Metrics */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Key Metrics</h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Net Worth</span>
+                        <span className="text-white font-medium">${aiAdvisorAnalysis.netWorth?.toLocaleString()}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Emergency Fund</span>
+                        <span className={`font-medium ${aiAdvisorAnalysis.emergencyFundMonths >= 3 ? 'text-green-400' : 'text-amber-400'}`}>
+                          {aiAdvisorAnalysis.emergencyFundMonths?.toFixed(1)} months
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Savings Rate</span>
+                        <span className={`font-medium ${aiAdvisorAnalysis.savingsRate >= 20 ? 'text-green-400' : 'text-amber-400'}`}>
+                          {aiAdvisorAnalysis.savingsRate?.toFixed(1)}%
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-slate-400">Debt-to-Income</span>
+                        <span className={`font-medium ${aiAdvisorAnalysis.debtToIncomeRatio <= 36 ? 'text-green-400' : 'text-red-400'}`}>
+                          {aiAdvisorAnalysis.debtToIncomeRatio?.toFixed(1)}%
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recommendations */}
+                <div className="lg:col-span-2 space-y-6">
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Target className="w-5 h-5 text-green-400" /> Priority Recommendations
+                    </h3>
+                    <div className="space-y-4">
+                      {aiAdvisorAnalysis.recommendations?.slice(0, 5).map((rec, i) => (
+                        <div key={i} className={`p-4 rounded-lg border ${rec.priority === 'HIGH' ? 'border-red-500/30 bg-red-500/10' : rec.priority === 'MEDIUM' ? 'border-amber-500/30 bg-amber-500/10' : 'border-slate-600 bg-slate-700/30'}`}>
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-500/20 text-red-400' : rec.priority === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                                {rec.priority}
+                              </span>
+                              <span className="text-xs text-slate-500 ml-2">{rec.category}</span>
+                            </div>
+                            {rec.potentialSavings > 0 && (
+                              <span className="text-green-400 text-sm font-medium">
+                                +${Math.round(rec.potentialSavings).toLocaleString()}/yr
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="text-white font-medium mb-1">{rec.title}</h4>
+                          <p className="text-slate-400 text-sm mb-2">{rec.description}</p>
+                          <p className="text-blue-400 text-sm">→ {rec.actionable}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Wealth Projection */}
+                  {aiAdvisorAnalysis.wealthProjection && (
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-emerald-400" /> 10-Year Wealth Projection
+                      </h3>
+                      <div className="grid grid-cols-5 gap-4">
+                        {aiAdvisorAnalysis.wealthProjection.filter((_, i) => i % 2 === 0).map((p, i) => (
+                          <div key={i} className="text-center">
+                            <div className="text-xs text-slate-500 mb-1">{p.year}</div>
+                            <div className="text-white font-medium">${(p.wealth / 1000).toFixed(0)}K</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Ask the Advisor */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-purple-400" /> Ask Your Advisor
+                    </h3>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        value={advisorQuestion}
+                        onChange={(e) => setAdvisorQuestion(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && askAdvisorQuestion()}
+                        placeholder="Ask about savings, debt, retirement, investing..."
+                        className="flex-1 bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400"
+                      />
+                      <button
+                        onClick={askAdvisorQuestion}
+                        disabled={advisorResponseLoading || !advisorQuestion.trim()}
+                        className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                      >
+                        {advisorResponseLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                      </button>
+                    </div>
+                    {advisorResponse && (
+                      <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
+                        <p className="text-slate-300">{advisorResponse.answer}</p>
+                        <p className="text-xs text-slate-500 mt-2">Confidence: {advisorResponse.confidence}%</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Get Personalized Advice</h3>
+                <p className="text-slate-400 mb-6">Click "Analyze My Finances" to receive AI-powered recommendations for building wealth</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TIMELINE TAB - Phase 19 */}
+        {activeTab === 'timeline' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <BarChart3 className="w-7 h-7 text-blue-400" /> Net Worth Timeline
+                </h2>
+                <p className="text-slate-400 mt-1">Track your wealth growth over time</p>
+              </div>
+              <button
+                onClick={fetchNetWorthTimeline}
+                disabled={netWorthLoading}
+                className="bg-gradient-to-r from-blue-500 to-emerald-600 hover:from-blue-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+              >
+                {netWorthLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Activity className="w-5 h-5" />}
+                {netWorthLoading ? 'Loading...' : 'Update Timeline'}
+              </button>
+            </div>
+
+            {netWorthTimeline ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Summary Stats */}
+                <div className="lg:col-span-1 space-y-6">
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Growth Summary</h3>
+                    <div className="space-y-4">
+                      <div className="text-center py-4 bg-slate-700/30 rounded-lg">
+                        <div className="text-3xl font-bold text-white">${netWorthTimeline.analysis?.summary?.currentNetWorth?.toLocaleString()}</div>
+                        <div className="text-slate-400 text-sm">Current Net Worth</div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="p-3 bg-slate-700/30 rounded-lg text-center">
+                          <div className={`text-lg font-bold ${netWorthTimeline.analysis?.summary?.totalGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {netWorthTimeline.analysis?.summary?.totalGrowth >= 0 ? '+' : ''}${netWorthTimeline.analysis?.summary?.totalGrowth?.toLocaleString()}
+                          </div>
+                          <div className="text-slate-400 text-xs">Total Growth</div>
+                        </div>
+                        <div className="p-3 bg-slate-700/30 rounded-lg text-center">
+                          <div className={`text-lg font-bold ${parseFloat(netWorthTimeline.analysis?.summary?.annualizedGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                            {netWorthTimeline.analysis?.summary?.annualizedGrowth}%
+                          </div>
+                          <div className="text-slate-400 text-xs">Annual Growth</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Milestones */}
+                  {netWorthTimeline.analysis?.milestones?.length > 0 && (
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <Target className="w-5 h-5 text-amber-400" /> Milestones Reached
+                      </h3>
+                      <div className="space-y-2">
+                        {netWorthTimeline.analysis.milestones.map((m, i) => (
+                          <div key={i} className="flex items-center justify-between p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                            <span className="text-amber-400 font-medium">{m.label}</span>
+                            <span className="text-slate-400 text-sm">{m.reached}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {netWorthTimeline.analysis.nextMilestone && (
+                        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                          <div className="text-blue-400 text-sm">Next: {netWorthTimeline.analysis.nextMilestone.label}</div>
+                          <div className="text-slate-400 text-xs">{netWorthTimeline.analysis.nextMilestone.monthsAway} months away</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Insights */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-purple-400" /> Insights
+                    </h3>
+                    <div className="space-y-3">
+                      {netWorthTimeline.insights?.map((insight, i) => (
+                        <div key={i} className="flex items-start gap-3 p-3 bg-slate-700/30 rounded-lg">
+                          <span className="text-2xl">{insight.icon}</span>
+                          <p className="text-slate-300 text-sm">{insight.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Charts */}
+                <div className="lg:col-span-2 space-y-6">
+                  {/* Historical Chart */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Historical Net Worth (24 Months)</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={netWorthTimeline.history}>
+                          <defs>
+                            <linearGradient id="netWorthGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#3B82F6" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="month" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} interval="preserveStartEnd" />
+                          <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}K`} />
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                            labelStyle={{ color: '#f1f5f9' }}
+                            formatter={(value) => [`$${value.toLocaleString()}`, 'Net Worth']}
+                          />
+                          <Area type="monotone" dataKey="netWorth" stroke="#3B82F6" strokeWidth={2} fill="url(#netWorthGradient)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Projection Chart */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-white">Future Projection</h3>
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <label className="text-slate-400 text-sm">Years:</label>
+                          <select
+                            value={projectionYears}
+                            onChange={(e) => setProjectionYears(parseInt(e.target.value))}
+                            className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                          >
+                            <option value={5}>5</option>
+                            <option value={10}>10</option>
+                            <option value={20}>20</option>
+                            <option value={30}>30</option>
+                          </select>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-slate-400 text-sm">Return:</label>
+                          <select
+                            value={expectedReturn}
+                            onChange={(e) => setExpectedReturn(parseInt(e.target.value))}
+                            className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                          >
+                            <option value={5}>5%</option>
+                            <option value={7}>7%</option>
+                            <option value={10}>10%</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={netWorthTimeline.projection}>
+                          <defs>
+                            <linearGradient id="projectionGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <XAxis dataKey="year" stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                          <YAxis stroke="#64748b" tick={{ fill: '#94a3b8', fontSize: 10 }} tickFormatter={(v) => `$${(v/1000).toFixed(0)}K`} />
+                          <Tooltip
+                            contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: '8px' }}
+                            labelStyle={{ color: '#f1f5f9' }}
+                            formatter={(value, name) => [`$${value.toLocaleString()}`, name === 'netWorth' ? 'Projected' : name]}
+                          />
+                          <Area type="monotone" dataKey="netWorth" stroke="#10B981" strokeWidth={2} fill="url(#projectionGradient)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <BarChart3 className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">Track Your Progress</h3>
+                <p className="text-slate-400 mb-6">Click "Update Timeline" to see your net worth history and future projections</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* DEBT PAYOFF TAB - Phase 18 */}
+        {activeTab === 'debt-payoff' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <CreditCard className="w-7 h-7 text-red-400" /> Debt Payoff Optimizer
+                </h2>
+                <p className="text-slate-400 mt-1">Find the fastest and cheapest way to become debt-free</p>
+              </div>
+            </div>
+
+            {debts.length > 0 ? (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {/* Debt Summary & Settings */}
+                <div className="lg:col-span-1 space-y-6">
+                  {/* Debt Insights */}
+                  {debtInsights && (
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <h3 className="text-lg font-semibold text-white mb-4">Debt Overview</h3>
+                      <div className="space-y-3 mb-4">
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Total Debt</span>
+                          <span className="text-white font-medium">${debtInsights.summary?.totalDebt?.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Avg Interest Rate</span>
+                          <span className="text-amber-400 font-medium">{debtInsights.summary?.avgRate}%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-slate-400">Monthly Minimum</span>
+                          <span className="text-white font-medium">${debtInsights.summary?.totalMinPayments?.toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        {debtInsights.insights?.map((insight, i) => (
+                          <div key={i} className={`p-3 rounded-lg text-sm ${insight.type === 'warning' ? 'bg-red-500/10 border border-red-500/30 text-red-300' : insight.type === 'opportunity' ? 'bg-green-500/10 border border-green-500/30 text-green-300' : 'bg-slate-700/30 text-slate-300'}`}>
+                            <div className="font-medium">{insight.title}</div>
+                            <div className="text-xs opacity-80">{insight.message}</div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Calculator Settings */}
+                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <h3 className="text-lg font-semibold text-white mb-4">Payoff Calculator</h3>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Monthly Budget for Debt</label>
+                        <input
+                          type="number"
+                          value={debtPayoffBudget}
+                          onChange={(e) => setDebtPayoffBudget(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white"
+                          placeholder="Enter monthly amount..."
+                        />
+                        <p className="text-xs text-slate-500 mt-1">Min required: ${debtInsights?.summary?.totalMinPayments?.toLocaleString() || 0}</p>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-300 mb-2">Strategy</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {['avalanche', 'snowball', 'hybrid'].map((s) => (
+                            <button
+                              key={s}
+                              onClick={() => setDebtStrategy(s)}
+                              className={`py-2 px-3 rounded-lg text-sm capitalize ${debtStrategy === s ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300'}`}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-slate-500 mt-2">
+                          {debtStrategy === 'avalanche' && 'Pays off highest interest first (saves most money)'}
+                          {debtStrategy === 'snowball' && 'Pays off smallest balance first (quick wins)'}
+                          {debtStrategy === 'hybrid' && 'Balance between interest savings and quick wins'}
+                        </p>
+                      </div>
+                      <button
+                        onClick={calculateDebtPayoff}
+                        disabled={debtLoading || debtPayoffBudget < (debtInsights?.summary?.totalMinPayments || 0)}
+                        className="w-full bg-gradient-to-r from-red-500 to-orange-600 hover:from-red-600 hover:to-orange-700 text-white py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                      >
+                        {debtLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
+                        Calculate Payoff Plan
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Payoff Results */}
+                <div className="lg:col-span-2 space-y-6">
+                  {debtComparison ? (
+                    <>
+                      {/* Strategy Comparison */}
+                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                        <h3 className="text-lg font-semibold text-white mb-4">Strategy Comparison</h3>
+                        <div className="grid grid-cols-3 gap-4">
+                          {Object.entries(debtComparison.results).map(([strategy, result]) => (
+                            <div
+                              key={strategy}
+                              className={`p-4 rounded-lg border ${debtStrategy === strategy ? 'border-blue-500 bg-blue-500/10' : 'border-slate-600 bg-slate-700/30'}`}
+                            >
+                              <div className="text-center">
+                                <div className="text-lg font-bold text-white capitalize mb-2">{strategy}</div>
+                                <div className="text-2xl font-bold text-blue-400">{result.totalMonths} mo</div>
+                                <div className="text-slate-400 text-sm">to debt-free</div>
+                                <div className="mt-2 text-sm">
+                                  <span className="text-red-400">${result.totalInterestPaid?.toLocaleString()}</span>
+                                  <span className="text-slate-500"> interest</span>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {debtComparison.recommendation && (
+                          <div className="mt-4 p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                            <div className="text-green-400 font-medium">
+                              💡 {debtComparison.recommendation.lowestInterest} saves the most: ${debtComparison.recommendation.interestSaved?.toLocaleString()} less in interest
+                            </div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Payoff Order */}
+                      {debtPayoffPlan && (
+                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                          <h3 className="text-lg font-semibold text-white mb-4">Payoff Order ({debtStrategy})</h3>
+                          <div className="space-y-3">
+                            {debtPayoffPlan.payoffOrder?.map((debt, i) => (
+                              <div key={i} className="flex items-center gap-4 p-3 bg-slate-700/30 rounded-lg">
+                                <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                                  {i + 1}
+                                </div>
+                                <div className="flex-1">
+                                  <div className="text-white font-medium">{debt.name}</div>
+                                  <div className="text-slate-400 text-sm">Paid off in month {debt.month}</div>
+                                </div>
+                                <div className="text-green-400">✓</div>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-slate-400">Debt-Free Date:</span>
+                                <span className="text-white font-medium ml-2">
+                                  {new Date(new Date().setMonth(new Date().getMonth() + debtPayoffPlan.totalMonths)).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                                </span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400">Total Interest:</span>
+                                <span className="text-red-400 font-medium ml-2">${debtPayoffPlan.totalInterestPaid?.toLocaleString()}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400">Total Paid:</span>
+                                <span className="text-white font-medium ml-2">${debtPayoffPlan.totalPaid?.toLocaleString()}</span>
+                              </div>
+                              <div>
+                                <span className="text-slate-400">Extra Payment:</span>
+                                <span className="text-green-400 font-medium ml-2">${debtPayoffPlan.extraPayment?.toLocaleString()}/mo</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                      <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-white mb-2">Plan Your Debt Freedom</h3>
+                      <p className="text-slate-400">Set your monthly budget and click Calculate to see your payoff timeline</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : (
+              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-2">No Debts Found</h3>
+                <p className="text-slate-400 mb-6">Add debts in the Overview tab to use the debt payoff optimizer</p>
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl"
+                >
+                  Go to Overview
+                </button>
+              </div>
+            )}
           </div>
         )}
       </main>
