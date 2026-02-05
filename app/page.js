@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail, LogOut, UserPlus, LogIn, Share2, Copy } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail, LogOut, UserPlus, LogIn, Share2, Copy, Sun, Moon, Lightbulb, HelpCircle, Calculator } from 'lucide-react';
 
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
@@ -370,6 +370,14 @@ export default function AIPortfolioManager() {
     name: '', type: 'auto', provider: '', premium: '', paymentFrequency: 'monthly',
     coverage: '', deductible: '', renewalDate: '', policyNumber: '', notes: ''
   });
+
+  // Phase 23: Theme & What-If Simulator
+  const [theme, setTheme] = useState('dark'); // 'dark' or 'light'
+  const [simulatorScenario, setSimulatorScenario] = useState(null);
+  const [simulatorResult, setSimulatorResult] = useState(null);
+  const [simulatorLoading, setSimulatorLoading] = useState(false);
+  const [showSimulator, setShowSimulator] = useState(false);
+  const [scenarioInputs, setScenarioInputs] = useState({});
 
   // Navigation State
   const [activeSection, setActiveSection] = useState('home'); // For section highlighting
@@ -2013,6 +2021,61 @@ export default function AIPortfolioManager() {
     }
   }, [insurancePolicies]);
 
+  // Phase 23: Theme persistence
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) setTheme(savedTheme);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('theme', theme);
+    document.documentElement.classList.toggle('light', theme === 'light');
+  }, [theme]);
+
+  // Phase 23: What-If Simulator
+  const runSimulation = async (scenarioType) => {
+    setSimulatorLoading(true);
+    try {
+      // Calculate current financial state from app data
+      const totalAssets = manualAccounts.reduce((sum, a) => sum + (a.balance || 0), 0) +
+                         (account ? parseFloat(account.equity || 0) : 0);
+      const totalDebts = debts.reduce((sum, d) => sum + (d.balance || 0), 0);
+      const investmentBal = manualAccounts.filter(a => ['investment', 'retirement', 'crypto'].includes(a.type))
+                                          .reduce((sum, a) => sum + (a.balance || 0), 0);
+      const cashBal = manualAccounts.filter(a => ['checking', 'savings'].includes(a.type))
+                                    .reduce((sum, a) => sum + (a.balance || 0), 0);
+
+      const currentState = {
+        netWorth: totalAssets - totalDebts,
+        monthlyIncome: monthlyIncome || 8000,
+        monthlyExpenses: budgetAnalysis?.totalSpent || 5000,
+        investmentBalance: investmentBal || 50000,
+        cashBalance: cashBal || 20000,
+        debtBalance: totalDebts,
+        monthlyInvestment: 500,
+        expectedReturn: 7,
+        age: retirementProfile?.currentAge || 30,
+      };
+
+      const res = await fetch('/api/simulator', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scenario: { type: scenarioType, ...scenarioInputs },
+          currentState,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSimulatorResult(data.result);
+      }
+    } catch (err) {
+      console.error('Simulation failed:', err);
+    } finally {
+      setSimulatorLoading(false);
+    }
+  };
+
   // Load legendary investors on mount
   useEffect(() => {
     fetchLegendaryInvestors();
@@ -2381,8 +2444,8 @@ export default function AIPortfolioManager() {
 
   // Main App
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      <header className="bg-slate-800/50 backdrop-blur-xl border-b border-slate-700 sticky top-0 z-40">
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'bg-gradient-to-br from-slate-100 via-white to-slate-50' : 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'}`}>
+      <header className={`${theme === 'light' ? 'bg-white/80 border-slate-200' : 'bg-slate-800/50 border-slate-700'} backdrop-blur-xl border-b sticky top-0 z-40`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -2390,7 +2453,7 @@ export default function AIPortfolioManager() {
                 <Brain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-bold text-white">AI Portfolio Manager</h1>
+                <h1 className={`text-lg font-bold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>AI Portfolio Manager</h1>
                 <div className="flex items-center gap-2">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
                     {mode === 'demo' ? 'Demo' : 'Live Paper'}
@@ -2536,6 +2599,24 @@ export default function AIPortfolioManager() {
             </nav>
 
             <div className="flex items-center gap-2">
+              {/* What-If Simulator Button */}
+              <button
+                onClick={() => setShowSimulator(true)}
+                className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-400 flex items-center gap-2 text-sm font-medium border border-purple-500/30"
+                title="Financial Decision Simulator"
+              >
+                <Calculator className="w-4 h-4" /> What If?
+              </button>
+
+              {/* Theme Toggle */}
+              <button
+                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                className={`p-2 rounded-lg transition-all ${theme === 'dark' ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600' : 'bg-amber-100 text-amber-600 hover:bg-amber-200'}`}
+                title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              >
+                {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+              </button>
+
               {/* Household Share Button */}
               {session?.user && (
                 <div className="relative">
@@ -8410,6 +8491,256 @@ export default function AIPortfolioManager() {
               >
                 {editingInsurance ? 'Save Changes' : 'Add Policy'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* What-If Simulator Modal */}
+      {showSimulator && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className={`${theme === 'light' ? 'bg-white' : 'bg-slate-800'} rounded-2xl border ${theme === 'light' ? 'border-slate-200' : 'border-slate-700'} w-full max-w-4xl max-h-[90vh] overflow-y-auto`}>
+            <div className={`p-6 border-b ${theme === 'light' ? 'border-slate-200' : 'border-slate-700'} sticky top-0 ${theme === 'light' ? 'bg-white' : 'bg-slate-800'} z-10`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className={`text-2xl font-bold ${theme === 'light' ? 'text-slate-900' : 'text-white'} flex items-center gap-3`}>
+                    <Calculator className="w-6 h-6 text-purple-500" />
+                    What-If Financial Simulator
+                  </h2>
+                  <p className={`${theme === 'light' ? 'text-slate-600' : 'text-slate-400'} mt-1`}>Model big decisions before you make them</p>
+                </div>
+                <button onClick={() => { setShowSimulator(false); setSimulatorResult(null); setSimulatorScenario(null); }} className={`${theme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'}`}>
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6">
+              {!simulatorScenario ? (
+                /* Scenario Selection */
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  {[
+                    { type: 'buy_house', icon: '🏠', title: 'Buy a House', desc: 'Model mortgage, down payment, and costs' },
+                    { type: 'change_job', icon: '💼', title: 'Change Jobs', desc: 'Compare salary, benefits, and growth' },
+                    { type: 'have_child', icon: '👶', title: 'Have a Child', desc: 'Childcare, college savings, lifestyle changes' },
+                    { type: 'max_401k', icon: '📈', title: 'Max 401(k)', desc: 'Tax savings and retirement growth' },
+                    { type: 'market_crash', icon: '📉', title: 'Market Crash', desc: 'Test your portfolio against a downturn' },
+                    { type: 'retire_early', icon: '🏖️', title: 'Retire Early', desc: 'Can you hit your FIRE number?' },
+                  ].map(scenario => (
+                    <button
+                      key={scenario.type}
+                      onClick={() => { setSimulatorScenario(scenario.type); setScenarioInputs({}); }}
+                      className={`p-4 rounded-xl border text-left transition-all hover:scale-105 ${theme === 'light' ? 'bg-slate-50 border-slate-200 hover:border-purple-400 hover:bg-purple-50' : 'bg-slate-700/50 border-slate-600 hover:border-purple-500 hover:bg-purple-500/10'}`}
+                    >
+                      <span className="text-3xl mb-2 block">{scenario.icon}</span>
+                      <h3 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>{scenario.title}</h3>
+                      <p className={`text-sm ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>{scenario.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              ) : !simulatorResult ? (
+                /* Scenario Inputs */
+                <div className="space-y-6">
+                  <button onClick={() => setSimulatorScenario(null)} className="text-purple-400 hover:text-purple-300 flex items-center gap-2 text-sm">
+                    ← Back to scenarios
+                  </button>
+
+                  {simulatorScenario === 'buy_house' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>🏠 Home Purchase Details</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Home Price</label>
+                          <input type="number" value={scenarioInputs.homePrice || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, homePrice: parseInt(e.target.value)})} placeholder="500000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Down Payment %</label>
+                          <input type="number" value={scenarioInputs.downPaymentPct || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, downPaymentPct: parseInt(e.target.value)})} placeholder="20" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Interest Rate %</label>
+                          <input type="number" step="0.1" value={scenarioInputs.interestRate || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, interestRate: parseFloat(e.target.value)})} placeholder="6.5" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Rent</label>
+                          <input type="number" value={scenarioInputs.currentRent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentRent: parseInt(e.target.value)})} placeholder="2000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {simulatorScenario === 'change_job' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>💼 Job Change Details</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Salary</label>
+                          <input type="number" value={scenarioInputs.currentSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentSalary: parseInt(e.target.value)})} placeholder="100000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>New Salary</label>
+                          <input type="number" value={scenarioInputs.newSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, newSalary: parseInt(e.target.value)})} placeholder="120000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {simulatorScenario === 'have_child' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>👶 Family Planning</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Monthly Childcare Cost</label>
+                          <input type="number" value={scenarioInputs.childcareMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, childcareMonthly: parseInt(e.target.value)})} placeholder="1500" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Years of Childcare</label>
+                          <input type="number" value={scenarioInputs.yearsOfChildcare || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, yearsOfChildcare: parseInt(e.target.value)})} placeholder="5" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {simulatorScenario === 'max_401k' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>📈 401(k) Analysis</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Monthly Contribution</label>
+                          <input type="number" value={scenarioInputs.currentMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentMonthly: parseInt(e.target.value)})} placeholder="500" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Tax Bracket %</label>
+                          <input type="number" value={scenarioInputs.taxBracket ? scenarioInputs.taxBracket * 100 : ''} onChange={(e) => setScenarioInputs({...scenarioInputs, taxBracket: parseInt(e.target.value) / 100})} placeholder="24" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {simulatorScenario === 'market_crash' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>📉 Stress Test</h3>
+                      <div>
+                        <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Market Drop %</label>
+                        <input type="number" value={scenarioInputs.dropPercent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, dropPercent: parseInt(e.target.value)})} placeholder="40" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        <p className={`text-sm ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'} mt-1`}>2008 crash was ~50%, 2020 was ~34%</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {simulatorScenario === 'retire_early' && (
+                    <div className="space-y-4">
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>🏖️ Early Retirement</h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Target Retirement Age</label>
+                          <input type="number" value={scenarioInputs.targetAge || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, targetAge: parseInt(e.target.value)})} placeholder="50" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                        <div>
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Annual Spending in Retirement</label>
+                          <input type="number" value={scenarioInputs.annualSpending || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, annualSpending: parseInt(e.target.value)})} placeholder="60000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={() => runSimulation(simulatorScenario)}
+                    disabled={simulatorLoading}
+                    className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {simulatorLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lightbulb className="w-5 h-5" />}
+                    Run Simulation
+                  </button>
+                </div>
+              ) : (
+                /* Results */
+                <div className="space-y-6">
+                  <button onClick={() => { setSimulatorResult(null); setSimulatorScenario(null); }} className="text-purple-400 hover:text-purple-300 flex items-center gap-2 text-sm">
+                    ← Try another scenario
+                  </button>
+
+                  <div className={`${theme === 'light' ? 'bg-purple-50 border-purple-200' : 'bg-purple-500/10 border-purple-500/30'} border rounded-xl p-4`}>
+                    <h3 className={`text-xl font-bold ${theme === 'light' ? 'text-purple-900' : 'text-purple-300'}`}>{simulatorResult.title}</h3>
+                    <p className={`${theme === 'light' ? 'text-purple-700' : 'text-purple-200'} mt-1`}>{simulatorResult.summary}</p>
+                  </div>
+
+                  {/* Impact Summary */}
+                  <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
+                    <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Financial Impact</h4>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {Object.entries(simulatorResult.impact || {}).map(([key, value]) => (
+                        <div key={key} className={`p-3 ${theme === 'light' ? 'bg-white' : 'bg-slate-800'} rounded-lg`}>
+                          <p className={`text-xs ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'} capitalize`}>{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                          <p className={`text-lg font-semibold ${typeof value === 'number' && value < 0 ? 'text-red-400' : theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
+                            {typeof value === 'number' ? (value >= 1000 || value <= -1000 ? `$${value.toLocaleString()}` : value.toLocaleString()) : value}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Trade-offs */}
+                  {simulatorResult.tradeoffs?.length > 0 && (
+                    <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Trade-offs to Consider</h4>
+                      <div className="space-y-2">
+                        {simulatorResult.tradeoffs.map((t, i) => (
+                          <div key={i} className={`flex items-start gap-2 p-2 rounded ${
+                            t.pro === true ? (theme === 'light' ? 'bg-green-50' : 'bg-green-500/10') :
+                            t.pro === false ? (theme === 'light' ? 'bg-red-50' : 'bg-red-500/10') :
+                            (theme === 'light' ? 'bg-slate-100' : 'bg-slate-600/30')
+                          }`}>
+                            <span>{t.pro === true ? '✅' : t.pro === false ? '⚠️' : '💡'}</span>
+                            <span className={theme === 'light' ? 'text-slate-700' : 'text-slate-200'}>{t.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Recommendation */}
+                  {simulatorResult.recommendation && (
+                    <div className={`${theme === 'light' ? 'bg-blue-50 border-blue-200' : 'bg-blue-500/10 border-blue-500/30'} border rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-blue-900' : 'text-blue-300'} mb-1 flex items-center gap-2`}>
+                        <Lightbulb className="w-4 h-4" /> Recommendation
+                      </h4>
+                      <p className={theme === 'light' ? 'text-blue-700' : 'text-blue-200'}>{simulatorResult.recommendation}</p>
+                    </div>
+                  )}
+
+                  {/* Timeline */}
+                  {simulatorResult.timeline?.length > 0 && (
+                    <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Projection Timeline</h4>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className={theme === 'light' ? 'border-slate-200' : 'border-slate-600'}>
+                              {Object.keys(simulatorResult.timeline[0]).map(key => (
+                                <th key={key} className={`px-3 py-2 text-left ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'} font-medium capitalize`}>
+                                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                                </th>
+                              ))}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {simulatorResult.timeline.map((row, i) => (
+                              <tr key={i} className={`border-t ${theme === 'light' ? 'border-slate-200' : 'border-slate-600'}`}>
+                                {Object.values(row).map((val, j) => (
+                                  <td key={j} className={`px-3 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
+                                    {typeof val === 'number' && val > 1000 ? `$${val.toLocaleString()}` : val}
+                                  </td>
+                                ))}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
