@@ -6,30 +6,42 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+body {
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Elegant selection color */
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+  color: #f0ede6;
+}
+
+/* Forest-themed scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #1e293b;
+  background: #0a1410;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #475569;
-  border-radius: 4px;
+  background: #2a4035;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #64748b;
+  background: #3a5442;
 }
 
-/* Range input styling */
+/* Gold accent range inputs */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
@@ -42,13 +54,55 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 18px;
   height: 18px;
-  background: #3b82f6;
+  background: #c9a84c;
   border-radius: 50%;
   margin-top: -6px;
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
 }
 
 input[type="range"]::-webkit-slider-runnable-track {
   height: 6px;
-  background: #334155;
+  background: #1e3328;
   border-radius: 3px;
+}
+
+/* Focus ring override for forest theme */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(201, 168, 76, 0.4);
+}
+
+/* Subtle glow utility for cards on hover */
+@layer utilities {
+  .glow-gold {
+    box-shadow: 0 0 20px rgba(201, 168, 76, 0.08), 0 0 40px rgba(201, 168, 76, 0.04);
+  }
+  .glow-emerald {
+    box-shadow: 0 0 20px rgba(45, 122, 79, 0.1), 0 0 40px rgba(45, 122, 79, 0.05);
+  }
+}
+
+/* Serif headings when .font-serif is applied */
+.font-display {
+  font-family: var(--font-cormorant), 'Georgia', serif;
+}
+
+/* Light theme overrides via class on html */
+html.light ::-webkit-scrollbar-track {
+  background: #f5f2eb;
+}
+
+html.light ::-webkit-scrollbar-thumb {
+  background: #c4b89e;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #a89878;
+}
+
+html.light ::selection {
+  background: rgba(201, 168, 76, 0.25);
+  color: #1a2b22;
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
-import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail, LogOut, UserPlus, LogIn, Share2, Copy, Sun, Moon, Lightbulb, HelpCircle, Calculator } from 'lucide-react';
+import { TrendingUp, TrendingDown, DollarSign, Circle, Brain, Mountain, Zap, Shield, Target, Settings, RefreshCw, ChevronRight, Check, Briefcase, BarChart3, Sparkles, Play, Lock, Eye, EyeOff, Search, X, ShoppingCart, ArrowUpCircle, ArrowDownCircle, History, AlertTriangle, Power, Gauge, Bot, Clock, Newspaper, Calendar, ThumbsUp, ThumbsDown, Minus, Activity, FileText, Users, Radio, Layers, Wallet, Building2, CreditCard, PiggyBank, Plus, Trash2, Edit3, Home, Bell, Mail, LogOut, UserPlus, LogIn, Share2, Copy, Sun, Moon, Lightbulb, HelpCircle, Calculator } from 'lucide-react';
 
 const POPULAR_STOCKS = ['AAPL', 'MSFT', 'GOOGL', 'AMZN', 'NVDA', 'TSLA', 'META', 'JPM', 'V', 'JNJ', 'XOM', 'SPY', 'QQQ', 'AMD', 'NFLX'];
 
@@ -100,7 +100,7 @@ const generateAIAnalysis = (preferences, positions) => {
   return suggestions.sort((a, b) => b.confidence - a.confidence).slice(0, 8);
 };
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+const COLORS = ['#c9a84c', '#2d7a4f', '#d4b96b', '#ef6b4a', '#5a9a6b', '#8a6a2d'];
 
 export default function AIPortfolioManager() {
   // Authentication
@@ -795,15 +795,15 @@ export default function AIPortfolioManager() {
 
   const getAccountColor = (type) => {
     const colors = {
-      retirement: 'text-purple-400 bg-purple-500/20',
-      investment: 'text-blue-400 bg-blue-500/20',
-      checking: 'text-green-400 bg-green-500/20',
-      savings: 'text-amber-400 bg-amber-500/20',
-      credit: 'text-red-400 bg-red-500/20',
-      crypto: 'text-orange-400 bg-orange-500/20',
-      partnership: 'text-cyan-400 bg-cyan-500/20',
+      retirement: 'text-[#d4b96b] bg-[#c9a84c]/15',
+      investment: 'text-emerald-400 bg-emerald-500/15',
+      checking: 'text-[#b8c9bd] bg-[#2d7a4f]/20',
+      savings: 'text-[#d4b96b] bg-[#c9a84c]/10',
+      credit: 'text-red-400 bg-red-500/15',
+      crypto: 'text-amber-400 bg-amber-500/15',
+      partnership: 'text-[#8fa89b] bg-[#3a5442]/20',
     };
-    return colors[type] || 'text-slate-400 bg-slate-500/20';
+    return colors[type] || 'text-[#8fa89b] bg-[#3a5442]/20';
   };
 
   // Debt Management Functions
@@ -2263,10 +2263,12 @@ export default function AIPortfolioManager() {
   // Authentication Screen
   if (status === 'loading') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1410] via-[#0f1d16] to-[#0a1410] flex items-center justify-center">
         <div className="text-center">
-          <RefreshCw className="w-8 h-8 text-blue-500 animate-spin mx-auto mb-4" />
-          <p className="text-slate-400">Loading...</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-2xl flex items-center justify-center mx-auto mb-6 animate-pulse shadow-lg shadow-[#c9a84c]/20">
+            <Mountain className="w-8 h-8 text-white" />
+          </div>
+          <p className="text-[#8fa89b] font-serif text-lg tracking-wide">Loading...</p>
         </div>
       </div>
     );
@@ -2274,22 +2276,22 @@ export default function AIPortfolioManager() {
 
   if (status !== 'authenticated') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-8 max-w-md w-full">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1410] via-[#0f1d16] to-[#0a1410] flex items-center justify-center p-4">
+        <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-2xl border border-[#2a3f32] p-8 max-w-md w-full shadow-2xl shadow-black/20">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#c9a84c]/20">
+              <Mountain className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
-            <p className="text-slate-400">Family Finance Command Center</p>
+            <h1 className="text-3xl font-serif font-semibold text-white mb-2 tracking-wide">AI Portfolio Manager</h1>
+            <p className="text-[#8fa89b] text-sm tracking-wider uppercase">Intelligent Wealth Management</p>
           </div>
 
           {/* Auth Mode Toggle */}
-          <div className="flex bg-slate-700/50 rounded-lg p-1 mb-6">
+          <div className="flex bg-[#1e3328]/50 rounded-lg p-1 mb-6">
             <button
               onClick={() => { setAuthMode('login'); setAuthError(''); }}
               className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                authMode === 'login' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'
+                authMode === 'login' ? 'bg-[#c9a84c] text-[#0a1410]' : 'text-[#8fa89b] hover:text-[#f0ede6]'
               }`}
             >
               Sign In
@@ -2297,7 +2299,7 @@ export default function AIPortfolioManager() {
             <button
               onClick={() => { setAuthMode('signup'); setAuthError(''); }}
               className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
-                authMode === 'signup' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'
+                authMode === 'signup' ? 'bg-[#c9a84c] text-[#0a1410]' : 'text-[#8fa89b] hover:text-[#f0ede6]'
               }`}
             >
               Create Account
@@ -2307,12 +2309,12 @@ export default function AIPortfolioManager() {
           <form onSubmit={handleAuth} className="space-y-4">
             {authMode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Your Name</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Your Name</label>
                 <input
                   type="text"
                   value={authName}
                   onChange={(e) => setAuthName(e.target.value)}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                   placeholder="Andrew"
                   required
                 />
@@ -2320,24 +2322,24 @@ export default function AIPortfolioManager() {
             )}
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Email</label>
+              <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Email</label>
               <input
                 type="email"
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
-                className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 placeholder="you@email.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Password</label>
+              <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Password</label>
               <input
                 type="password"
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
-                className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 placeholder="••••••••"
                 required
                 minLength={6}
@@ -2346,18 +2348,18 @@ export default function AIPortfolioManager() {
 
             {authMode === 'signup' && (
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">
-                  Household Code <span className="text-slate-500">(optional - join existing)</span>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">
+                  Household Code <span className="text-[#6b8a76]">(optional - join existing)</span>
                 </label>
                 <input
                   type="text"
                   value={authHouseholdCode}
                   onChange={(e) => setAuthHouseholdCode(e.target.value.toUpperCase())}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c] uppercase"
                   placeholder="ABC123"
                   maxLength={6}
                 />
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-[#6b8a76] mt-1">
                   Have a code from your spouse? Enter it to share finances.
                 </p>
               </div>
@@ -2372,7 +2374,7 @@ export default function AIPortfolioManager() {
             <button
               type="submit"
               disabled={authLoading}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium py-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {authLoading ? (
                 <RefreshCw className="w-5 h-5 animate-spin" />
@@ -2385,7 +2387,7 @@ export default function AIPortfolioManager() {
           </form>
 
           {authMode === 'signup' && (
-            <p className="text-xs text-slate-500 text-center mt-4">
+            <p className="text-xs text-[#6b8a76] text-center mt-4">
               Create an account to save your data and share with family members.
             </p>
           )}
@@ -2397,42 +2399,42 @@ export default function AIPortfolioManager() {
   // Connection Screen
   if (!connected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-slate-800/50 backdrop-blur-xl rounded-2xl border border-slate-700 p-8 max-w-md w-full">
+      <div className="min-h-screen bg-gradient-to-br from-[#0a1410] via-[#0f1d16] to-[#0a1410] flex items-center justify-center p-4">
+        <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-2xl border border-[#2a3f32] p-8 max-w-md w-full shadow-2xl shadow-black/20">
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#c9a84c]/20">
+              <Mountain className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">AI Portfolio Manager</h1>
-            <p className="text-slate-400">Autonomous trading powered by AI</p>
+            <h1 className="text-3xl font-serif font-semibold text-white mb-2 tracking-wide">AI Portfolio Manager</h1>
+            <p className="text-[#8fa89b] text-sm tracking-wider uppercase">Autonomous Trading Powered by AI</p>
           </div>
 
           <div className="space-y-4">
-            <button onClick={startDemoMode} className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-4 rounded-xl flex items-center justify-center gap-3">
+            <button onClick={startDemoMode} className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium py-4 rounded-xl flex items-center justify-center gap-3">
               <Play className="w-5 h-5" /> Launch Demo Mode
             </button>
 
             <div className="relative py-4">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-600"></div></div>
-              <div className="relative flex justify-center"><span className="px-4 bg-slate-800 text-slate-400 text-sm">or connect Alpaca</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#3a5442]"></div></div>
+              <div className="relative flex justify-center"><span className="px-4 bg-[#152019] text-[#8fa89b] text-sm">or connect Alpaca</span></div>
             </div>
 
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">API Key ID</label>
-                <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="PK..." />
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">API Key ID</label>
+                <input type="text" value={apiKey} onChange={(e) => setApiKey(e.target.value)} className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]" placeholder="PK..." />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Secret Key</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Secret Key</label>
                 <div className="relative">
-                  <input type={showSecret ? 'text' : 'password'} value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 pr-12 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Your secret key" />
-                  <button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                  <input type={showSecret ? 'text' : 'password'} value={secretKey} onChange={(e) => setSecretKey(e.target.value)} className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 pr-12 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]" placeholder="Your secret key" />
+                  <button type="button" onClick={() => setShowSecret(!showSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8fa89b] hover:text-[#f0ede6]">
                     {showSecret ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
               </div>
               {error && <div className="bg-red-500/20 border border-red-500/50 rounded-lg px-4 py-3 text-red-300 text-sm">{error}</div>}
-              <button onClick={connectLive} disabled={loading} className="w-full bg-slate-700 hover:bg-slate-600 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
+              <button onClick={connectLive} disabled={loading} className="w-full bg-[#1e3328] hover:bg-[#2a4035] text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
                 {loading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lock className="w-5 h-5" />} Connect Paper Trading
               </button>
             </div>
@@ -2444,22 +2446,22 @@ export default function AIPortfolioManager() {
 
   // Main App
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'bg-gradient-to-br from-slate-100 via-white to-slate-50' : 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'}`}>
-      <header className={`${theme === 'light' ? 'bg-white/80 border-slate-200' : 'bg-slate-800/50 border-slate-700'} backdrop-blur-xl border-b sticky top-0 z-40`}>
+    <div className={`min-h-screen transition-colors duration-300 ${theme === 'light' ? 'bg-gradient-to-br from-[#f5f2eb] via-[#faf8f3] to-[#f0ede6]' : 'bg-gradient-to-br from-[#0a1410] via-[#0f1d16] to-[#0a1410]'}`}>
+      <header className={`${theme === 'light' ? 'bg-[#faf8f3]/90 border-[#d4cbb8]' : 'bg-[#1a2b22]/50 border-[#2a3f32]'} backdrop-blur-xl border-b sticky top-0 z-40`}>
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-xl flex items-center justify-center shadow-md shadow-[#c9a84c]/10">
+                <Mountain className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className={`text-lg font-bold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>AI Portfolio Manager</h1>
+                <h1 className={`text-lg font-serif font-semibold tracking-wide ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>AI Portfolio Manager</h1>
                 <div className="flex items-center gap-2">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-amber-500/20 text-amber-400' : 'bg-green-500/20 text-green-400'}`}>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${mode === 'demo' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-emerald-500/15 text-emerald-400'}`}>
                     {mode === 'demo' ? 'Demo' : 'Live Paper'}
                   </span>
                   {autoTradeSettings.enabled && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 ${circuitBreakerTripped ? 'bg-red-500/20 text-red-400' : 'bg-purple-500/20 text-purple-400'}`}>
+                    <span className={`text-xs px-2 py-0.5 rounded-full flex items-center gap-1 ${circuitBreakerTripped ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                       <Bot className="w-3 h-3" /> {circuitBreakerTripped ? 'Stopped' : 'Auto'}
                     </span>
                   )}
@@ -2469,7 +2471,7 @@ export default function AIPortfolioManager() {
 
             <nav className="flex items-center gap-1">
               {/* Home Button */}
-              <button onClick={() => setActiveTab('home')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'home' ? 'bg-blue-500 text-white' : 'text-slate-300 hover:bg-slate-700'}`}>
+              <button onClick={() => setActiveTab('home')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'home' ? 'bg-[#c9a84c]/15 text-[#d4b96b] border border-[#c9a84c]/30' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                 <Home className="w-4 h-4" /> Home
               </button>
 
@@ -2477,19 +2479,19 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'wealth' ? null : 'wealth')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['overview', 'timeline', 'goals', 'retirement'].includes(activeTab) ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['overview', 'timeline', 'goals', 'retirement'].includes(activeTab) ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}
                 >
                   💰 Wealth <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'wealth' ? 'rotate-90' : ''}`} />
                 </button>
                 {showNavDropdown === 'wealth' && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl py-2 z-50">
                     {[
                       { tab: 'overview', icon: '💰', label: 'Net Worth' },
                       { tab: 'timeline', icon: '📊', label: 'Timeline' },
                       { tab: 'goals', icon: '🎯', label: 'Goals' },
                       { tab: 'retirement', icon: '🏖️', label: 'Retirement' },
                     ].map(({ tab, icon, label }) => (
-                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                         <span>{icon}</span> {label}
                       </button>
                     ))}
@@ -2501,12 +2503,12 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'money' ? null : 'money')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['spending', 'debt-payoff', 'insurance', 'taxes', 'advisor'].includes(activeTab) ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['spending', 'debt-payoff', 'insurance', 'taxes', 'advisor'].includes(activeTab) ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}
                 >
                   💳 Money <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'money' ? 'rotate-90' : ''}`} />
                 </button>
                 {showNavDropdown === 'money' && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl py-2 z-50">
                     {[
                       { tab: 'spending', icon: '💳', label: 'Spending' },
                       { tab: 'debt-payoff', icon: '📉', label: 'Debt Payoff' },
@@ -2514,7 +2516,7 @@ export default function AIPortfolioManager() {
                       { tab: 'taxes', icon: '📋', label: 'Taxes' },
                       { tab: 'advisor', icon: '🧠', label: 'AI Advisor' },
                     ].map(({ tab, icon, label }) => (
-                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-amber-500/20 text-amber-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                         <span>{icon}</span> {label}
                       </button>
                     ))}
@@ -2526,12 +2528,12 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'invest' ? null : 'invest')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['dashboard', 'trade', 'suggestions', 'research', 'ai-arena', 'history'].includes(activeTab) ? 'bg-purple-500/20 text-purple-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['dashboard', 'trade', 'suggestions', 'research', 'ai-arena', 'history'].includes(activeTab) ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}
                 >
                   📈 Invest <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'invest' ? 'rotate-90' : ''}`} />
                 </button>
                 {showNavDropdown === 'invest' && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl py-2 z-50">
                     {[
                       { tab: 'dashboard', icon: '📈', label: 'Portfolio' },
                       { tab: 'trade', icon: '⚡', label: 'Trade' },
@@ -2540,7 +2542,7 @@ export default function AIPortfolioManager() {
                       { tab: 'ai-arena', icon: '🏆', label: 'AI Arena' },
                       { tab: 'history', icon: '📜', label: 'History' },
                     ].map(({ tab, icon, label }) => (
-                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-purple-500/20 text-purple-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                         <span>{icon}</span> {label}
                       </button>
                     ))}
@@ -2552,17 +2554,17 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'markets' ? null : 'markets')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['markets', 'insiders'].includes(activeTab) ? 'bg-red-500/20 text-red-400' : 'text-slate-300 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['markets', 'insiders'].includes(activeTab) ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}
                 >
                   🌍 Markets <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'markets' ? 'rotate-90' : ''}`} />
                 </button>
                 {showNavDropdown === 'markets' && (
-                  <div className="absolute top-full left-0 mt-1 w-56 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-56 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl py-2 z-50">
                     {[
                       { tab: 'markets', icon: '📊', label: 'Market Movers' },
                       { tab: 'insiders', icon: '🏛️', label: 'Insider Trades' },
                     ].map(({ tab, icon, label }) => (
-                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-red-500/20 text-red-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                         <span>{icon}</span> {label}
                       </button>
                     ))}
@@ -2571,7 +2573,7 @@ export default function AIPortfolioManager() {
               </div>
 
               {/* Masters Button */}
-              <button onClick={() => setActiveTab('masters')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'masters' ? 'bg-yellow-500/20 text-yellow-400' : 'text-slate-300 hover:bg-slate-700'}`}>
+              <button onClick={() => setActiveTab('masters')} className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${activeTab === 'masters' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                 🎓 Masters
               </button>
 
@@ -2579,17 +2581,17 @@ export default function AIPortfolioManager() {
               <div className="relative">
                 <button
                   onClick={() => setShowNavDropdown(showNavDropdown === 'more' ? null : 'more')}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['partnership', 'settings'].includes(activeTab) ? 'bg-slate-500/20 text-slate-300' : 'text-slate-400 hover:bg-slate-700'}`}
+                  className={`px-4 py-2 rounded-lg font-medium transition-all text-sm flex items-center gap-2 ${['partnership', 'settings'].includes(activeTab) ? 'bg-[#3a5442]/20 text-[#b8c9bd]' : 'text-[#8fa89b] hover:bg-[#1e3328]'}`}
                 >
                   ⚙️ More <ChevronRight className={`w-4 h-4 transition-transform ${showNavDropdown === 'more' ? 'rotate-90' : ''}`} />
                 </button>
                 {showNavDropdown === 'more' && (
-                  <div className="absolute top-full left-0 mt-1 w-48 bg-slate-800 border border-slate-700 rounded-xl shadow-xl py-2 z-50">
+                  <div className="absolute top-full left-0 mt-1 w-48 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl py-2 z-50">
                     {[
                       { tab: 'partnership', icon: '🤝', label: 'Partnership' },
                       { tab: 'settings', icon: '⚙️', label: 'Settings' },
                     ].map(({ tab, icon, label }) => (
-                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-slate-500/20 text-slate-300' : 'text-slate-300 hover:bg-slate-700'}`}>
+                      <button key={tab} onClick={() => { setActiveTab(tab); setShowNavDropdown(null); }} className={`w-full px-4 py-2 text-left text-sm flex items-center gap-3 ${activeTab === tab ? 'bg-[#3a5442]/20 text-[#b8c9bd]' : 'text-[#b8c9bd] hover:bg-[#1e3328]'}`}>
                         <span>{icon}</span> {label}
                       </button>
                     ))}
@@ -2602,7 +2604,7 @@ export default function AIPortfolioManager() {
               {/* What-If Simulator Button */}
               <button
                 onClick={() => setShowSimulator(true)}
-                className="px-3 py-2 rounded-lg bg-gradient-to-r from-purple-500/20 to-pink-500/20 hover:from-purple-500/30 hover:to-pink-500/30 text-purple-400 flex items-center gap-2 text-sm font-medium border border-purple-500/30"
+                className="px-3 py-2 rounded-lg bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#d4b96b] flex items-center gap-2 text-sm font-medium border border-[#c9a84c]/20"
                 title="Financial Decision Simulator"
               >
                 <Calculator className="w-4 h-4" /> What If?
@@ -2611,7 +2613,7 @@ export default function AIPortfolioManager() {
               {/* Theme Toggle */}
               <button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                className={`p-2 rounded-lg transition-all ${theme === 'dark' ? 'bg-slate-700 text-yellow-400 hover:bg-slate-600' : 'bg-amber-100 text-amber-600 hover:bg-amber-200'}`}
+                className={`p-2 rounded-lg transition-all ${theme === 'dark' ? 'bg-[#1e3328] text-[#d4b96b] hover:bg-[#2a4035]' : 'bg-[#f0ede6] text-[#8a6a2d] hover:bg-[#e5dfd2]'}`}
                 title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
               >
                 {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -2622,7 +2624,7 @@ export default function AIPortfolioManager() {
                 <div className="relative">
                   <button
                     onClick={() => setShowHouseholdShare(!showHouseholdShare)}
-                    className="p-2 rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 flex items-center gap-1"
+                    className="p-2 rounded-lg bg-[#c9a84c]/10 hover:bg-[#c9a84c]/20 text-[#d4b96b] flex items-center gap-1"
                     title="Share with family"
                   >
                     <Users className="w-4 h-4" />
@@ -2631,42 +2633,42 @@ export default function AIPortfolioManager() {
                     )}
                   </button>
                   {showHouseholdShare && (
-                    <div className="absolute right-0 top-full mt-2 w-72 bg-slate-800 border border-slate-700 rounded-xl shadow-xl p-4 z-50">
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-[#152019] border border-[#2a3f32] rounded-xl shadow-xl p-4 z-50">
                       <div className="flex items-center justify-between mb-3">
                         <h4 className="font-semibold text-white flex items-center gap-2">
-                          <Users className="w-4 h-4 text-purple-400" /> Household
+                          <Users className="w-4 h-4 text-[#d4b96b]" /> Household
                         </h4>
-                        <button onClick={() => setShowHouseholdShare(false)} className="text-slate-400 hover:text-white">
+                        <button onClick={() => setShowHouseholdShare(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                           <X className="w-4 h-4" />
                         </button>
                       </div>
                       <div className="mb-4">
-                        <p className="text-xs text-slate-400 mb-1">Share code with family:</p>
+                        <p className="text-xs text-[#8fa89b] mb-1">Share code with family:</p>
                         <div className="flex items-center gap-2">
-                          <code className="flex-1 bg-slate-700 px-3 py-2 rounded text-purple-400 font-mono">
+                          <code className="flex-1 bg-[#1e3328] px-3 py-2 rounded text-[#d4b96b] font-mono">
                             {session.user.householdCode}
                           </code>
                           <button
                             onClick={copyHouseholdCode}
-                            className="p-2 bg-slate-700 hover:bg-slate-600 rounded text-slate-300"
+                            className="p-2 bg-[#1e3328] hover:bg-[#2a4035] rounded text-[#b8c9bd]"
                           >
                             {copiedCode ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
-                      <div className="border-t border-slate-700 pt-3">
-                        <p className="text-xs text-slate-400 mb-2">Members:</p>
+                      <div className="border-t border-[#2a3f32] pt-3">
+                        <p className="text-xs text-[#8fa89b] mb-2">Members:</p>
                         <div className="space-y-1">
                           {householdData?.members?.map((member, i) => (
                             <div key={member.email} className="flex items-center gap-2 text-sm">
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                member.email === session.user.email ? 'bg-blue-500 text-white' : 'bg-slate-600 text-slate-300'
+                                member.email === session.user.email ? 'bg-[#c9a84c]text-white' : 'bg-[#2a4035] text-[#b8c9bd]'
                               }`}>
                                 {member.name?.[0]?.toUpperCase() || '?'}
                               </div>
-                              <span className="text-slate-300">{member.name}</span>
+                              <span className="text-[#b8c9bd]">{member.name}</span>
                               {member.email === session.user.email && (
-                                <span className="text-xs text-slate-500">(you)</span>
+                                <span className="text-xs text-[#6b8a76]">(you)</span>
                               )}
                             </div>
                           ))}
@@ -2679,14 +2681,14 @@ export default function AIPortfolioManager() {
 
               {/* User Menu */}
               {session?.user && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-700/50 rounded-lg">
-                  <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-[#1e3328]/50 rounded-lg">
+                  <div className="w-6 h-6 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-full flex items-center justify-center text-xs font-bold text-white">
                     {session.user.name?.[0]?.toUpperCase() || '?'}
                   </div>
-                  <span className="text-sm text-slate-300 hidden sm:inline">{session.user.name}</span>
+                  <span className="text-sm text-[#b8c9bd] hidden sm:inline">{session.user.name}</span>
                   <button
                     onClick={handleSignOut}
-                    className="p-1 text-slate-400 hover:text-red-400"
+                    className="p-1 text-[#8fa89b] hover:text-red-400"
                     title="Sign out"
                   >
                     <LogOut className="w-4 h-4" />
@@ -2695,11 +2697,11 @@ export default function AIPortfolioManager() {
               )}
 
               {mode === 'live' && (
-                <button onClick={refreshData} disabled={loading} className="p-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300">
+                <button onClick={refreshData} disabled={loading} className="p-2 rounded-lg bg-[#1e3328]/50 hover:bg-[#1e3328] text-[#b8c9bd]">
                   <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
                 </button>
               )}
-              <button onClick={() => { setConnected(false); setMode(null); }} className="px-3 py-2 rounded-lg bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm">Disconnect</button>
+              <button onClick={() => { setConnected(false); setMode(null); }} className="px-3 py-2 rounded-lg bg-[#1e3328]/50 hover:bg-[#1e3328] text-[#b8c9bd] text-sm">Disconnect</button>
             </div>
           </div>
         </div>
@@ -2722,17 +2724,18 @@ export default function AIPortfolioManager() {
         {activeTab === 'home' && (
           <div className="space-y-6">
             {/* Welcome Header */}
-            <div className="bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 rounded-2xl border border-blue-500/30 p-8">
-              <div className="flex items-center justify-between flex-wrap gap-4">
+            <div className="bg-gradient-to-r from-[#1a2b22] via-[#1e3328] to-[#1a2b22] rounded-2xl border border-[#c9a84c]/20 p-8 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#c9a84c]/5 via-transparent to-[#2d7a4f]/5"></div>
+              <div className="flex items-center justify-between flex-wrap gap-4 relative">
                 <div>
-                  <h1 className="text-3xl font-bold text-white mb-2">
-                    Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}! 👋
+                  <h1 className="text-3xl font-serif font-semibold text-white mb-2 tracking-wide">
+                    Welcome back{session?.user?.name ? `, ${session.user.name.split(' ')[0]}` : ''}
                   </h1>
-                  <p className="text-slate-300">Here's your financial snapshot for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+                  <p className="text-[#b8c9bd]">Here's your financial snapshot for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-slate-400 mb-1">Total Net Worth</p>
-                  <p className={`text-4xl font-bold ${calculateTrueNetWorth() >= 0 ? 'text-white' : 'text-red-400'}`}>
+                  <p className="text-sm text-[#8fa89b] mb-1 uppercase tracking-wider">Total Net Worth</p>
+                  <p className={`text-4xl font-bold ${calculateTrueNetWorth() >= 0 ? 'text-[#d4b96b]' : 'text-red-400'}`}>
                     ${calculateTrueNetWorth().toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                   </p>
                 </div>
@@ -2741,46 +2744,46 @@ export default function AIPortfolioManager() {
 
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-emerald-500/50 transition-colors">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5 hover:border-[#c9a84c]/30 transition-all hover:shadow-lg hover:shadow-[#c9a84c]/5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
                     <TrendingUp className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="text-slate-400 text-sm">Total Assets</span>
+                  <span className="text-[#8fa89b] text-sm uppercase tracking-wider">Assets</span>
                 </div>
-                <p className="text-2xl font-bold text-white">${calculateNetWorth().toLocaleString()}</p>
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">${calculateNetWorth().toLocaleString()}</p>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-red-500/50 transition-colors">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5 hover:border-[#c9a84c]/30 transition-all hover:shadow-lg hover:shadow-[#c9a84c]/5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-red-500/20 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-lg bg-red-500/15 flex items-center justify-center">
                     <CreditCard className="w-5 h-5 text-red-400" />
                   </div>
-                  <span className="text-slate-400 text-sm">Total Debt</span>
+                  <span className="text-[#8fa89b] text-sm uppercase tracking-wider">Debt</span>
                 </div>
                 <p className="text-2xl font-bold text-red-400">${calculateTotalDebts().toLocaleString()}</p>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-blue-500/50 transition-colors">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5 hover:border-[#c9a84c]/30 transition-all hover:shadow-lg hover:shadow-[#c9a84c]/5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <Briefcase className="w-5 h-5 text-blue-400" />
+                  <div className="w-10 h-10 rounded-lg bg-[#c9a84c]/15 flex items-center justify-center">
+                    <Briefcase className="w-5 h-5 text-[#d4b96b]" />
                   </div>
-                  <span className="text-slate-400 text-sm">Investments</span>
+                  <span className="text-[#8fa89b] text-sm uppercase tracking-wider">Invested</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">
                   ${positions.reduce((sum, p) => sum + parseFloat(p.market_value || 0), 0).toLocaleString()}
                 </p>
               </div>
 
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5 hover:border-purple-500/50 transition-colors">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5 hover:border-[#c9a84c]/30 transition-all hover:shadow-lg hover:shadow-[#c9a84c]/5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                    <PiggyBank className="w-5 h-5 text-purple-400" />
+                  <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                    <PiggyBank className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <span className="text-slate-400 text-sm">Savings Rate</span>
+                  <span className="text-[#8fa89b] text-sm uppercase tracking-wider">Savings</span>
                 </div>
-                <p className="text-2xl font-bold text-white">
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">
                   {monthlyIncome > 0 ? Math.round(((monthlyIncome - Object.values(budgets).reduce((s, b) => s + b, 0)) / monthlyIncome) * 100) : 0}%
                 </p>
               </div>
@@ -2789,18 +2792,18 @@ export default function AIPortfolioManager() {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Financial Health Score */}
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-blue-400" /> Financial Health
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <Activity className="w-5 h-5 text-[#d4b96b]" /> Financial Health
                   </h3>
-                  <button onClick={() => setActiveTab('advisor')} className="text-blue-400 text-sm hover:underline">Details →</button>
+                  <button onClick={() => setActiveTab('advisor')} className="text-[#d4b96b] text-sm hover:underline opacity-80 hover:opacity-100">Details →</button>
                 </div>
                 {aiAdvisorAnalysis ? (
                   <div className="text-center">
                     <div className="relative inline-flex items-center justify-center w-32 h-32 mb-4">
                       <svg className="w-full h-full transform -rotate-90">
-                        <circle cx="64" cy="64" r="56" stroke="#334155" strokeWidth="8" fill="none" />
+                        <circle cx="64" cy="64" r="56" stroke="#1e3328" strokeWidth="8" fill="none" />
                         <circle
                           cx="64" cy="64" r="56"
                           stroke={aiAdvisorAnalysis.overallScore >= 70 ? '#10B981' : aiAdvisorAnalysis.overallScore >= 50 ? '#F59E0B' : '#EF4444'}
@@ -2812,7 +2815,7 @@ export default function AIPortfolioManager() {
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <span className="text-3xl font-bold text-white">{aiAdvisorAnalysis.overallScore}</span>
-                        <span className="text-xs text-slate-400">/ 100</span>
+                        <span className="text-xs text-[#8fa89b]">/ 100</span>
                       </div>
                     </div>
                     <p className={`text-sm font-medium ${aiAdvisorAnalysis.overallScore >= 70 ? 'text-emerald-400' : aiAdvisorAnalysis.overallScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
@@ -2821,9 +2824,9 @@ export default function AIPortfolioManager() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Activity className="w-12 h-12 text-slate-600 mx-auto mb-3" />
-                    <p className="text-slate-400 text-sm mb-3">Get your financial health score</p>
-                    <button onClick={fetchAIAdvisorAnalysis} disabled={aiAdvisorLoading} className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 mx-auto">
+                    <Activity className="w-12 h-12 text-[#5a7a65] mx-auto mb-3" />
+                    <p className="text-[#8fa89b] text-sm mb-3">Get your financial health score</p>
+                    <button onClick={fetchAIAdvisorAnalysis} disabled={aiAdvisorLoading} className="bg-[#c9a84c] hover:bg-[#b39643] text-[#0a1410] px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 mx-auto">
                       {aiAdvisorLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                       Analyze
                     </button>
@@ -2832,44 +2835,44 @@ export default function AIPortfolioManager() {
               </div>
 
               {/* Top Recommendations */}
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Target className="w-5 h-5 text-amber-400" /> Top Priorities
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <Target className="w-5 h-5 text-[#d4b96b]" /> Top Priorities
                   </h3>
                 </div>
                 {aiAdvisorAnalysis?.recommendations?.length > 0 ? (
                   <div className="space-y-3">
                     {aiAdvisorAnalysis.recommendations.slice(0, 3).map((rec, i) => (
-                      <div key={i} className={`p-3 rounded-lg ${rec.priority === 'HIGH' ? 'bg-red-500/10 border border-red-500/30' : rec.priority === 'MEDIUM' ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-slate-700/30 border border-slate-600'}`}>
+                      <div key={i} className={`p-3 rounded-lg ${rec.priority === 'HIGH' ? 'bg-red-500/10 border border-red-500/30' : rec.priority === 'MEDIUM' ? 'bg-amber-500/10 border border-amber-500/30' : 'bg-[#1e3328]/30 border border-[#3a5442]'}`}>
                         <div className="flex items-center gap-2 mb-1">
-                          <span className={`w-2 h-2 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-400' : rec.priority === 'MEDIUM' ? 'bg-amber-400' : 'bg-slate-400'}`} />
+                          <span className={`w-2 h-2 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-400' : rec.priority === 'MEDIUM' ? 'bg-amber-400' : 'bg-[#6b8a76]'}`} />
                           <span className="text-white font-medium text-sm">{rec.title}</span>
                         </div>
-                        <p className="text-slate-400 text-xs pl-4">{rec.description}</p>
+                        <p className="text-[#8fa89b] text-xs pl-4">{rec.description}</p>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-6 text-slate-400 text-sm">
+                  <div className="text-center py-6 text-[#8fa89b] text-sm">
                     Run the AI Advisor to get personalized recommendations
                   </div>
                 )}
               </div>
 
               {/* Quick Actions */}
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                  <Zap className="w-5 h-5 text-yellow-400" /> Quick Actions
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2 mb-4">
+                  <Zap className="w-5 h-5 text-[#d4b96b]" /> Quick Actions
                 </h3>
                 <div className="space-y-2">
                   <button onClick={() => setActiveTab('trade')} className="w-full p-3 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-emerald-400 text-sm font-medium flex items-center gap-3 transition-colors">
                     <Play className="w-4 h-4" /> Make a Trade
                   </button>
-                  <button onClick={() => setActiveTab('spending')} className="w-full p-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-lg text-blue-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                  <button onClick={() => setActiveTab('spending')} className="w-full p-3 bg-[#c9a84c]/10 hover:bg-[#c9a84c]/15 border border-[#c9a84c]/30 rounded-lg text-[#d4b96b] text-sm font-medium flex items-center gap-3 transition-colors">
                     <Wallet className="w-4 h-4" /> Review Spending
                   </button>
-                  <button onClick={() => { setShowAddAccount(true); }} className="w-full p-3 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-lg text-purple-400 text-sm font-medium flex items-center gap-3 transition-colors">
+                  <button onClick={() => { setShowAddAccount(true); }} className="w-full p-3 bg-[#c9a84c]/10 hover:bg-[#c9a84c]/15 border border-[#c9a84c]/25 rounded-lg text-[#d4b96b] text-sm font-medium flex items-center gap-3 transition-colors">
                     <Plus className="w-4 h-4" /> Add Account
                   </button>
                   <button onClick={() => setActiveTab('goals')} className="w-full p-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 rounded-lg text-amber-400 text-sm font-medium flex items-center gap-3 transition-colors">
@@ -2882,12 +2885,12 @@ export default function AIPortfolioManager() {
             {/* Portfolio & Goals Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Portfolio Summary */}
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <BarChart3 className="w-5 h-5 text-blue-400" /> Portfolio
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <BarChart3 className="w-5 h-5 text-[#d4b96b]" /> Portfolio
                   </h3>
-                  <button onClick={() => setActiveTab('dashboard')} className="text-blue-400 text-sm hover:underline">View All →</button>
+                  <button onClick={() => setActiveTab('dashboard')} className="text-[#d4b96b] text-sm hover:underline opacity-80 hover:opacity-100">View All →</button>
                 </div>
                 {positions.length > 0 ? (
                   <div className="space-y-3">
@@ -2895,14 +2898,14 @@ export default function AIPortfolioManager() {
                       const pl = parseFloat(pos.unrealized_pl || 0);
                       const plPct = parseFloat(pos.unrealized_plpc || 0) * 100;
                       return (
-                        <div key={pos.symbol} className="flex items-center justify-between p-2 hover:bg-slate-700/30 rounded-lg transition-colors">
+                        <div key={pos.symbol} className="flex items-center justify-between p-2 hover:bg-[#1e3328]/30 rounded-lg transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center text-xs font-bold text-blue-400">
+                            <div className="w-8 h-8 rounded-lg bg-[#c9a84c]/15 flex items-center justify-center text-xs font-bold text-[#d4b96b]">
                               {pos.symbol.slice(0, 2)}
                             </div>
                             <div>
                               <p className="text-white font-medium text-sm">{pos.symbol}</p>
-                              <p className="text-slate-400 text-xs">{pos.qty} shares</p>
+                              <p className="text-[#8fa89b] text-xs">{pos.qty} shares</p>
                             </div>
                           </div>
                           <div className="text-right">
@@ -2916,7 +2919,7 @@ export default function AIPortfolioManager() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-[#8fa89b]">
                     <Briefcase className="w-10 h-10 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">Connect Alpaca to see your portfolio</p>
                   </div>
@@ -2924,12 +2927,12 @@ export default function AIPortfolioManager() {
               </div>
 
               {/* Goals Progress */}
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                     <Target className="w-5 h-5 text-amber-400" /> Goals Progress
                   </h3>
-                  <button onClick={() => setActiveTab('goals')} className="text-blue-400 text-sm hover:underline">View All →</button>
+                  <button onClick={() => setActiveTab('goals')} className="text-[#d4b96b] text-sm hover:underline opacity-80 hover:opacity-100">View All →</button>
                 </div>
                 {financialGoals.length > 0 ? (
                   <div className="space-y-4">
@@ -2939,15 +2942,15 @@ export default function AIPortfolioManager() {
                         <div key={goal.id}>
                           <div className="flex justify-between text-sm mb-1">
                             <span className="text-white font-medium">{goal.name}</span>
-                            <span className="text-slate-400">{progress.toFixed(0)}%</span>
+                            <span className="text-[#8fa89b]">{progress.toFixed(0)}%</span>
                           </div>
-                          <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
+                          <div className="w-full h-2 bg-[#1e3328] rounded-full overflow-hidden">
                             <div
-                              className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' : progress >= 50 ? 'bg-blue-500' : 'bg-amber-500'}`}
+                              className={`h-full rounded-full ${progress >= 100 ? 'bg-green-500' : progress >= 50 ? 'bg-[#c9a84c]' : 'bg-amber-500'}`}
                               style={{ width: `${progress}%` }}
                             />
                           </div>
-                          <div className="flex justify-between text-xs text-slate-400 mt-1">
+                          <div className="flex justify-between text-xs text-[#8fa89b] mt-1">
                             <span>${goal.currentAmount?.toLocaleString()}</span>
                             <span>${goal.targetAmount?.toLocaleString()}</span>
                           </div>
@@ -2956,42 +2959,42 @@ export default function AIPortfolioManager() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-[#8fa89b]">
                     <Target className="w-10 h-10 mx-auto mb-2 opacity-50" />
                     <p className="text-sm">No goals yet. Set your first goal!</p>
-                    <button onClick={() => setActiveTab('goals')} className="mt-2 text-blue-400 text-sm hover:underline">Create Goal →</button>
+                    <button onClick={() => setActiveTab('goals')} className="mt-2 text-[#d4b96b] text-sm hover:underline">Create Goal →</button>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-                <Clock className="w-5 h-5 text-slate-400" /> Recent Activity
+            <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+              <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2 mb-4">
+                <Clock className="w-5 h-5 text-[#8fa89b]" /> Recent Activity
               </h3>
               {tradeHistory.length > 0 || transactions.length > 0 ? (
                 <div className="space-y-2">
                   {tradeHistory.slice(0, 3).map((trade) => (
-                    <div key={trade.id} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
+                    <div key={trade.id} className="flex items-center gap-3 p-3 bg-[#1e3328]/30 rounded-lg">
                       <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${trade.side === 'buy' ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
                         {trade.side === 'buy' ? <ArrowUpCircle className="w-4 h-4 text-green-400" /> : <ArrowDownCircle className="w-4 h-4 text-red-400" />}
                       </div>
                       <div className="flex-1">
                         <p className="text-white text-sm">{trade.side.toUpperCase()} {trade.qty} {trade.symbol}</p>
-                        <p className="text-slate-400 text-xs">{new Date(trade.timestamp).toLocaleString()}</p>
+                        <p className="text-[#8fa89b] text-xs">{new Date(trade.timestamp).toLocaleString()}</p>
                       </div>
-                      <span className="text-slate-300 text-sm">${(trade.qty * trade.price).toFixed(2)}</span>
+                      <span className="text-[#b8c9bd] text-sm">${(trade.qty * trade.price).toFixed(2)}</span>
                     </div>
                   ))}
                   {tradeHistory.length === 0 && transactions.slice(0, 3).map((tx, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
-                      <div className="w-8 h-8 rounded-lg bg-slate-600/50 flex items-center justify-center">
-                        <DollarSign className="w-4 h-4 text-slate-400" />
+                    <div key={i} className="flex items-center gap-3 p-3 bg-[#1e3328]/30 rounded-lg">
+                      <div className="w-8 h-8 rounded-lg bg-[#2a4035]/50 flex items-center justify-center">
+                        <DollarSign className="w-4 h-4 text-[#8fa89b]" />
                       </div>
                       <div className="flex-1">
                         <p className="text-white text-sm">{tx.name || tx.merchantName}</p>
-                        <p className="text-slate-400 text-xs">{tx.primaryCategory}</p>
+                        <p className="text-[#8fa89b] text-xs">{tx.primaryCategory}</p>
                       </div>
                       <span className={`text-sm ${tx.amount < 0 ? 'text-green-400' : 'text-red-400'}`}>
                         ${Math.abs(tx.amount).toFixed(2)}
@@ -3000,7 +3003,7 @@ export default function AIPortfolioManager() {
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-6 text-slate-400 text-sm">
+                <div className="text-center py-6 text-[#8fa89b] text-sm">
                   No recent activity. Start trading or connect your bank to see activity here.
                 </div>
               )}
@@ -3012,10 +3015,10 @@ export default function AIPortfolioManager() {
         {activeTab === 'overview' && (
           <div className="space-y-6">
             {/* Net Worth Header */}
-            <div className="bg-gradient-to-r from-indigo-500/10 to-violet-500/10 rounded-xl border border-indigo-500/30 p-6">
+            <div className="bg-gradient-to-r from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/25 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <p className="text-slate-400 text-sm mb-1">True Net Worth</p>
+                  <p className="text-[#8fa89b] text-sm mb-1">True Net Worth</p>
                   <p className={`text-4xl font-bold ${calculateTrueNetWorth() >= 0 ? 'text-white' : 'text-red-400'}`}>
                     ${calculateTrueNetWorth().toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
@@ -3036,7 +3039,7 @@ export default function AIPortfolioManager() {
                   <select
                     value={digestPeriod}
                     onChange={(e) => setDigestPeriod(e.target.value)}
-                    className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm"
+                    className="bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-3 py-2 text-white text-sm"
                   >
                     <option value="daily">Daily</option>
                     <option value="weekly">Weekly</option>
@@ -3046,7 +3049,7 @@ export default function AIPortfolioManager() {
                   <button
                     onClick={generateDigest}
                     disabled={digestLoading}
-                    className="bg-gradient-to-r from-indigo-500 to-violet-600 hover:from-indigo-600 hover:to-violet-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                    className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
                   >
                     {digestLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
                     Generate Digest
@@ -3057,18 +3060,18 @@ export default function AIPortfolioManager() {
 
             {/* Digest Display */}
             {digest && (
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-indigo-400" /> {digest.periodLabel} Digest
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-6 border-b border-[#2a3f32] flex items-center justify-between">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-[#d4b96b]" /> {digest.periodLabel} Digest
                   </h3>
-                  <span className="text-xs text-slate-500">{new Date(digest.generatedAt).toLocaleString()}</span>
+                  <span className="text-xs text-[#6b8a76]">{new Date(digest.generatedAt).toLocaleString()}</span>
                 </div>
                 <div className="p-6 space-y-6">
                   {/* Summary Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-slate-700/30 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs mb-1">Net Worth Change</p>
+                    <div className="bg-[#1e3328]/30 rounded-lg p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Net Worth Change</p>
                       <p className={`text-xl font-bold ${digest.summary.netWorthChange >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {digest.summary.netWorthChange >= 0 ? '+' : ''}${digest.summary.netWorthChange.toFixed(2)}
                       </p>
@@ -3076,18 +3079,18 @@ export default function AIPortfolioManager() {
                         {digest.summary.netWorthChangePct >= 0 ? '+' : ''}{digest.summary.netWorthChangePct.toFixed(2)}%
                       </p>
                     </div>
-                    <div className="bg-slate-700/30 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs mb-1">Portfolio P&L</p>
+                    <div className="bg-[#1e3328]/30 rounded-lg p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Portfolio P&L</p>
                       <p className={`text-xl font-bold ${digest.summary.portfolioPL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {digest.summary.portfolioPL >= 0 ? '+' : ''}${digest.summary.portfolioPL.toFixed(2)}
                       </p>
                     </div>
-                    <div className="bg-slate-700/30 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs mb-1">Total Accounts</p>
+                    <div className="bg-[#1e3328]/30 rounded-lg p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Total Accounts</p>
                       <p className="text-xl font-bold text-white">{digest.summary.totalAccounts}</p>
                     </div>
-                    <div className="bg-slate-700/30 rounded-lg p-4">
-                      <p className="text-slate-400 text-xs mb-1">Positions</p>
+                    <div className="bg-[#1e3328]/30 rounded-lg p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Positions</p>
                       <p className="text-xl font-bold text-white">{digest.summary.totalPositions}</p>
                     </div>
                   </div>
@@ -3095,23 +3098,23 @@ export default function AIPortfolioManager() {
                   {/* Insights */}
                   {digest.insights && digest.insights.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-3">Key Insights</h4>
+                      <h4 className="text-sm font-medium text-[#b8c9bd] mb-3">Key Insights</h4>
                       <div className="space-y-2">
                         {digest.insights.map((insight, i) => (
                           <div key={i} className={`p-3 rounded-lg border ${
                             insight.type === 'positive' ? 'bg-green-500/10 border-green-500/30' :
                             insight.type === 'warning' ? 'bg-red-500/10 border-red-500/30' :
-                            insight.type === 'info' ? 'bg-blue-500/10 border-blue-500/30' :
-                            'bg-slate-700/30 border-slate-600'
+                            insight.type === 'info' ? 'bg-[#c9a84c]/10 border-[#c9a84c]/30' :
+                            'bg-[#1e3328]/30 border-[#3a5442]'
                           }`}>
                             <div className="flex items-start gap-3">
                               {insight.type === 'positive' ? <TrendingUp className="w-5 h-5 text-green-400 mt-0.5" /> :
                                insight.type === 'warning' ? <TrendingDown className="w-5 h-5 text-red-400 mt-0.5" /> :
-                               insight.type === 'info' ? <Activity className="w-5 h-5 text-blue-400 mt-0.5" /> :
-                               <Minus className="w-5 h-5 text-slate-400 mt-0.5" />}
+                               insight.type === 'info' ? <Activity className="w-5 h-5 text-[#d4b96b] mt-0.5" /> :
+                               <Minus className="w-5 h-5 text-[#8fa89b] mt-0.5" />}
                               <div>
                                 <p className="font-medium text-white text-sm">{insight.title}</p>
-                                <p className="text-slate-400 text-xs mt-1">{insight.description}</p>
+                                <p className="text-[#8fa89b] text-xs mt-1">{insight.description}</p>
                               </div>
                             </div>
                           </div>
@@ -3123,15 +3126,15 @@ export default function AIPortfolioManager() {
                   {/* Action Items */}
                   {digest.actionItems && digest.actionItems.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-3">Action Items</h4>
+                      <h4 className="text-sm font-medium text-[#b8c9bd] mb-3">Action Items</h4>
                       <div className="space-y-2">
                         {digest.actionItems.map((item, i) => (
-                          <div key={i} className="flex items-center gap-3 p-3 bg-slate-700/30 rounded-lg">
+                          <div key={i} className="flex items-center gap-3 p-3 bg-[#1e3328]/30 rounded-lg">
                             <div className={`w-2 h-2 rounded-full ${
                               item.priority === 'high' ? 'bg-red-400' :
-                              item.priority === 'medium' ? 'bg-amber-400' : 'bg-slate-400'
+                              item.priority === 'medium' ? 'bg-amber-400' : 'bg-[#6b8a76]'
                             }`} />
-                            <span className="text-sm text-slate-300">{item.description}</span>
+                            <span className="text-sm text-[#b8c9bd]">{item.description}</span>
                           </div>
                         ))}
                       </div>
@@ -3167,13 +3170,13 @@ export default function AIPortfolioManager() {
 
             {/* AI Financial Advisor */}
             {advisor && (
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-emerald-500/30 overflow-hidden">
-                <div className="p-6 border-b border-slate-700 flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-emerald-500/30 overflow-hidden">
+                <div className="p-6 border-b border-[#2a3f32] flex items-center justify-between bg-gradient-to-r from-emerald-500/10 to-teal-500/10">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                     <Brain className="w-5 h-5 text-emerald-400" /> AI Financial Advisor
                   </h3>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm text-slate-400">Health Score:</span>
+                    <span className="text-sm text-[#8fa89b]">Health Score:</span>
                     <span className={`text-2xl font-bold ${
                       advisor.analysis?.healthScore >= 80 ? 'text-green-400' :
                       advisor.analysis?.healthScore >= 60 ? 'text-amber-400' : 'text-red-400'
@@ -3184,13 +3187,13 @@ export default function AIPortfolioManager() {
                   {/* Recommendations */}
                   {advisor.recommendations && advisor.recommendations.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-3">Recommendations</h4>
+                      <h4 className="text-sm font-medium text-[#b8c9bd] mb-3">Recommendations</h4>
                       <div className="space-y-3">
                         {advisor.recommendations.slice(0, 4).map((rec, i) => (
                           <div key={i} className={`p-4 rounded-lg border ${
                             rec.priority === 'high' ? 'bg-red-500/10 border-red-500/30' :
                             rec.priority === 'medium' ? 'bg-amber-500/10 border-amber-500/30' :
-                            'bg-slate-700/30 border-slate-600'
+                            'bg-[#1e3328]/30 border-[#3a5442]'
                           }`}>
                             <div className="flex items-start gap-3">
                               <div className={`w-2 h-2 rounded-full mt-2 ${
@@ -3199,9 +3202,9 @@ export default function AIPortfolioManager() {
                               }`} />
                               <div className="flex-1">
                                 <p className="font-medium text-white">{rec.title}</p>
-                                <p className="text-sm text-slate-400 mt-1">{rec.description}</p>
+                                <p className="text-sm text-[#8fa89b] mt-1">{rec.description}</p>
                                 {rec.action && <p className="text-sm text-emerald-400 mt-2">→ {rec.action}</p>}
-                                {rec.impact && <p className="text-xs text-slate-500 mt-1">{rec.impact}</p>}
+                                {rec.impact && <p className="text-xs text-[#6b8a76] mt-1">{rec.impact}</p>}
                               </div>
                             </div>
                           </div>
@@ -3213,22 +3216,22 @@ export default function AIPortfolioManager() {
                   {/* Debt Strategy */}
                   {advisor.debtStrategy?.hasDebt && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-3">Debt Payoff Strategy</h4>
-                      <div className="bg-slate-700/30 rounded-lg p-4">
+                      <h4 className="text-sm font-medium text-[#b8c9bd] mb-3">Debt Payoff Strategy</h4>
+                      <div className="bg-[#1e3328]/30 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-3">
                           <span className="text-white font-medium">Recommended: {advisor.debtStrategy.recommendedStrategy === 'avalanche' ? 'Avalanche Method' : 'Snowball Method'}</span>
-                          <span className="text-sm text-slate-400">Avg Rate: {advisor.debtStrategy.weightedRate?.toFixed(1)}%</span>
+                          <span className="text-sm text-[#8fa89b]">Avg Rate: {advisor.debtStrategy.weightedRate?.toFixed(1)}%</span>
                         </div>
-                        <p className="text-sm text-slate-400 mb-3">{advisor.debtStrategy.strategyReason}</p>
+                        <p className="text-sm text-[#8fa89b] mb-3">{advisor.debtStrategy.strategyReason}</p>
                         <div className="space-y-2">
-                          <p className="text-xs text-slate-500">Payoff Order:</p>
+                          <p className="text-xs text-[#6b8a76]">Payoff Order:</p>
                           {(advisor.debtStrategy.recommendedStrategy === 'avalanche'
                             ? advisor.debtStrategy.avalancheOrder
                             : advisor.debtStrategy.snowballOrder
                           )?.slice(0, 3).map((d, i) => (
                             <div key={i} className="flex items-center justify-between text-sm">
-                              <span className="text-slate-300">{i + 1}. {d.name}</span>
-                              <span className="text-slate-400">${d.balance?.toLocaleString()} @ {d.rate}%</span>
+                              <span className="text-[#b8c9bd]">{i + 1}. {d.name}</span>
+                              <span className="text-[#8fa89b]">${d.balance?.toLocaleString()} @ {d.rate}%</span>
                             </div>
                           ))}
                         </div>
@@ -3244,13 +3247,13 @@ export default function AIPortfolioManager() {
                   {/* Investment Opportunities */}
                   {advisor.investmentStrategy && advisor.investmentStrategy.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-300 mb-3">Investment Opportunities</h4>
+                      <h4 className="text-sm font-medium text-[#b8c9bd] mb-3">Investment Opportunities</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {advisor.investmentStrategy.map((opp, i) => (
-                          <div key={i} className="bg-slate-700/30 rounded-lg p-3">
+                          <div key={i} className="bg-[#1e3328]/30 rounded-lg p-3">
                             <p className="font-medium text-white text-sm">{opp.title}</p>
-                            <p className="text-xs text-slate-400 mt-1">{opp.description}</p>
-                            {opp.amount && <p className="text-xs text-blue-400 mt-1">Up to ${opp.amount.toLocaleString()}</p>}
+                            <p className="text-xs text-[#8fa89b] mt-1">{opp.description}</p>
+                            {opp.amount && <p className="text-xs text-[#d4b96b] mt-1">Up to ${opp.amount.toLocaleString()}</p>}
                           </div>
                         ))}
                       </div>
@@ -3261,13 +3264,13 @@ export default function AIPortfolioManager() {
             )}
 
             {/* Debts Section */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700 flex items-center justify-between">
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32] flex items-center justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                     <CreditCard className="w-5 h-5 text-red-400" /> Debts & Liabilities
                   </h3>
-                  <p className="text-sm text-slate-400 mt-1">Total: ${calculateTotalDebts().toLocaleString()}</p>
+                  <p className="text-sm text-[#8fa89b] mt-1">Total: ${calculateTotalDebts().toLocaleString()}</p>
                 </div>
                 <button
                   onClick={() => setShowAddDebt(true)}
@@ -3283,9 +3286,9 @@ export default function AIPortfolioManager() {
                       const DebtIcon = getDebtIcon(debt.type);
                       const monthlyInterest = (debt.balance * (debt.interestRate / 100) / 12);
                       return (
-                        <div key={debt.id} className="bg-slate-700/30 rounded-xl border border-slate-600 p-4 group relative">
+                        <div key={debt.id} className="bg-[#1e3328]/30 rounded-xl border border-[#3a5442] p-4 group relative">
                           <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                            <button onClick={() => setEditingDebt(debt)} className="p-1.5 bg-slate-600 hover:bg-slate-500 rounded text-slate-300">
+                            <button onClick={() => setEditingDebt(debt)} className="p-1.5 bg-[#2a4035] hover:bg-[#3a5442] rounded text-[#b8c9bd]">
                               <Edit3 className="w-3 h-3" />
                             </button>
                             <button onClick={() => deleteDebt(debt.id)} className="p-1.5 bg-red-500/20 hover:bg-red-500/30 rounded text-red-400">
@@ -3299,16 +3302,16 @@ export default function AIPortfolioManager() {
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <p className="font-medium text-white">{debt.name}</p>
-                                <span className="text-xs px-2 py-0.5 bg-slate-600 rounded text-slate-300">{debt.institution}</span>
+                                <span className="text-xs px-2 py-0.5 bg-[#2a4035] rounded text-[#b8c9bd]">{debt.institution}</span>
                               </div>
                               <div className="flex items-center gap-4 mt-1 text-sm">
                                 <span className="text-red-400 font-semibold">${debt.balance.toLocaleString()}</span>
-                                <span className="text-slate-400">{debt.interestRate}% APR</span>
-                                <span className="text-slate-500">~${monthlyInterest.toFixed(0)}/mo interest</span>
+                                <span className="text-[#8fa89b]">{debt.interestRate}% APR</span>
+                                <span className="text-[#6b8a76]">~${monthlyInterest.toFixed(0)}/mo interest</span>
                               </div>
                             </div>
                             <div className="text-right">
-                              <p className="text-slate-400 text-xs">Min Payment</p>
+                              <p className="text-[#8fa89b] text-xs">Min Payment</p>
                               <p className="text-white font-medium">${debt.minimumPayment}/mo</p>
                             </div>
                           </div>
@@ -3317,7 +3320,7 @@ export default function AIPortfolioManager() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-[#8fa89b]">
                     <CreditCard className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>No debts tracked. Add mortgage, student loans, etc.</p>
                   </div>
@@ -3326,14 +3329,14 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Accounts Grid */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32] flex items-center justify-between">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                   <Wallet className="w-5 h-5 text-amber-400" /> All Accounts
                 </h3>
                 <button
                   onClick={() => setShowAddAccount(true)}
-                  className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
+                  className="bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Add Account
                 </button>
@@ -3341,20 +3344,20 @@ export default function AIPortfolioManager() {
               <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {/* Alpaca Paper Trading Account */}
                 {account && (
-                  <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-xl border border-blue-500/50 p-4">
+                  <div className="bg-gradient-to-br from-[#c9a84c]/15 to-[#2d7a4f]/15 rounded-xl border border-[#c9a84c]/30 p-4">
                     <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 bg-blue-500/20 rounded-lg">
-                        <BarChart3 className="w-5 h-5 text-blue-400" />
+                      <div className="p-2 bg-[#c9a84c]/15 rounded-lg">
+                        <BarChart3 className="w-5 h-5 text-[#d4b96b]" />
                       </div>
                       <div>
                         <p className="font-medium text-white">Alpaca Paper Trading</p>
-                        <p className="text-xs text-slate-400">Investment • Alpaca</p>
+                        <p className="text-xs text-[#8fa89b]">Investment • Alpaca</p>
                       </div>
                     </div>
-                    <p className="text-2xl font-bold text-white">
+                    <p className="text-2xl font-serif font-bold text-white tracking-wide">
                       ${parseFloat(account.equity).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-xs text-slate-400 mt-2">Connected via API</p>
+                    <p className="text-xs text-[#8fa89b] mt-2">Connected via API</p>
                   </div>
                 )}
 
@@ -3366,12 +3369,12 @@ export default function AIPortfolioManager() {
                   return (
                     <div
                       key={acc.id}
-                      className="bg-slate-700/30 rounded-xl border border-slate-600 p-4 group relative"
+                      className="bg-[#1e3328]/30 rounded-xl border border-[#3a5442] p-4 group relative"
                     >
                       <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
                         <button
                           onClick={() => setEditingAccount(acc)}
-                          className="p-1.5 bg-slate-600 hover:bg-slate-500 rounded text-slate-300"
+                          className="p-1.5 bg-[#2a4035] hover:bg-[#3a5442] rounded text-[#b8c9bd]"
                         >
                           <Edit3 className="w-3 h-3" />
                         </button>
@@ -3388,13 +3391,13 @@ export default function AIPortfolioManager() {
                         </div>
                         <div>
                           <p className="font-medium text-white">{acc.name}</p>
-                          <p className="text-xs text-slate-400 capitalize">{acc.type} • {acc.institution}</p>
+                          <p className="text-xs text-[#8fa89b] capitalize">{acc.type} • {acc.institution}</p>
                         </div>
                       </div>
-                      <p className="text-2xl font-bold text-white">
+                      <p className="text-2xl font-serif font-bold text-white tracking-wide">
                         ${acc.balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </p>
-                      <p className="text-xs text-slate-500 mt-2">
+                      <p className="text-xs text-[#6b8a76] mt-2">
                         Updated {new Date(acc.lastUpdated).toLocaleDateString()}
                       </p>
                     </div>
@@ -3414,12 +3417,12 @@ export default function AIPortfolioManager() {
                 const colorClass = getAccountColor(type);
 
                 return (
-                  <div key={type} className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                  <div key={type} className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className={`p-1.5 rounded ${colorClass}`}>
                         <IconComponent className="w-4 h-4" />
                       </div>
-                      <span className="text-slate-400 text-sm capitalize">{type}</span>
+                      <span className="text-[#8fa89b] text-sm capitalize">{type}</span>
                     </div>
                     <p className="text-xl font-bold text-white">
                       ${total.toLocaleString(undefined, { minimumFractionDigits: 0 })}
@@ -3435,46 +3438,46 @@ export default function AIPortfolioManager() {
         {activeTab === 'dashboard' && portfolioMetrics && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-blue-500/20 rounded-lg"><DollarSign className="w-5 h-5 text-blue-400" /></div>
-                  <span className="text-slate-400 text-sm">Portfolio Value</span>
+                  <div className="p-2 bg-[#c9a84c]/15 rounded-lg"><DollarSign className="w-5 h-5 text-[#d4b96b]" /></div>
+                  <span className="text-[#8fa89b] text-sm">Portfolio Value</span>
                 </div>
-                <p className="text-2xl font-bold text-white">${portfolioMetrics.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">${portfolioMetrics.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
               </div>
 
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <div className={`p-2 rounded-lg ${portfolioMetrics.dayPL >= 0 ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
                     {portfolioMetrics.dayPL >= 0 ? <TrendingUp className="w-5 h-5 text-green-400" /> : <TrendingDown className="w-5 h-5 text-red-400" />}
                   </div>
-                  <span className="text-slate-400 text-sm">Today's P&L</span>
+                  <span className="text-[#8fa89b] text-sm">Today's P&L</span>
                 </div>
                 <p className={`text-2xl font-bold ${portfolioMetrics.dayPL >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                   {portfolioMetrics.dayPL >= 0 ? '+' : ''}${portfolioMetrics.dayPL.toFixed(2)}
                 </p>
               </div>
 
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-5">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2 bg-purple-500/20 rounded-lg"><Bot className="w-5 h-5 text-purple-400" /></div>
-                  <span className="text-slate-400 text-sm">Trades Today</span>
+                  <div className="p-2 bg-[#c9a84c]/15 rounded-lg"><Bot className="w-5 h-5 text-[#d4b96b]" /></div>
+                  <span className="text-[#8fa89b] text-sm">Trades Today</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{tradesToday} <span className="text-sm text-slate-400">/ {autoTradeSettings.maxTradesPerDay}</span></p>
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">{tradesToday} <span className="text-sm text-[#8fa89b]">/ {autoTradeSettings.maxTradesPerDay}</span></p>
               </div>
 
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-5">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-5">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="p-2 bg-amber-500/20 rounded-lg"><Zap className="w-5 h-5 text-amber-400" /></div>
-                  <span className="text-slate-400 text-sm">Buying Power</span>
+                  <span className="text-[#8fa89b] text-sm">Buying Power</span>
                 </div>
-                <p className="text-2xl font-bold text-white">${portfolioMetrics.buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+                <p className="text-2xl font-serif font-bold text-white tracking-wide">${portfolioMetrics.buyingPower.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-blue-400" /> Performance</h3>
+              <div className="lg:col-span-2 bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-6">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-[#d4b96b]" /> Performance</h3>
                 <div className="h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={portfolioHistory}>
@@ -3493,8 +3496,8 @@ export default function AIPortfolioManager() {
                 </div>
               </div>
 
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2"><Circle className="w-5 h-5 text-purple-400" /> Allocation</h3>
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-6">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2"><Circle className="w-5 h-5 text-[#d4b96b]" /> Allocation</h3>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
@@ -3509,7 +3512,7 @@ export default function AIPortfolioManager() {
                   {pieData.map((entry, i) => (
                     <div key={entry.name} className="flex items-center gap-1 text-xs">
                       <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                      <span className="text-slate-400">{entry.name}</span>
+                      <span className="text-[#8fa89b]">{entry.name}</span>
                     </div>
                   ))}
                 </div>
@@ -3517,35 +3520,35 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Holdings */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700 flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Holdings</h3>
-                <button onClick={() => setActiveTab('trade')} className="bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32] flex justify-between items-center">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Holdings</h3>
+                <button onClick={() => setActiveTab('trade')} className="bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
                   <ShoppingCart className="w-4 h-4" /> Trade
                 </button>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-slate-900/50">
+                  <thead className="bg-[#0a1410]/50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Symbol</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Qty</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Price</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Value</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">P&L</th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Action</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[#8fa89b] uppercase">Symbol</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Qty</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Price</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Value</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">P&L</th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-700">
+                  <tbody className="divide-y divide-[#2a3f32]">
                     {positions.map((pos) => {
                       const pl = parseFloat(pos.unrealized_pl);
                       const plPct = parseFloat(pos.unrealized_plpc) * 100;
                       return (
-                        <tr key={pos.symbol} className="hover:bg-slate-700/30">
+                        <tr key={pos.symbol} className="hover:bg-[#1e3328]/30">
                           <td className="px-6 py-4 font-medium text-white">{pos.symbol}</td>
-                          <td className="px-6 py-4 text-right text-slate-300">{parseFloat(pos.qty).toFixed(0)}</td>
-                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.current_price).toFixed(2)}</td>
-                          <td className="px-6 py-4 text-right text-slate-300">${parseFloat(pos.market_value).toLocaleString()}</td>
+                          <td className="px-6 py-4 text-right text-[#b8c9bd]">{parseFloat(pos.qty).toFixed(0)}</td>
+                          <td className="px-6 py-4 text-right text-[#b8c9bd]">${parseFloat(pos.current_price).toFixed(2)}</td>
+                          <td className="px-6 py-4 text-right text-[#b8c9bd]">${parseFloat(pos.market_value).toLocaleString()}</td>
                           <td className={`px-6 py-4 text-right ${pl >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {pl >= 0 ? '+' : ''}${pl.toFixed(2)} ({plPct.toFixed(1)}%)
                           </td>
@@ -3574,7 +3577,7 @@ export default function AIPortfolioManager() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Spending Tracker</h2>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-[#8fa89b] text-sm">
                       {plaidConnections.length > 0
                         ? `${plaidConnections.length} bank${plaidConnections.length > 1 ? 's' : ''} connected`
                         : 'Connect your bank accounts to track spending'}
@@ -3587,7 +3590,7 @@ export default function AIPortfolioManager() {
                       <select
                         value={transactionDateRange}
                         onChange={(e) => setTransactionDateRange(e.target.value)}
-                        className="bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm"
+                        className="bg-[#1e3328] border border-[#3a5442] text-white px-3 py-2 rounded-lg text-sm"
                       >
                         <option value="7">Last 7 days</option>
                         <option value="30">Last 30 days</option>
@@ -3597,7 +3600,7 @@ export default function AIPortfolioManager() {
                       <button
                         onClick={() => fetchTransactions()}
                         disabled={plaidLoading}
-                        className="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                        className="bg-[#1e3328] hover:bg-[#2a4035] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
                       >
                         <RefreshCw className={`w-4 h-4 ${plaidLoading ? 'animate-spin' : ''}`} />
                       </button>
@@ -3615,15 +3618,15 @@ export default function AIPortfolioManager() {
 
             {/* Sub-navigation */}
             {plaidConnections.length > 0 && (
-              <div className="flex gap-2 border-b border-slate-700 pb-2 overflow-x-auto">
+              <div className="flex gap-2 border-b border-[#2a3f32] pb-2 overflow-x-auto">
                 {['overview', 'budgets', 'transactions', 'trips', 'value', 'forecast'].map((view) => (
                   <button
                     key={view}
                     onClick={() => setSpendingView(view)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors whitespace-nowrap ${
                       spendingView === view
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : 'text-slate-400 hover:text-white hover:bg-slate-700/50'
+                        ? 'bg-[#c9a84c]/15 text-[#d4b96b] border border-emerald-500/30'
+                        : 'text-[#8fa89b] hover:text-[#f0ede6] hover:bg-[#1e3328]/50'
                     }`}
                   >
                     {view === 'trips' ? '✈️ Trips' : view === 'value' ? '💰 Value' : view === 'forecast' ? '📈 Forecast' : view}
@@ -3634,12 +3637,12 @@ export default function AIPortfolioManager() {
 
             {/* No Connections State */}
             {plaidConnections.length === 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                <div className="w-16 h-16 bg-slate-700/50 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Building2 className="w-8 h-8 text-slate-400" />
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                <div className="w-16 h-16 bg-[#1e3328]/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building2 className="w-8 h-8 text-[#8fa89b]" />
                 </div>
-                <h3 className="text-lg font-semibold text-white mb-2">Connect Your Bank Accounts</h3>
-                <p className="text-slate-400 mb-6 max-w-md mx-auto">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-2">Connect Your Bank Accounts</h3>
+                <p className="text-[#8fa89b] mb-6 max-w-md mx-auto">
                   Securely connect your checking, savings, and credit cards to track spending, identify subscriptions, and get insights.
                 </p>
                 <button
@@ -3648,7 +3651,7 @@ export default function AIPortfolioManager() {
                 >
                   <Plus className="w-5 h-5" /> Get Started with Plaid
                 </button>
-                <p className="text-slate-500 text-xs mt-4">
+                <p className="text-[#6b8a76] text-xs mt-4">
                   Get free Plaid sandbox credentials at <a href="https://dashboard.plaid.com" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">dashboard.plaid.com</a>
                 </p>
               </div>
@@ -3663,26 +3666,26 @@ export default function AIPortfolioManager() {
                     {/* Summary Cards */}
                     {transactionsSummary && (
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                      <p className="text-slate-400 text-xs mb-1">Total Spending</p>
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Total Spending</p>
                       <p className="text-xl font-bold text-red-400">-${transactionsSummary.totalSpending?.toLocaleString()}</p>
-                      <p className="text-slate-500 text-xs mt-1">{transactionDateRange} days</p>
+                      <p className="text-[#6b8a76] text-xs mt-1">{transactionDateRange} days</p>
                     </div>
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                      <p className="text-slate-400 text-xs mb-1">Total Income</p>
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Total Income</p>
                       <p className="text-xl font-bold text-green-400">+${transactionsSummary.totalIncome?.toLocaleString()}</p>
-                      <p className="text-slate-500 text-xs mt-1">{transactionsSummary.totalTransactions} transactions</p>
+                      <p className="text-[#6b8a76] text-xs mt-1">{transactionsSummary.totalTransactions} transactions</p>
                     </div>
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                      <p className="text-slate-400 text-xs mb-1">Net Cash Flow</p>
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Net Cash Flow</p>
                       <p className={`text-xl font-bold ${transactionsSummary.netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                         {transactionsSummary.netCashFlow >= 0 ? '+' : ''}${transactionsSummary.netCashFlow?.toLocaleString()}
                       </p>
                     </div>
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                      <p className="text-slate-400 text-xs mb-1">Top Category</p>
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                      <p className="text-[#8fa89b] text-xs mb-1">Top Category</p>
                       <p className="text-lg font-bold text-white">{transactionsSummary.topCategories?.[0]?.category || '-'}</p>
-                      <p className="text-slate-500 text-xs mt-1">${transactionsSummary.topCategories?.[0]?.amount?.toLocaleString() || 0}</p>
+                      <p className="text-[#6b8a76] text-xs mt-1">${transactionsSummary.topCategories?.[0]?.amount?.toLocaleString() || 0}</p>
                     </div>
                   </div>
                 )}
@@ -3691,26 +3694,26 @@ export default function AIPortfolioManager() {
                 {transactionsSummary?.topCategories?.length > 0 && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Category Breakdown */}
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                         <Layers className="w-5 h-5 text-emerald-400" /> Spending by Category
                       </h3>
                       <div className="space-y-3">
                         {transactionsSummary.topCategories.map((cat, i) => {
                           const pct = (cat.amount / transactionsSummary.totalSpending) * 100;
-                          const colors = ['bg-emerald-500', 'bg-cyan-500', 'bg-purple-500', 'bg-amber-500', 'bg-pink-500', 'bg-blue-500', 'bg-red-500', 'bg-green-500', 'bg-indigo-500', 'bg-orange-500'];
+                          const colors = ['bg-emerald-500', 'bg-[#c9a84c]', 'bg-cyan-500', 'bg-amber-500', 'bg-[#2d7a4f]', 'bg-[#8a6a2d]', 'bg-red-500', 'bg-green-500', 'bg-[#5a9a6b]', 'bg-orange-500'];
                           return (
                             <div key={cat.category} className="group">
                               <div className="flex items-center justify-between mb-1">
                                 <button
                                   onClick={() => setSelectedCategory(selectedCategory === cat.category ? null : cat.category)}
-                                  className={`text-sm font-medium ${selectedCategory === cat.category ? 'text-emerald-400' : 'text-slate-300 hover:text-white'}`}
+                                  className={`text-sm font-medium ${selectedCategory === cat.category ? 'text-emerald-400' : 'text-[#b8c9bd] hover:text-[#f0ede6]'}`}
                                 >
                                   {cat.category}
                                 </button>
-                                <span className="text-sm text-slate-400">${cat.amount.toLocaleString()}</span>
+                                <span className="text-sm text-[#8fa89b]">${cat.amount.toLocaleString()}</span>
                               </div>
-                              <div className="h-2 bg-slate-700 rounded-full overflow-hidden">
+                              <div className="h-2 bg-[#1e3328] rounded-full overflow-hidden">
                                 <div className={`h-full ${colors[i % colors.length]} rounded-full transition-all`} style={{ width: `${pct}%` }} />
                               </div>
                             </div>
@@ -3720,16 +3723,16 @@ export default function AIPortfolioManager() {
                     </div>
 
                     {/* Top Merchants */}
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                         <ShoppingCart className="w-5 h-5 text-amber-400" /> Top Merchants
                       </h3>
                       <div className="space-y-2">
                         {transactionsSummary.topMerchants?.slice(0, 8).map((m, i) => (
-                          <div key={m.merchant} className="flex items-center justify-between py-2 border-b border-slate-700/50 last:border-0">
+                          <div key={m.merchant} className="flex items-center justify-between py-2 border-b border-[#2a3f32]/50 last:border-0">
                             <div className="flex items-center gap-3">
-                              <span className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-xs text-slate-400">{i + 1}</span>
-                              <span className="text-sm text-slate-300">{m.merchant}</span>
+                              <span className="w-6 h-6 rounded-full bg-[#1e3328] flex items-center justify-center text-xs text-[#8fa89b]">{i + 1}</span>
+                              <span className="text-sm text-[#b8c9bd]">{m.merchant}</span>
                             </div>
                             <span className="text-sm font-medium text-white">${m.amount.toLocaleString()}</span>
                           </div>
@@ -3741,8 +3744,8 @@ export default function AIPortfolioManager() {
 
                 {/* Daily Spending Chart */}
                 {transactionsSummary?.dailySpending?.length > 0 && (
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Daily Spending</h3>
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Daily Spending</h3>
                     <div className="h-48">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={transactionsSummary.dailySpending}>
@@ -3764,79 +3767,79 @@ export default function AIPortfolioManager() {
 
                 {/* Recurring/Subscriptions */}
                 {recurringExpenses && (
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                        <Radio className="w-5 h-5 text-purple-400" /> Subscriptions & Recurring
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                        <Radio className="w-5 h-5 text-[#d4b96b]" /> Subscriptions & Recurring
                       </h3>
                       <div className="text-right">
-                        <p className="text-sm text-slate-400">Monthly Total</p>
-                        <p className="text-lg font-bold text-purple-400">${recurringExpenses.summary?.monthlySubscriptions?.toLocaleString()}/mo</p>
+                        <p className="text-sm text-[#8fa89b]">Monthly Total</p>
+                        <p className="text-lg font-bold text-[#d4b96b]">${recurringExpenses.summary?.monthlySubscriptions?.toLocaleString()}/mo</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {recurringExpenses.subscriptions?.slice(0, 9).map(sub => (
-                        <div key={sub.id} className="bg-slate-700/30 rounded-lg p-3 flex items-center justify-between">
+                        <div key={sub.id} className="bg-[#1e3328]/30 rounded-lg p-3 flex items-center justify-between">
                           <div>
                             <p className="text-sm font-medium text-white">{sub.merchantName}</p>
-                            <p className="text-xs text-slate-400">{sub.frequency}</p>
+                            <p className="text-xs text-[#8fa89b]">{sub.frequency}</p>
                           </div>
                           <p className="text-sm font-bold text-white">${sub.averageAmount?.toFixed(2)}</p>
                         </div>
                       ))}
                     </div>
                     {!recurringExpenses.subscriptions?.length && (
-                      <p className="text-slate-400 text-center py-4">No recurring expenses detected yet</p>
+                      <p className="text-[#8fa89b] text-center py-4">No recurring expenses detected yet</p>
                     )}
                   </div>
                 )}
 
                 {/* Transactions List */}
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                  <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-wrap gap-4">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                  <div className="p-4 border-b border-[#2a3f32] flex items-center justify-between flex-wrap gap-4">
                     <h3 className="font-semibold text-white flex items-center gap-2">
-                      <History className="w-4 h-4 text-slate-400" /> Recent Transactions
+                      <History className="w-4 h-4 text-[#8fa89b]" /> Recent Transactions
                       {selectedCategory && (
-                        <span className="text-xs bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full">
+                        <span className="text-xs bg-[#c9a84c]/15 text-[#d4b96b] px-2 py-0.5 rounded-full">
                           {selectedCategory}
                           <button onClick={() => setSelectedCategory(null)} className="ml-1">×</button>
                         </span>
                       )}
                     </h3>
                     <div className="relative">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8fa89b]" />
                       <input
                         type="text"
                         placeholder="Search transactions..."
                         value={transactionSearch}
                         onChange={(e) => setTransactionSearch(e.target.value)}
-                        className="bg-slate-700/50 border border-slate-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm w-64 placeholder-slate-400"
+                        className="bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-10 pr-4 py-2 text-white text-sm w-64 placeholder-[#6b8a76]"
                       />
                     </div>
                   </div>
                   {filteredTransactions.length > 0 ? (
                     <div className="max-h-96 overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="bg-slate-900/50 sticky top-0">
+                        <thead className="bg-[#0a1410]/50 sticky top-0">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Date</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Description</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Category</th>
-                            <th className="px-4 py-2 text-right text-xs text-slate-400">Amount</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Date</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Description</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Category</th>
+                            <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">Amount</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-700">
+                        <tbody className="divide-y divide-[#2a3f32]">
                           {filteredTransactions.slice(0, 50).map((tx) => (
-                            <tr key={tx.id} className="hover:bg-slate-700/30">
-                              <td className="px-4 py-2 text-slate-400 text-xs">{new Date(tx.date).toLocaleDateString()}</td>
+                            <tr key={tx.id} className="hover:bg-[#1e3328]/30">
+                              <td className="px-4 py-2 text-[#8fa89b] text-xs">{new Date(tx.date).toLocaleDateString()}</td>
                               <td className="px-4 py-2">
                                 <p className="text-white">{tx.merchantName || tx.name}</p>
                                 {tx.merchantName && tx.merchantName !== tx.name && (
-                                  <p className="text-xs text-slate-500">{tx.name}</p>
+                                  <p className="text-xs text-[#6b8a76]">{tx.name}</p>
                                 )}
                               </td>
                               <td className="px-4 py-2">
-                                <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">{tx.primaryCategory}</span>
+                                <span className="text-xs bg-[#1e3328] text-[#b8c9bd] px-2 py-0.5 rounded">{tx.primaryCategory}</span>
                               </td>
                               <td className={`px-4 py-2 text-right font-medium ${tx.isExpense ? 'text-red-400' : 'text-green-400'}`}>
                                 {tx.isExpense ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
@@ -3847,7 +3850,7 @@ export default function AIPortfolioManager() {
                       </table>
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-slate-400">
+                    <div className="p-8 text-center text-[#8fa89b]">
                       {transactions.length === 0 ? (
                         <p>No transactions yet. Click refresh to load.</p>
                       ) : (
@@ -3863,22 +3866,22 @@ export default function AIPortfolioManager() {
                 {spendingView === 'budgets' && (
                   <>
                     {/* Income & Budget Setup */}
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                           <Target className="w-5 h-5 text-amber-400" /> Monthly Budget
                         </h3>
                         <div className="flex items-center gap-3">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm text-slate-400">Monthly Income:</span>
+                            <span className="text-sm text-[#8fa89b]">Monthly Income:</span>
                             <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                               <input
                                 type="number"
                                 value={monthlyIncome || ''}
                                 onChange={(e) => setMonthlyIncome(parseFloat(e.target.value) || 0)}
                                 placeholder="5,000"
-                                className="bg-slate-700/50 border border-slate-600 rounded-lg pl-7 pr-3 py-2 text-white w-32 text-sm"
+                                className="bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-7 pr-3 py-2 text-white w-32 text-sm"
                               />
                             </div>
                           </div>
@@ -3903,20 +3906,20 @@ export default function AIPortfolioManager() {
                                 insight.type === 'warning' || insight.type === 'alert' ? 'bg-red-500/10 border border-red-500/20' :
                                 insight.type === 'caution' ? 'bg-amber-500/10 border border-amber-500/20' :
                                 insight.type === 'success' ? 'bg-green-500/10 border border-green-500/20' :
-                                'bg-blue-500/10 border border-blue-500/20'
+                                'bg-[#c9a84c]/10 border border-[#c9a84c]/20'
                               }`}
                             >
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                                insight.type === 'warning' || insight.type === 'alert' ? 'bg-red-500/20 text-red-400' :
-                                insight.type === 'caution' ? 'bg-amber-500/20 text-amber-400' :
+                                insight.type === 'warning' || insight.type === 'alert' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                                insight.type === 'caution' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
                                 insight.type === 'success' ? 'bg-green-500/20 text-green-400' :
-                                'bg-blue-500/20 text-blue-400'
+                                'bg-[#c9a84c]/15 text-[#d4b96b]'
                               }`}>
                                 {insight.type === 'success' ? '✓' : insight.type === 'warning' || insight.type === 'alert' ? '!' : 'i'}
                               </div>
                               <div>
                                 <p className="text-sm text-white">{insight.message}</p>
-                                {insight.action && <p className="text-xs text-slate-400 mt-1">{insight.action}</p>}
+                                {insight.action && <p className="text-xs text-[#8fa89b] mt-1">{insight.action}</p>}
                               </div>
                             </div>
                           ))}
@@ -3931,10 +3934,10 @@ export default function AIPortfolioManager() {
                           return (
                             <div
                               key={cat.category}
-                              className={`bg-slate-700/30 rounded-lg p-4 border ${
+                              className={`bg-[#1e3328]/30 rounded-lg p-4 border ${
                                 budget && pctUsed > 100 ? 'border-red-500/50' :
                                 budget && pctUsed > 80 ? 'border-amber-500/50' :
-                                'border-slate-600/50'
+                                'border-[#3a5442]/50'
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2">
@@ -3943,7 +3946,7 @@ export default function AIPortfolioManager() {
                                   <span className="text-sm font-medium text-white">{cat.category}</span>
                                 </div>
                                 {cat.trend && (
-                                  <span className={`text-xs ${cat.trend === 'up' ? 'text-red-400' : cat.trend === 'down' ? 'text-green-400' : 'text-slate-400'}`}>
+                                  <span className={`text-xs ${cat.trend === 'up' ? 'text-red-400' : cat.trend === 'down' ? 'text-green-400' : 'text-[#8fa89b]'}`}>
                                     {cat.trend === 'up' ? '↑' : cat.trend === 'down' ? '↓' : '→'}
                                   </span>
                                 )}
@@ -3951,13 +3954,13 @@ export default function AIPortfolioManager() {
                               <div className="flex items-baseline justify-between mb-2">
                                 <span className="text-xl font-bold text-white">${cat.amount.toLocaleString()}</span>
                                 {budget && (
-                                  <span className={`text-sm ${pctUsed > 100 ? 'text-red-400' : 'text-slate-400'}`}>
+                                  <span className={`text-sm ${pctUsed > 100 ? 'text-red-400' : 'text-[#8fa89b]'}`}>
                                     / ${budget.toLocaleString()}
                                   </span>
                                 )}
                               </div>
                               {budget && (
-                                <div className="h-2 bg-slate-600 rounded-full overflow-hidden mb-2">
+                                <div className="h-2 bg-[#2a4035] rounded-full overflow-hidden mb-2">
                                   <div
                                     className={`h-full rounded-full transition-all ${
                                       pctUsed > 100 ? 'bg-red-500' : pctUsed > 80 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -3968,13 +3971,13 @@ export default function AIPortfolioManager() {
                               )}
                               <div className="flex items-center gap-2">
                                 <div className="relative flex-1">
-                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-xs">$</span>
+                                  <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[#8fa89b] text-xs">$</span>
                                   <input
                                     type="number"
                                     value={budget || ''}
                                     onChange={(e) => updateBudget(cat.category, e.target.value)}
                                     placeholder={cat.monthlyAverage ? `Avg: ${Math.round(cat.monthlyAverage)}` : 'Set budget'}
-                                    className="w-full bg-slate-600/50 border border-slate-500 rounded pl-5 pr-2 py-1 text-white text-sm"
+                                    className="w-full bg-[#2a4035]/50 border border-[#3a5442] rounded pl-5 pr-2 py-1 text-white text-sm"
                                   />
                                 </div>
                                 {budget && (
@@ -3994,8 +3997,8 @@ export default function AIPortfolioManager() {
 
                     {/* Anomalies */}
                     {budgetAnalysis?.anomalies?.length > 0 && (
-                      <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
-                        <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-amber-500/30 p-6">
+                        <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                           <AlertTriangle className="w-5 h-5 text-amber-400" /> Spending Anomalies
                         </h3>
                         <div className="space-y-3">
@@ -4024,17 +4027,17 @@ export default function AIPortfolioManager() {
 
                 {/* TRANSACTIONS VIEW */}
                 {spendingView === 'transactions' && (
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                    <div className="p-4 border-b border-slate-700 flex items-center justify-between flex-wrap gap-4">
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                    <div className="p-4 border-b border-[#2a3f32] flex items-center justify-between flex-wrap gap-4">
                       <h3 className="font-semibold text-white flex items-center gap-2">
-                        <History className="w-4 h-4 text-slate-400" /> All Transactions
-                        <span className="text-xs bg-slate-700 text-slate-400 px-2 py-0.5 rounded-full">{transactions.length}</span>
+                        <History className="w-4 h-4 text-[#8fa89b]" /> All Transactions
+                        <span className="text-xs bg-[#1e3328] text-[#8fa89b] px-2 py-0.5 rounded-full">{transactions.length}</span>
                       </h3>
                       <div className="flex items-center gap-2">
                         <select
                           value={selectedCategory || ''}
                           onChange={(e) => setSelectedCategory(e.target.value || null)}
-                          className="bg-slate-700 border border-slate-600 text-white text-sm px-3 py-2 rounded-lg"
+                          className="bg-[#1e3328] border border-[#3a5442] text-white text-sm px-3 py-2 rounded-lg"
                         >
                           <option value="">All Categories</option>
                           {[...new Set(transactions.map(t => t.primaryCategory))].sort().map(cat => (
@@ -4042,39 +4045,39 @@ export default function AIPortfolioManager() {
                           ))}
                         </select>
                         <div className="relative">
-                          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#8fa89b]" />
                           <input
                             type="text"
                             placeholder="Search..."
                             value={transactionSearch}
                             onChange={(e) => setTransactionSearch(e.target.value)}
-                            className="bg-slate-700/50 border border-slate-600 rounded-lg pl-10 pr-4 py-2 text-white text-sm w-48 placeholder-slate-400"
+                            className="bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-10 pr-4 py-2 text-white text-sm w-48 placeholder-[#6b8a76]"
                           />
                         </div>
                       </div>
                     </div>
                     <div className="max-h-[600px] overflow-y-auto">
                       <table className="w-full text-sm">
-                        <thead className="bg-slate-900/50 sticky top-0">
+                        <thead className="bg-[#0a1410]/50 sticky top-0">
                           <tr>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Date</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Description</th>
-                            <th className="px-4 py-2 text-left text-xs text-slate-400">Category</th>
-                            <th className="px-4 py-2 text-right text-xs text-slate-400">Amount</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Date</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Description</th>
+                            <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Category</th>
+                            <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">Amount</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-700">
+                        <tbody className="divide-y divide-[#2a3f32]">
                           {filteredTransactions.map((tx) => (
-                            <tr key={tx.id} className="hover:bg-slate-700/30">
-                              <td className="px-4 py-2 text-slate-400 text-xs">{new Date(tx.date).toLocaleDateString()}</td>
+                            <tr key={tx.id} className="hover:bg-[#1e3328]/30">
+                              <td className="px-4 py-2 text-[#8fa89b] text-xs">{new Date(tx.date).toLocaleDateString()}</td>
                               <td className="px-4 py-2">
                                 <p className="text-white">{tx.merchantName || tx.name}</p>
                                 {tx.merchantName && tx.merchantName !== tx.name && (
-                                  <p className="text-xs text-slate-500">{tx.name}</p>
+                                  <p className="text-xs text-[#6b8a76]">{tx.name}</p>
                                 )}
                               </td>
                               <td className="px-4 py-2">
-                                <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">{tx.primaryCategory}</span>
+                                <span className="text-xs bg-[#1e3328] text-[#b8c9bd] px-2 py-0.5 rounded">{tx.primaryCategory}</span>
                               </td>
                               <td className={`px-4 py-2 text-right font-medium ${tx.isExpense ? 'text-red-400' : 'text-green-400'}`}>
                                 {tx.isExpense ? '-' : '+'}${Math.abs(tx.amount).toFixed(2)}
@@ -4092,12 +4095,12 @@ export default function AIPortfolioManager() {
                   <div className="space-y-6">
                     {/* Trip Header */}
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                         ✈️ Trip & Event Tracking
                       </h3>
                       <button
                         onClick={() => setShowAddTrip(true)}
-                        className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                        className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
                       >
                         <Plus className="w-4 h-4" /> New Trip
                       </button>
@@ -4105,10 +4108,10 @@ export default function AIPortfolioManager() {
 
                     {/* Trips List */}
                     {trips.length === 0 ? (
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
                         <div className="text-4xl mb-4">🏝️</div>
-                        <h4 className="text-lg font-semibold text-white mb-2">No Trips Yet</h4>
-                        <p className="text-slate-400 mb-4">Track your vacation and event expenses by creating a trip.</p>
+                        <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-2">No Trips Yet</h4>
+                        <p className="text-[#8fa89b] mb-4">Track your vacation and event expenses by creating a trip.</p>
                         <button
                           onClick={() => setShowAddTrip(true)}
                           className="bg-violet-500/20 hover:bg-violet-500/30 text-violet-400 px-4 py-2 rounded-lg"
@@ -4124,10 +4127,10 @@ export default function AIPortfolioManager() {
                             <div
                               key={trip.id}
                               onClick={() => setSelectedTrip(trip)}
-                              className={`bg-slate-800/50 rounded-xl border p-4 cursor-pointer transition-all ${
+                              className={`bg-[#1a2b22]/50 rounded-xl border p-4 cursor-pointer transition-all ${
                                 selectedTrip?.id === trip.id
                                   ? 'border-violet-500 ring-1 ring-violet-500'
-                                  : 'border-slate-700 hover:border-slate-600'
+                                  : 'border-[#2a3f32] hover:border-[#3a5442]'
                               }`}
                             >
                               <div className="flex items-start justify-between mb-2">
@@ -4139,17 +4142,17 @@ export default function AIPortfolioManager() {
                                   <Trash2 className="w-3 h-3" />
                                 </button>
                               </div>
-                              <p className="text-xs text-slate-400 mb-2">
+                              <p className="text-xs text-[#8fa89b] mb-2">
                                 {trip.startDate && trip.endDate
                                   ? `${new Date(trip.startDate).toLocaleDateString()} - ${new Date(trip.endDate).toLocaleDateString()}`
                                   : 'No dates set'}
                               </p>
                               <div className="flex items-center justify-between">
-                                <span className="text-sm text-slate-300">
+                                <span className="text-sm text-[#b8c9bd]">
                                   {trip.transactionIds?.length || 0} expenses
                                 </span>
                                 {trip.budget > 0 && (
-                                  <span className="text-xs bg-slate-700 text-slate-300 px-2 py-0.5 rounded">
+                                  <span className="text-xs bg-[#1e3328] text-[#b8c9bd] px-2 py-0.5 rounded">
                                     Budget: ${trip.budget.toLocaleString()}
                                   </span>
                                 )}
@@ -4163,32 +4166,32 @@ export default function AIPortfolioManager() {
                           {selectedTrip && tripAnalysis ? (
                             <div className="space-y-4">
                               {/* Trip Summary */}
-                              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                                <h4 className="text-lg font-semibold text-white mb-4">{selectedTrip.name}</h4>
+                              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                                <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">{selectedTrip.name}</h4>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                                   <div>
-                                    <p className="text-xs text-slate-400">Total Spent</p>
+                                    <p className="text-xs text-[#8fa89b]">Total Spent</p>
                                     <p className="text-xl font-bold text-white">${tripAnalysis.totalSpent?.toLocaleString()}</p>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-slate-400">Daily Average</p>
+                                    <p className="text-xs text-[#8fa89b]">Daily Average</p>
                                     <p className="text-xl font-bold text-violet-400">${tripAnalysis.dailyAverage?.toLocaleString()}</p>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-slate-400">Duration</p>
+                                    <p className="text-xs text-[#8fa89b]">Duration</p>
                                     <p className="text-xl font-bold text-white">{tripAnalysis.durationDays} days</p>
                                   </div>
                                   <div>
-                                    <p className="text-xs text-slate-400">Expenses</p>
+                                    <p className="text-xs text-[#8fa89b]">Expenses</p>
                                     <p className="text-xl font-bold text-white">{tripAnalysis.transactionCount}</p>
                                   </div>
                                 </div>
 
                                 {/* Budget Status */}
                                 {tripAnalysis.budgetStatus && (
-                                  <div className="mt-4 p-3 bg-slate-700/30 rounded-lg">
+                                  <div className="mt-4 p-3 bg-[#1e3328]/30 rounded-lg">
                                     <div className="flex items-center justify-between mb-2">
-                                      <span className="text-sm text-slate-300">Budget Progress</span>
+                                      <span className="text-sm text-[#b8c9bd]">Budget Progress</span>
                                       <span className={`text-sm font-medium ${
                                         tripAnalysis.budgetStatus.status === 'over' ? 'text-red-400' :
                                         tripAnalysis.budgetStatus.status === 'warning' ? 'text-amber-400' :
@@ -4197,7 +4200,7 @@ export default function AIPortfolioManager() {
                                         {tripAnalysis.budgetStatus.percentUsed}%
                                       </span>
                                     </div>
-                                    <div className="h-2 bg-slate-600 rounded-full overflow-hidden">
+                                    <div className="h-2 bg-[#2a4035] rounded-full overflow-hidden">
                                       <div
                                         className={`h-full rounded-full ${
                                           tripAnalysis.budgetStatus.status === 'over' ? 'bg-red-500' :
@@ -4207,7 +4210,7 @@ export default function AIPortfolioManager() {
                                         style={{ width: `${Math.min(tripAnalysis.budgetStatus.percentUsed, 100)}%` }}
                                       />
                                     </div>
-                                    <p className="text-xs text-slate-400 mt-1">
+                                    <p className="text-xs text-[#8fa89b] mt-1">
                                       ${tripAnalysis.budgetStatus.spent.toLocaleString()} of ${tripAnalysis.budgetStatus.budget.toLocaleString()}
                                       {tripAnalysis.budgetStatus.remaining > 0
                                         ? ` (${tripAnalysis.budgetStatus.remaining.toLocaleString()} remaining)`
@@ -4219,17 +4222,17 @@ export default function AIPortfolioManager() {
 
                               {/* Category Breakdown */}
                               {tripAnalysis.categoryBreakdown?.length > 0 && (
-                                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                                   <h5 className="text-sm font-semibold text-white mb-3">Spending by Category</h5>
                                   <div className="space-y-2">
                                     {tripAnalysis.categoryBreakdown.slice(0, 6).map((cat, i) => (
                                       <div key={cat.category} className="flex items-center gap-3">
                                         <div className="flex-1">
                                           <div className="flex justify-between text-sm mb-1">
-                                            <span className="text-slate-300">{cat.category}</span>
+                                            <span className="text-[#b8c9bd]">{cat.category}</span>
                                             <span className="text-white">${cat.amount.toLocaleString()}</span>
                                           </div>
-                                          <div className="h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                                          <div className="h-1.5 bg-[#1e3328] rounded-full overflow-hidden">
                                             <div
                                               className="h-full bg-violet-500 rounded-full"
                                               style={{ width: `${cat.percent}%` }}
@@ -4244,16 +4247,16 @@ export default function AIPortfolioManager() {
 
                               {/* Suggested Transactions */}
                               {tripSuggestions.length > 0 && (
-                                <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
+                                <div className="bg-[#1a2b22]/50 rounded-xl border border-amber-500/30 p-6">
                                   <h5 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4 text-amber-400" /> Suggested Expenses to Add
                                   </h5>
                                   <div className="space-y-2 max-h-48 overflow-y-auto">
                                     {tripSuggestions.slice(0, 10).map(tx => (
-                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-[#1e3328]/30 rounded-lg">
                                         <div className="flex-1">
                                           <p className="text-sm text-white">{tx.merchantName || tx.name}</p>
-                                          <p className="text-xs text-slate-400">{tx.date} · {tx.primaryCategory}</p>
+                                          <p className="text-xs text-[#8fa89b]">{tx.date} · {tx.primaryCategory}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                           <span className="text-sm font-medium text-white">${Math.abs(tx.amount).toFixed(2)}</span>
@@ -4272,20 +4275,20 @@ export default function AIPortfolioManager() {
 
                               {/* Trip Transactions */}
                               {tripAnalysis.transactions?.length > 0 && (
-                                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                                   <h5 className="text-sm font-semibold text-white mb-3">Trip Expenses</h5>
                                   <div className="space-y-2 max-h-64 overflow-y-auto">
                                     {tripAnalysis.transactions.map(tx => (
-                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                                      <div key={tx.id} className="flex items-center justify-between p-2 bg-[#1e3328]/30 rounded-lg">
                                         <div className="flex-1">
                                           <p className="text-sm text-white">{tx.merchantName || tx.name}</p>
-                                          <p className="text-xs text-slate-400">{tx.date}</p>
+                                          <p className="text-xs text-[#8fa89b]">{tx.date}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                           <span className="text-sm font-medium text-red-400">-${Math.abs(tx.amount).toFixed(2)}</span>
                                           <button
                                             onClick={() => removeTransactionFromTrip(selectedTrip.id, tx.id)}
-                                            className="p-1 text-slate-400 hover:text-red-400"
+                                            className="p-1 text-[#8fa89b] hover:text-red-400"
                                           >
                                             <X className="w-4 h-4" />
                                           </button>
@@ -4297,8 +4300,8 @@ export default function AIPortfolioManager() {
                               )}
                             </div>
                           ) : (
-                            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                              <p className="text-slate-400">Select a trip to view details</p>
+                            <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                              <p className="text-[#8fa89b]">Select a trip to view details</p>
                             </div>
                           )}
                         </div>
@@ -4313,10 +4316,10 @@ export default function AIPortfolioManager() {
                     {/* Value Header */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                           💰 Cost-Benefit Tracker
                         </h3>
-                        <p className="text-sm text-slate-400">Track if your subscriptions are worth it</p>
+                        <p className="text-sm text-[#8fa89b]">Track if your subscriptions are worth it</p>
                       </div>
                       <button
                         onClick={() => setShowAddTrackedItem(true)}
@@ -4329,27 +4332,27 @@ export default function AIPortfolioManager() {
                     {/* Summary Cards */}
                     {costBenefitReport?.summary && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Monthly Cost</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Monthly Cost</p>
                           <p className="text-xl font-bold text-white">${costBenefitReport.summary.totalMonthlyCost?.toLocaleString()}</p>
-                          <p className="text-xs text-slate-500">${costBenefitReport.summary.totalAnnualCost?.toLocaleString()}/year</p>
+                          <p className="text-xs text-[#6b8a76]">${costBenefitReport.summary.totalAnnualCost?.toLocaleString()}/year</p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Avg Cost/Use</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Avg Cost/Use</p>
                           <p className="text-xl font-bold text-amber-400">${costBenefitReport.summary.averageCostPerUse}</p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Potential Savings</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Potential Savings</p>
                           <p className="text-xl font-bold text-green-400">${costBenefitReport.summary.potentialMonthlySavings?.toLocaleString()}/mo</p>
-                          <p className="text-xs text-slate-500">From poor value items</p>
+                          <p className="text-xs text-[#6b8a76]">From poor value items</p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Value Breakdown</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Value Breakdown</p>
                           <div className="flex gap-1 mt-1">
                             <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.excellent} ✓</span>
-                            <span className="text-xs bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.good}</span>
-                            <span className="text-xs bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.fair}</span>
-                            <span className="text-xs bg-red-500/20 text-red-400 px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.poor} !</span>
+                            <span className="text-xs bg-[#c9a84c]/15 text-[#d4b96b] px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.good}</span>
+                            <span className="text-xs bg-[#c9a84c]/15 text-[#d4b96b] px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.fair}</span>
+                            <span className="text-xs bg-[#c9a84c]/15 text-[#d4b96b] px-1.5 py-0.5 rounded">{costBenefitReport.summary.byRating.poor} !</span>
                           </div>
                         </div>
                       </div>
@@ -4357,10 +4360,10 @@ export default function AIPortfolioManager() {
 
                     {/* Tracked Items */}
                     {trackedItems.length === 0 ? (
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
                         <div className="text-4xl mb-4">📊</div>
-                        <h4 className="text-lg font-semibold text-white mb-2">No Items Tracked</h4>
-                        <p className="text-slate-400 mb-4">Track subscriptions to see if they're worth the money.</p>
+                        <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-2">No Items Tracked</h4>
+                        <p className="text-[#8fa89b] mb-4">Track subscriptions to see if they're worth the money.</p>
                         <button
                           onClick={() => setShowAddTrackedItem(true)}
                           className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 px-4 py-2 rounded-lg"
@@ -4373,7 +4376,7 @@ export default function AIPortfolioManager() {
                         {costBenefitReport?.analyses?.map(item => {
                           const ratingColors = {
                             excellent: 'border-green-500/50 bg-green-500/5',
-                            good: 'border-blue-500/50 bg-blue-500/5',
+                            good: 'border-[#c9a84c]/30 bg-[#c9a84c]/5',
                             fair: 'border-amber-500/50 bg-amber-500/5',
                             poor: 'border-red-500/50 bg-red-500/5',
                           };
@@ -4381,7 +4384,7 @@ export default function AIPortfolioManager() {
                           return (
                             <div
                               key={item.itemId}
-                              className={`bg-slate-800/50 rounded-xl border p-4 ${ratingColors[item.valueRating]}`}
+                              className={`bg-[#1a2b22]/50 rounded-xl border p-4 ${ratingColors[item.valueRating]}`}
                             >
                               <div className="flex items-start justify-between mb-3">
                                 <div>
@@ -4389,7 +4392,7 @@ export default function AIPortfolioManager() {
                                     {item.name}
                                     <span>{ratingIcons[item.valueRating]}</span>
                                   </h4>
-                                  <p className="text-xs text-slate-400">${item.monthlyCost}/month</p>
+                                  <p className="text-xs text-[#8fa89b]">${item.monthlyCost}/month</p>
                                 </div>
                                 <button
                                   onClick={() => deleteTrackedItem(item.itemId)}
@@ -4401,16 +4404,16 @@ export default function AIPortfolioManager() {
 
                               <div className="grid grid-cols-2 gap-3 mb-3">
                                 <div>
-                                  <p className="text-xs text-slate-400">Cost/Use</p>
+                                  <p className="text-xs text-[#8fa89b]">Cost/Use</p>
                                   <p className="text-lg font-bold text-white">${item.costPerUse}</p>
                                 </div>
                                 <div>
-                                  <p className="text-xs text-slate-400">Total Uses</p>
+                                  <p className="text-xs text-[#8fa89b]">Total Uses</p>
                                   <p className="text-lg font-bold text-white">{item.totalUses}</p>
                                 </div>
                               </div>
 
-                              <p className="text-xs text-slate-300 mb-3">{item.recommendation}</p>
+                              <p className="text-xs text-[#b8c9bd] mb-3">{item.recommendation}</p>
 
                               <div className="flex gap-2">
                                 <button
@@ -4418,13 +4421,13 @@ export default function AIPortfolioManager() {
                                     setSelectedTrackedItem(trackedItems.find(i => i.id === item.itemId));
                                     setShowLogUsage(true);
                                   }}
-                                  className="flex-1 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg flex items-center justify-center gap-1"
+                                  className="flex-1 bg-[#1e3328]/50 hover:bg-[#1e3328] text-[#b8c9bd] text-sm py-2 rounded-lg flex items-center justify-center gap-1"
                                 >
                                   <Plus className="w-3 h-3" /> Log Use
                                 </button>
                                 <button
                                   onClick={() => setSelectedTrackedItem(trackedItems.find(i => i.id === item.itemId))}
-                                  className="px-3 bg-slate-700/50 hover:bg-slate-700 text-slate-300 text-sm py-2 rounded-lg"
+                                  className="px-3 bg-[#1e3328]/50 hover:bg-[#1e3328] text-[#b8c9bd] text-sm py-2 rounded-lg"
                                 >
                                   History
                                 </button>
@@ -4437,7 +4440,7 @@ export default function AIPortfolioManager() {
 
                     {/* Recommendations */}
                     {costBenefitReport?.recommendations?.length > 0 && (
-                      <div className="bg-slate-800/50 rounded-xl border border-amber-500/30 p-6">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-amber-500/30 p-6">
                         <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                           <Sparkles className="w-4 h-4 text-amber-400" /> Recommendations
                         </h4>
@@ -4456,22 +4459,22 @@ export default function AIPortfolioManager() {
 
                     {/* Usage History Modal/Panel */}
                     {selectedTrackedItem && !showLogUsage && (
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                         <div className="flex items-center justify-between mb-4">
                           <h4 className="font-semibold text-white">{selectedTrackedItem.name} - Usage History</h4>
-                          <button onClick={() => setSelectedTrackedItem(null)} className="text-slate-400 hover:text-white">
+                          <button onClick={() => setSelectedTrackedItem(null)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
                         <div className="space-y-2 max-h-48 overflow-y-auto">
                           {(usageHistories[selectedTrackedItem.id] || []).sort((a, b) => b.date.localeCompare(a.date)).map(entry => (
-                            <div key={entry.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                            <div key={entry.id} className="flex items-center justify-between p-2 bg-[#1e3328]/30 rounded-lg">
                               <div>
                                 <p className="text-sm text-white">{new Date(entry.date).toLocaleDateString()}</p>
-                                {entry.notes && <p className="text-xs text-slate-400">{entry.notes}</p>}
+                                {entry.notes && <p className="text-xs text-[#8fa89b]">{entry.notes}</p>}
                               </div>
                               <div className="flex items-center gap-2">
-                                <span className="text-sm text-slate-300">{entry.uses}x</span>
+                                <span className="text-sm text-[#b8c9bd]">{entry.uses}x</span>
                                 <button
                                   onClick={() => removeUsageEntry(selectedTrackedItem.id, entry.id)}
                                   className="text-red-400 hover:text-red-300 p-1"
@@ -4482,7 +4485,7 @@ export default function AIPortfolioManager() {
                             </div>
                           ))}
                           {(usageHistories[selectedTrackedItem.id] || []).length === 0 && (
-                            <p className="text-center text-slate-400 py-4">No usage logged yet</p>
+                            <p className="text-center text-[#8fa89b] py-4">No usage logged yet</p>
                           )}
                         </div>
                       </div>
@@ -4496,16 +4499,16 @@ export default function AIPortfolioManager() {
                     {/* Forecast Header */}
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                           📈 Cash Flow Forecast
                         </h3>
-                        <p className="text-sm text-slate-400">Predict your financial runway</p>
+                        <p className="text-sm text-[#8fa89b]">Predict your financial runway</p>
                       </div>
                       <div className="flex items-center gap-3">
                         <select
                           value={forecastMonths}
                           onChange={(e) => setForecastMonths(parseInt(e.target.value))}
-                          className="bg-slate-700/50 border border-slate-600 rounded-lg px-3 py-2 text-white text-sm"
+                          className="bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-3 py-2 text-white text-sm"
                         >
                           <option value={3}>3 months</option>
                           <option value={6}>6 months</option>
@@ -4520,7 +4523,7 @@ export default function AIPortfolioManager() {
                         <button
                           onClick={generateCashFlowForecast}
                           disabled={cashFlowLoading}
-                          className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                          className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
                         >
                           <RefreshCw className={`w-4 h-4 ${cashFlowLoading ? 'animate-spin' : ''}`} /> Refresh
                         </button>
@@ -4531,29 +4534,29 @@ export default function AIPortfolioManager() {
                     {!monthlyIncome && (
                       <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4">
                         <p className="text-amber-400 text-sm mb-2">Set your monthly income to enable forecasting</p>
-                        <p className="text-slate-400 text-xs">Go to Budgets tab and set your monthly income</p>
+                        <p className="text-[#8fa89b] text-xs">Go to Budgets tab and set your monthly income</p>
                       </div>
                     )}
 
                     {/* Summary Cards */}
                     {cashFlowForecast?.summary && (
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Monthly Income</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Monthly Income</p>
                           <p className="text-xl font-bold text-green-400">${cashFlowForecast.summary.monthlyIncome?.toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Avg Spending</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Avg Spending</p>
                           <p className="text-xl font-bold text-red-400">${cashFlowForecast.summary.avgMonthlySpending?.toLocaleString()}</p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Avg Net Cash Flow</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Avg Net Cash Flow</p>
                           <p className={`text-xl font-bold ${cashFlowForecast.summary.avgNetCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {cashFlowForecast.summary.avgNetCashFlow >= 0 ? '+' : ''}${cashFlowForecast.summary.avgNetCashFlow?.toLocaleString()}
                           </p>
                         </div>
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                          <p className="text-xs text-slate-400">Avg Savings Rate</p>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                          <p className="text-xs text-[#8fa89b]">Avg Savings Rate</p>
                           <p className={`text-xl font-bold ${cashFlowForecast.summary.avgSavingsRate >= 20 ? 'text-green-400' : cashFlowForecast.summary.avgSavingsRate >= 10 ? 'text-amber-400' : 'text-red-400'}`}>
                             {cashFlowForecast.summary.avgSavingsRate}%
                           </p>
@@ -4568,7 +4571,7 @@ export default function AIPortfolioManager() {
                           const insightColors = {
                             warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
                             alert: 'bg-red-500/10 border-red-500/30 text-red-400',
-                            opportunity: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+                            opportunity: 'bg-[#c9a84c]/10 border-[#c9a84c]/30 text-[#d4b96b]',
                             positive: 'bg-green-500/10 border-green-500/30 text-green-400',
                           };
                           const insightIcons = { warning: '⚠️', alert: '🚨', opportunity: '💡', positive: '✅' };
@@ -4578,7 +4581,7 @@ export default function AIPortfolioManager() {
                                 <span>{insightIcons[insight.type]}</span>
                                 <div>
                                   <p className="font-semibold">{insight.title}</p>
-                                  <p className="text-sm text-slate-300">{insight.message}</p>
+                                  <p className="text-sm text-[#b8c9bd]">{insight.message}</p>
                                 </div>
                               </div>
                             </div>
@@ -4590,7 +4593,7 @@ export default function AIPortfolioManager() {
                     {/* Monthly Forecast Cards */}
                     {cashFlowForecast?.forecasts?.length > 0 && (
                       <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-slate-400">Monthly Breakdown</h4>
+                        <h4 className="text-sm font-semibold text-[#8fa89b]">Monthly Breakdown</h4>
                         <div className="grid gap-3">
                           {cashFlowForecast.forecasts.map((month, i) => {
                             const statusColors = {
@@ -4601,50 +4604,50 @@ export default function AIPortfolioManager() {
                             };
                             const statusIcons = { healthy: '✅', surplus: '🎉', tight: '⚠️', deficit: '🔴' };
                             return (
-                              <div key={month.month} className={`bg-slate-800/50 rounded-xl border p-4 ${statusColors[month.status]}`}>
+                              <div key={month.month} className={`bg-[#1a2b22]/50 rounded-xl border p-4 ${statusColors[month.status]}`}>
                                 <div className="flex items-center justify-between mb-3">
                                   <div className="flex items-center gap-2">
                                     <span className="text-lg">{statusIcons[month.status]}</span>
                                     <h5 className="font-semibold text-white">{month.monthName}</h5>
                                   </div>
                                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                    month.status === 'surplus' ? 'bg-emerald-500/20 text-emerald-400' :
+                                    month.status === 'surplus' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
                                     month.status === 'healthy' ? 'bg-green-500/20 text-green-400' :
-                                    month.status === 'tight' ? 'bg-amber-500/20 text-amber-400' :
-                                    'bg-red-500/20 text-red-400'
+                                    month.status === 'tight' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                                    'bg-[#c9a84c]/15 text-[#d4b96b]'
                                   }`}>
                                     {month.savingsRate}% saved
                                   </span>
                                 </div>
                                 <div className="grid grid-cols-4 gap-4 text-sm">
                                   <div>
-                                    <p className="text-slate-400 text-xs">Income</p>
+                                    <p className="text-[#8fa89b] text-xs">Income</p>
                                     <p className="text-green-400 font-medium">+${month.projectedIncome?.toLocaleString()}</p>
                                   </div>
                                   <div>
-                                    <p className="text-slate-400 text-xs">Expenses</p>
+                                    <p className="text-[#8fa89b] text-xs">Expenses</p>
                                     <p className="text-red-400 font-medium">-${month.projectedExpenses?.toLocaleString()}</p>
                                   </div>
                                   <div>
-                                    <p className="text-slate-400 text-xs">Net</p>
+                                    <p className="text-[#8fa89b] text-xs">Net</p>
                                     <p className={`font-bold ${month.netCashFlow >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                                       {month.netCashFlow >= 0 ? '+' : ''}${month.netCashFlow?.toLocaleString()}
                                     </p>
                                   </div>
                                   <div>
-                                    <p className="text-slate-400 text-xs">Running Balance</p>
+                                    <p className="text-[#8fa89b] text-xs">Running Balance</p>
                                     <p className={`font-medium ${month.endingBalance >= 0 ? 'text-white' : 'text-red-400'}`}>
                                       ${month.endingBalance?.toLocaleString()}
                                     </p>
                                   </div>
                                 </div>
                                 {/* Expense breakdown */}
-                                <div className="mt-3 pt-3 border-t border-slate-700 flex gap-4 text-xs">
-                                  <span className="text-slate-400">
-                                    Recurring: <span className="text-slate-300">${month.recurringExpenses?.toLocaleString()}</span>
+                                <div className="mt-3 pt-3 border-t border-[#2a3f32] flex gap-4 text-xs">
+                                  <span className="text-[#8fa89b]">
+                                    Recurring: <span className="text-[#b8c9bd]">${month.recurringExpenses?.toLocaleString()}</span>
                                   </span>
-                                  <span className="text-slate-400">
-                                    Variable: <span className="text-slate-300">${month.variableExpenses?.toLocaleString()}</span>
+                                  <span className="text-[#8fa89b]">
+                                    Variable: <span className="text-[#b8c9bd]">${month.variableExpenses?.toLocaleString()}</span>
                                   </span>
                                   {month.plannedExpenses > 0 && (
                                     <span className="text-violet-400">
@@ -4670,9 +4673,9 @@ export default function AIPortfolioManager() {
                     )}
 
                     {/* Planned Expenses */}
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                       <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-sm font-semibold text-slate-400">Planned Expenses</h4>
+                        <h4 className="text-sm font-semibold text-[#8fa89b]">Planned Expenses</h4>
                         <button
                           onClick={() => setShowAddPlannedExpense(true)}
                           className="text-violet-400 hover:text-violet-300 text-sm flex items-center gap-1"
@@ -4681,16 +4684,16 @@ export default function AIPortfolioManager() {
                         </button>
                       </div>
                       {plannedExpenses.length === 0 ? (
-                        <p className="text-slate-500 text-sm text-center py-4">
+                        <p className="text-[#6b8a76] text-sm text-center py-4">
                           No planned expenses. Add upcoming purchases, vacations, or large expenses.
                         </p>
                       ) : (
                         <div className="space-y-2">
                           {plannedExpenses.sort((a, b) => a.date.localeCompare(b.date)).map(expense => (
-                            <div key={expense.id} className="flex items-center justify-between p-2 bg-slate-700/30 rounded-lg">
+                            <div key={expense.id} className="flex items-center justify-between p-2 bg-[#1e3328]/30 rounded-lg">
                               <div>
                                 <p className="text-sm text-white">{expense.description}</p>
-                                <p className="text-xs text-slate-400">{new Date(expense.date).toLocaleDateString()}</p>
+                                <p className="text-xs text-[#8fa89b]">{new Date(expense.date).toLocaleDateString()}</p>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className="text-sm font-medium text-red-400">-${expense.amount.toLocaleString()}</span>
@@ -4709,24 +4712,24 @@ export default function AIPortfolioManager() {
 
                     {/* No forecast yet */}
                     {!cashFlowForecast && monthlyIncome > 0 && (
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-8 text-center">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-8 text-center">
                         <div className="text-4xl mb-4">📊</div>
-                        <p className="text-slate-400">Generating your cash flow forecast...</p>
+                        <p className="text-[#8fa89b]">Generating your cash flow forecast...</p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Connected Accounts - Always visible */}
-                <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
-                  <h3 className="text-sm font-semibold text-slate-400 mb-3">Connected Accounts</h3>
+                <div className="bg-[#152019]/30 rounded-xl border border-[#2a3f32] p-4">
+                  <h3 className="text-sm font-semibold text-[#8fa89b] mb-3">Connected Accounts</h3>
                   <div className="flex flex-wrap gap-3">
                     {plaidConnections.map(conn => (
-                      <div key={conn.id} className="bg-slate-700/50 rounded-lg px-4 py-2 flex items-center gap-3">
+                      <div key={conn.id} className="bg-[#1e3328]/50 rounded-lg px-4 py-2 flex items-center gap-3">
                         <Building2 className="w-4 h-4 text-emerald-400" />
                         <div>
                           <p className="text-sm font-medium text-white">{conn.institutionName}</p>
-                          <p className="text-xs text-slate-400">{conn.accounts?.length || 0} accounts</p>
+                          <p className="text-xs text-[#8fa89b]">{conn.accounts?.length || 0} accounts</p>
                         </div>
                         <button onClick={() => removePlaidConnection(conn.id)} className="text-red-400 hover:text-red-300 ml-2">
                           <X className="w-4 h-4" />
@@ -4744,20 +4747,20 @@ export default function AIPortfolioManager() {
         {activeTab === 'goals' && (
           <div className="space-y-6">
             {/* Goals Header */}
-            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-6">
+            <div className="bg-gradient-to-r from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/25 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-xl flex items-center justify-center">
                     <Target className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Financial Goals</h2>
-                    <p className="text-slate-400 text-sm">Track progress towards your money goals</p>
+                    <p className="text-[#8fa89b] text-sm">Track progress towards your money goals</p>
                   </div>
                 </div>
                 <button
                   onClick={() => setShowAddGoal(true)}
-                  className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                  className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Add Goal
                 </button>
@@ -4767,40 +4770,40 @@ export default function AIPortfolioManager() {
             {/* Goals Summary */}
             {goalsReport?.summary && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Total Goals</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Total Goals</p>
                   <p className="text-xl font-bold text-white">{goalsReport.summary.totalGoals}</p>
                   <p className="text-xs text-green-400">{goalsReport.summary.completedGoals} completed</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Overall Progress</p>
-                  <p className="text-xl font-bold text-purple-400">{goalsReport.summary.overallProgress}%</p>
-                  <div className="w-full h-1.5 bg-slate-700 rounded-full mt-2">
-                    <div className="h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded-full transition-all" style={{ width: `${Math.min(100, goalsReport.summary.overallProgress)}%` }} />
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Overall Progress</p>
+                  <p className="text-xl font-bold text-[#d4b96b]">{goalsReport.summary.overallProgress}%</p>
+                  <div className="w-full h-1.5 bg-[#1e3328] rounded-full mt-2">
+                    <div className="h-full bg-gradient-to-r from-[#c9a84c] to-[#a07c35] rounded-full transition-all" style={{ width: `${Math.min(100, goalsReport.summary.overallProgress)}%` }} />
                   </div>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Total Targeted</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Total Targeted</p>
                   <p className="text-xl font-bold text-white">${goalsReport.summary.totalTargeted?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">${goalsReport.summary.totalProgress?.toLocaleString()} saved</p>
+                  <p className="text-xs text-[#6b8a76]">${goalsReport.summary.totalProgress?.toLocaleString()} saved</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Still Needed</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Still Needed</p>
                   <p className="text-xl font-bold text-amber-400">${goalsReport.summary.totalRemaining?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">{goalsReport.summary.onTrackGoals} on track</p>
+                  <p className="text-xs text-[#6b8a76]">{goalsReport.summary.onTrackGoals} on track</p>
                 </div>
               </div>
             )}
 
             {/* Goal Cards */}
             {financialGoals.length === 0 ? (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
                 <div className="text-4xl mb-4">🎯</div>
-                <h4 className="text-lg font-semibold text-white mb-2">Set Your First Goal</h4>
-                <p className="text-slate-400 mb-4">Track progress towards emergency funds, vacations, down payments, and more.</p>
+                <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-2">Set Your First Goal</h4>
+                <p className="text-[#8fa89b] mb-4">Track progress towards emergency funds, vacations, down payments, and more.</p>
                 <button
                   onClick={() => setShowAddGoal(true)}
-                  className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 px-4 py-2 rounded-lg"
+                  className="bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] px-4 py-2 rounded-lg"
                 >
                   Create a Goal
                 </button>
@@ -4811,11 +4814,11 @@ export default function AIPortfolioManager() {
                   const statusColors = {
                     completed: 'border-green-500/50 bg-green-500/5',
                     almost_there: 'border-emerald-500/50 bg-emerald-500/5',
-                    halfway: 'border-blue-500/50 bg-blue-500/5',
-                    making_progress: 'border-purple-500/50 bg-purple-500/5',
-                    on_track: 'border-slate-500/50 bg-slate-500/5',
+                    halfway: 'border-[#c9a84c]/30 bg-[#c9a84c]/5',
+                    making_progress: 'border-[#c9a84c]/30 bg-[#c9a84c]/5',
+                    on_track: 'border-[#3a5442]/50 bg-[#3a5442]/5',
                     behind: 'border-red-500/50 bg-red-500/5',
-                    just_started: 'border-slate-500/50 bg-slate-500/5',
+                    just_started: 'border-[#3a5442]/50 bg-[#3a5442]/5',
                   };
                   const statusIcons = {
                     completed: '🎉', almost_there: '🔥', halfway: '💪',
@@ -4826,7 +4829,7 @@ export default function AIPortfolioManager() {
                     debt_payoff: '💳', investment: '📈', education: '🎓', wedding: '💒', custom: '🎯',
                   };
                   return (
-                    <div key={goal.goalId} className={`bg-slate-800/50 rounded-xl border p-5 ${statusColors[goal.status]}`}>
+                    <div key={goal.goalId} className={`bg-[#1a2b22]/50 rounded-xl border p-5 ${statusColors[goal.status]}`}>
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">{categoryIcons[goal.category] || '🎯'}</span>
@@ -4835,7 +4838,7 @@ export default function AIPortfolioManager() {
                               {goal.name}
                               <span>{statusIcons[goal.status]}</span>
                             </h4>
-                            <p className="text-xs text-slate-400">
+                            <p className="text-xs text-[#8fa89b]">
                               ${goal.currentAmount?.toLocaleString()} of ${goal.targetAmount?.toLocaleString()}
                             </p>
                           </div>
@@ -4851,15 +4854,15 @@ export default function AIPortfolioManager() {
                       {/* Progress Bar */}
                       <div className="mb-3">
                         <div className="flex justify-between text-xs mb-1">
-                          <span className="text-slate-400">{goal.progress}% complete</span>
-                          <span className="text-slate-400">${goal.remaining?.toLocaleString()} to go</span>
+                          <span className="text-[#8fa89b]">{goal.progress}% complete</span>
+                          <span className="text-[#8fa89b]">${goal.remaining?.toLocaleString()} to go</span>
                         </div>
-                        <div className="w-full h-2 bg-slate-700 rounded-full">
+                        <div className="w-full h-2 bg-[#1e3328] rounded-full">
                           <div
                             className={`h-full rounded-full transition-all ${
                               goal.status === 'completed' ? 'bg-green-500' :
                               goal.status === 'behind' ? 'bg-red-500' :
-                              'bg-gradient-to-r from-purple-500 to-pink-500'
+                              'bg-gradient-to-r from-[#c9a84c] to-[#a07c35]'
                             }`}
                             style={{ width: `${Math.min(100, goal.progress)}%` }}
                           />
@@ -4871,7 +4874,7 @@ export default function AIPortfolioManager() {
                         {goal.milestones?.map((m, i) => (
                           <div
                             key={i}
-                            className={`flex-1 h-1 rounded ${m.reached ? 'bg-green-500' : 'bg-slate-700'}`}
+                            className={`flex-1 h-1 rounded ${m.reached ? 'bg-green-500' : 'bg-[#1e3328]'}`}
                             title={m.label}
                           />
                         ))}
@@ -4880,13 +4883,13 @@ export default function AIPortfolioManager() {
                       {/* Stats */}
                       <div className="grid grid-cols-2 gap-3 mb-3 text-sm">
                         <div>
-                          <p className="text-xs text-slate-400">Monthly Contribution</p>
+                          <p className="text-xs text-[#8fa89b]">Monthly Contribution</p>
                           <p className="text-white font-medium">
                             ${(goalContributions[goal.goalId] || 0).toLocaleString()}/mo
                           </p>
                         </div>
                         <div>
-                          <p className="text-xs text-slate-400">Time to Goal</p>
+                          <p className="text-xs text-[#8fa89b]">Time to Goal</p>
                           <p className="text-white font-medium">
                             {goal.monthsToGoal === 0 ? 'Done!' :
                              goal.monthsToGoal ? `${goal.monthsToGoal} months` : 'Set contribution'}
@@ -4910,7 +4913,7 @@ export default function AIPortfolioManager() {
                             setSelectedGoal(financialGoals.find(g => g.id === goal.goalId));
                             setShowLogContribution(true);
                           }}
-                          className="flex-1 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 text-sm py-2 rounded-lg flex items-center justify-center gap-1"
+                          className="flex-1 bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] text-sm py-2 rounded-lg flex items-center justify-center gap-1"
                         >
                           <Plus className="w-3 h-3" /> Add Money
                         </button>
@@ -4919,7 +4922,7 @@ export default function AIPortfolioManager() {
                           placeholder="$/mo"
                           value={goalContributions[goal.goalId] || ''}
                           onChange={(e) => setGoalContribution(goal.goalId, e.target.value)}
-                          className="w-24 bg-slate-700/50 border border-slate-600 rounded-lg px-2 py-2 text-white text-sm text-center"
+                          className="w-24 bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-2 py-2 text-white text-sm text-center"
                         />
                       </div>
                     </div>
@@ -4930,17 +4933,17 @@ export default function AIPortfolioManager() {
 
             {/* Recommendations */}
             {goalsReport?.recommendations?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-purple-500/30 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#c9a84c]/25 p-6">
                 <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-purple-400" /> Recommendations
+                  <Sparkles className="w-4 h-4 text-[#d4b96b]" /> Recommendations
                 </h4>
                 <div className="space-y-2">
                   {goalsReport.recommendations.map((rec, i) => (
                     <div key={i} className={`p-3 rounded-lg ${
-                      rec.priority === 'high' ? 'bg-amber-500/10' : 'bg-slate-700/30'
+                      rec.priority === 'high' ? 'bg-amber-500/10' : 'bg-[#1e3328]/30'
                     }`}>
                       <p className="text-sm text-white">
-                        <span className="font-medium text-purple-400">{rec.goalName}:</span> {rec.message}
+                        <span className="font-medium text-[#d4b96b]">{rec.goalName}:</span> {rec.message}
                       </p>
                     </div>
                   ))}
@@ -4950,16 +4953,16 @@ export default function AIPortfolioManager() {
 
             {/* Suggested Allocations */}
             {goalsReport?.suggestedAllocations?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <h4 className="text-sm font-semibold text-white mb-3">Suggested Monthly Allocations</h4>
                 <div className="space-y-2">
                   {goalsReport.suggestedAllocations.map(alloc => (
                     <div key={alloc.goalId} className="flex items-center justify-between">
-                      <span className="text-slate-300">{alloc.name}</span>
+                      <span className="text-[#b8c9bd]">{alloc.name}</span>
                       <div className="flex items-center gap-3">
-                        <div className="w-32 h-2 bg-slate-700 rounded-full">
+                        <div className="w-32 h-2 bg-[#1e3328] rounded-full">
                           <div
-                            className="h-full bg-purple-500 rounded-full"
+                            className="h-full bg-[#c9a84c] rounded-full"
                             style={{ width: `${alloc.percent}%` }}
                           />
                         </div>
@@ -4987,7 +4990,7 @@ export default function AIPortfolioManager() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Retirement Planner</h2>
-                    <p className="text-slate-400 text-sm">Plan your path to financial freedom</p>
+                    <p className="text-[#8fa89b] text-sm">Plan your path to financial freedom</p>
                   </div>
                 </div>
                 <button
@@ -5002,27 +5005,27 @@ export default function AIPortfolioManager() {
             {/* Retirement Summary Cards */}
             {retirementPlan?.summary && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Years to Retirement</p>
-                  <p className="text-2xl font-bold text-white">{retirementPlan.summary.yearsToRetirement}</p>
-                  <p className="text-xs text-slate-500">Age {retirementPlan.summary.retirementAge}</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Years to Retirement</p>
+                  <p className="text-2xl font-serif font-bold text-white tracking-wide">{retirementPlan.summary.yearsToRetirement}</p>
+                  <p className="text-xs text-[#6b8a76]">Age {retirementPlan.summary.retirementAge}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Projected at Retirement</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Projected at Retirement</p>
                   <p className="text-2xl font-bold text-teal-400">${retirementPlan.summary.projectedAtRetirement?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">${retirementPlan.summary.totalMonthlyContribution?.toLocaleString()}/mo</p>
+                  <p className="text-xs text-[#6b8a76]">${retirementPlan.summary.totalMonthlyContribution?.toLocaleString()}/mo</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Amount Needed</p>
-                  <p className="text-2xl font-bold text-white">${retirementPlan.summary.amountNeeded?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">For {retirementPlan.summary.yearsInRetirement} years</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Amount Needed</p>
+                  <p className="text-2xl font-serif font-bold text-white tracking-wide">${retirementPlan.summary.amountNeeded?.toLocaleString()}</p>
+                  <p className="text-xs text-[#6b8a76]">For {retirementPlan.summary.yearsInRetirement} years</p>
                 </div>
-                <div className={`bg-slate-800/50 rounded-xl border p-4 ${retirementPlan.summary.onTrack ? 'border-green-500/50' : 'border-red-500/50'}`}>
-                  <p className="text-xs text-slate-400">Status</p>
+                <div className={`bg-[#1a2b22]/50 rounded-xl border p-4 ${retirementPlan.summary.onTrack ? 'border-green-500/50' : 'border-red-500/50'}`}>
+                  <p className="text-xs text-[#8fa89b]">Status</p>
                   <p className={`text-2xl font-bold ${retirementPlan.summary.onTrack ? 'text-green-400' : 'text-red-400'}`}>
                     {retirementPlan.summary.onTrack ? '✅ On Track' : '⚠️ Behind'}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#6b8a76]">
                     {retirementPlan.summary.gap >= 0 ? `$${Math.abs(retirementPlan.summary.gap).toLocaleString()} surplus` : `$${Math.abs(retirementPlan.summary.gap).toLocaleString()} gap`}
                   </p>
                 </div>
@@ -5032,34 +5035,34 @@ export default function AIPortfolioManager() {
             {/* Retirement Income Breakdown */}
             {retirementPlan?.income && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <h4 className="text-sm font-semibold text-white mb-4">Monthly Income in Retirement</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-400">Social Security</span>
+                      <span className="text-[#8fa89b]">Social Security</span>
                       <span className="text-white font-medium">${retirementPlan.income.socialSecurity?.toLocaleString()}</span>
                     </div>
                     {retirementPlan.income.pension > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Pension</span>
+                        <span className="text-[#8fa89b]">Pension</span>
                         <span className="text-white font-medium">${retirementPlan.income.pension?.toLocaleString()}</span>
                       </div>
                     )}
                     {retirementPlan.income.otherIncome > 0 && (
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-400">Other Income</span>
+                        <span className="text-[#8fa89b]">Other Income</span>
                         <span className="text-white font-medium">${retirementPlan.income.otherIncome?.toLocaleString()}</span>
                       </div>
                     )}
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-700">
-                      <span className="text-slate-300 font-medium">Guaranteed Income</span>
+                    <div className="flex justify-between items-center pt-2 border-t border-[#2a3f32]">
+                      <span className="text-[#b8c9bd] font-medium">Guaranteed Income</span>
                       <span className="text-teal-400 font-bold">${retirementPlan.income.totalGuaranteed?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-400">From Savings (4% rule)</span>
+                      <span className="text-[#8fa89b]">From Savings (4% rule)</span>
                       <span className="text-white font-medium">${retirementPlan.income.monthlyFromSavings?.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between items-center pt-2 border-t border-slate-700">
+                    <div className="flex justify-between items-center pt-2 border-t border-[#2a3f32]">
                       <span className="text-white font-semibold">Total Monthly Income</span>
                       <span className="text-green-400 font-bold">
                         ${(retirementPlan.income.totalGuaranteed + retirementPlan.income.monthlyFromSavings)?.toLocaleString()}
@@ -5068,19 +5071,19 @@ export default function AIPortfolioManager() {
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <h4 className="text-sm font-semibold text-white mb-4">Monthly Expenses in Retirement</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-slate-400">Projected Expenses</span>
+                      <span className="text-[#8fa89b]">Projected Expenses</span>
                       <span className="text-red-400 font-medium">${retirementPlan.income.monthlyExpensesInRetirement?.toLocaleString()}</span>
                     </div>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-[#6b8a76]">
                       Based on {retirementProfile.retirementExpensePct}% of current expenses, adjusted for inflation
                     </p>
-                    <div className="pt-3 mt-3 border-t border-slate-700">
+                    <div className="pt-3 mt-3 border-t border-[#2a3f32]">
                       <div className="flex justify-between items-center">
-                        <span className="text-slate-300">Monthly Surplus/Shortfall</span>
+                        <span className="text-[#b8c9bd]">Monthly Surplus/Shortfall</span>
                         <span className={`font-bold ${
                           (retirementPlan.income.totalGuaranteed + retirementPlan.income.monthlyFromSavings) >= retirementPlan.income.monthlyExpensesInRetirement
                             ? 'text-green-400' : 'text-red-400'
@@ -5101,9 +5104,9 @@ export default function AIPortfolioManager() {
                   const insightColors = {
                     warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
                     alert: 'bg-red-500/10 border-red-500/30 text-red-400',
-                    opportunity: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
+                    opportunity: 'bg-[#c9a84c]/10 border-[#c9a84c]/30 text-[#d4b96b]',
                     positive: 'bg-green-500/10 border-green-500/30 text-green-400',
-                    info: 'bg-slate-500/10 border-slate-500/30 text-slate-400',
+                    info: 'bg-[#3a5442]/10 border-[#3a5442]/30 text-[#8fa89b]',
                   };
                   const icons = { warning: '⚠️', alert: '🚨', opportunity: '💡', positive: '✅', info: 'ℹ️' };
                   return (
@@ -5112,7 +5115,7 @@ export default function AIPortfolioManager() {
                         <span>{icons[insight.type]}</span>
                         <div>
                           <p className="font-semibold">{insight.title}</p>
-                          <p className="text-sm text-slate-300">{insight.message}</p>
+                          <p className="text-sm text-[#b8c9bd]">{insight.message}</p>
                         </div>
                       </div>
                     </div>
@@ -5123,21 +5126,21 @@ export default function AIPortfolioManager() {
 
             {/* Projection Chart (simplified table view) */}
             {retirementPlan?.projections?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                 <h4 className="text-sm font-semibold text-white mb-4">Savings Projection</h4>
                 <div className="grid grid-cols-6 gap-2 text-center">
                   {retirementPlan.projections.filter((_, i) => i % 5 === 0).slice(0, 12).map(p => (
-                    <div key={p.age} className={`p-2 rounded-lg ${p.phase === 'retirement' ? 'bg-teal-500/10' : 'bg-slate-700/30'}`}>
-                      <p className="text-xs text-slate-400">Age {p.age}</p>
+                    <div key={p.age} className={`p-2 rounded-lg ${p.phase === 'retirement' ? 'bg-teal-500/10' : 'bg-[#1e3328]/30'}`}>
+                      <p className="text-xs text-[#8fa89b]">Age {p.age}</p>
                       <p className={`text-sm font-bold ${p.balance > 0 ? 'text-white' : 'text-red-400'}`}>
                         ${(p.balance / 1000).toFixed(0)}k
                       </p>
                     </div>
                   ))}
                 </div>
-                <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
+                <div className="flex items-center gap-4 mt-4 text-xs text-[#8fa89b]">
                   <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 bg-slate-700/50 rounded" /> Accumulation
+                    <div className="w-3 h-3 bg-[#1e3328]/50 rounded" /> Accumulation
                   </div>
                   <div className="flex items-center gap-1">
                     <div className="w-3 h-3 bg-teal-500/20 rounded" /> Retirement
@@ -5150,7 +5153,7 @@ export default function AIPortfolioManager() {
             {retirementPlan?.summary && !retirementPlan.summary.onTrack && (
               <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-5">
                 <h4 className="text-sm font-semibold text-red-400 mb-2">Action Required</h4>
-                <p className="text-slate-300 mb-3">
+                <p className="text-[#b8c9bd] mb-3">
                   To close your retirement gap, consider increasing your monthly contribution to{' '}
                   <span className="text-white font-bold">${retirementPlan.summary.requiredMonthly?.toLocaleString()}</span>
                   {' '}(currently ${retirementPlan.summary.monthlyContribution?.toLocaleString()}).
@@ -5166,13 +5169,13 @@ export default function AIPortfolioManager() {
 
             {/* Assumptions */}
             {retirementPlan?.assumptions && (
-              <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
-                <h4 className="text-xs font-semibold text-slate-400 mb-2">Planning Assumptions</h4>
+              <div className="bg-[#152019]/30 rounded-xl border border-[#2a3f32] p-4">
+                <h4 className="text-xs font-semibold text-[#8fa89b] mb-2">Planning Assumptions</h4>
                 <div className="flex flex-wrap gap-4 text-xs">
-                  <span className="text-slate-400">Expected Return: <span className="text-white">{retirementPlan.assumptions.expectedReturn}%</span></span>
-                  <span className="text-slate-400">Inflation: <span className="text-white">{retirementPlan.assumptions.inflationRate}%</span></span>
-                  <span className="text-slate-400">Real Return: <span className="text-white">{retirementPlan.assumptions.realReturn}%</span></span>
-                  <span className="text-slate-400">Withdrawal Rate: <span className="text-white">{retirementPlan.assumptions.withdrawalRate}%</span></span>
+                  <span className="text-[#8fa89b]">Expected Return: <span className="text-white">{retirementPlan.assumptions.expectedReturn}%</span></span>
+                  <span className="text-[#8fa89b]">Inflation: <span className="text-white">{retirementPlan.assumptions.inflationRate}%</span></span>
+                  <span className="text-[#8fa89b]">Real Return: <span className="text-white">{retirementPlan.assumptions.realReturn}%</span></span>
+                  <span className="text-[#8fa89b]">Withdrawal Rate: <span className="text-white">{retirementPlan.assumptions.withdrawalRate}%</span></span>
                 </div>
               </div>
             )}
@@ -5191,7 +5194,7 @@ export default function AIPortfolioManager() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Tax Optimization Dashboard</h2>
-                    <p className="text-slate-400 text-sm">Estimate taxes and find savings opportunities</p>
+                    <p className="text-[#8fa89b] text-sm">Estimate taxes and find savings opportunities</p>
                   </div>
                 </div>
                 <button
@@ -5206,27 +5209,27 @@ export default function AIPortfolioManager() {
             {/* Tax Summary Cards */}
             {taxAnalysis?.summary && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Taxable Income</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Taxable Income</p>
                   <p className="text-xl font-bold text-white">${taxAnalysis.summary.taxableIncome?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">After ${taxAnalysis.summary.deduction?.toLocaleString()} {taxAnalysis.summary.deductionType}</p>
+                  <p className="text-xs text-[#6b8a76]">After ${taxAnalysis.summary.deduction?.toLocaleString()} {taxAnalysis.summary.deductionType}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Total Tax</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Total Tax</p>
                   <p className="text-xl font-bold text-red-400">${taxAnalysis.summary.totalTax?.toLocaleString()}</p>
-                  <p className="text-xs text-slate-500">{taxAnalysis.summary.effectiveRate}% effective rate</p>
+                  <p className="text-xs text-[#6b8a76]">{taxAnalysis.summary.effectiveRate}% effective rate</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Marginal Rate</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Marginal Rate</p>
                   <p className="text-xl font-bold text-amber-400">{(taxAnalysis.summary.marginalRate * 100).toFixed(0)}%</p>
-                  <p className="text-xs text-slate-500">Federal bracket</p>
+                  <p className="text-xs text-[#6b8a76]">Federal bracket</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-xs text-slate-400">Balance</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-xs text-[#8fa89b]">Balance</p>
                   <p className={`text-xl font-bold ${taxAnalysis.summary.balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {taxAnalysis.summary.balance >= 0 ? '+' : ''}${taxAnalysis.summary.balance?.toLocaleString()}
                   </p>
-                  <p className="text-xs text-slate-500">{taxAnalysis.summary.balance >= 0 ? 'Refund estimate' : 'Estimated owed'}</p>
+                  <p className="text-xs text-[#6b8a76]">{taxAnalysis.summary.balance >= 0 ? 'Refund estimate' : 'Estimated owed'}</p>
                 </div>
               </div>
             )}
@@ -5234,57 +5237,57 @@ export default function AIPortfolioManager() {
             {/* Tax Breakdown */}
             {taxAnalysis?.breakdown && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                   <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                     🏛️ Federal Tax
                   </h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Ordinary Income</span>
+                      <span className="text-[#8fa89b]">Ordinary Income</span>
                       <span className="text-white">${taxAnalysis.breakdown.federal.ordinaryIncome?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Capital Gains</span>
+                      <span className="text-[#8fa89b]">Capital Gains</span>
                       <span className="text-white">${taxAnalysis.breakdown.federal.capitalGains?.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
-                      <span className="text-slate-300 font-medium">Total Federal</span>
+                    <div className="flex justify-between text-sm pt-2 border-t border-[#2a3f32]">
+                      <span className="text-[#b8c9bd] font-medium">Total Federal</span>
                       <span className="text-white font-bold">${taxAnalysis.breakdown.federal.total?.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                   <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                     🏠 State Tax ({taxProfile.state})
                   </h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">State Rate</span>
+                      <span className="text-[#8fa89b]">State Rate</span>
                       <span className="text-white">{(taxAnalysis.breakdown.state.rate * 100).toFixed(2)}%</span>
                     </div>
-                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
-                      <span className="text-slate-300 font-medium">Total State</span>
+                    <div className="flex justify-between text-sm pt-2 border-t border-[#2a3f32]">
+                      <span className="text-[#b8c9bd] font-medium">Total State</span>
                       <span className="text-white font-bold">${taxAnalysis.breakdown.state.tax?.toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                   <h4 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
                     💼 FICA (SS + Medicare)
                   </h4>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Social Security</span>
+                      <span className="text-[#8fa89b]">Social Security</span>
                       <span className="text-white">${taxAnalysis.breakdown.fica.socialSecurity?.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-slate-400">Medicare</span>
+                      <span className="text-[#8fa89b]">Medicare</span>
                       <span className="text-white">${taxAnalysis.breakdown.fica.medicare?.toLocaleString()}</span>
                     </div>
-                    <div className="flex justify-between text-sm pt-2 border-t border-slate-700">
-                      <span className="text-slate-300 font-medium">Total FICA</span>
+                    <div className="flex justify-between text-sm pt-2 border-t border-[#2a3f32]">
+                      <span className="text-[#b8c9bd] font-medium">Total FICA</span>
                       <span className="text-white font-bold">${taxAnalysis.breakdown.fica.total?.toLocaleString()}</span>
                     </div>
                   </div>
@@ -5294,8 +5297,8 @@ export default function AIPortfolioManager() {
 
             {/* Tax Optimization Opportunities */}
             {taxAnalysis?.opportunities?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-emerald-500/30 p-6">
-                <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-emerald-500/30 p-6">
+                <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-emerald-400" /> Tax Optimization Opportunities
                 </h4>
                 <div className="space-y-3">
@@ -5303,14 +5306,14 @@ export default function AIPortfolioManager() {
                     const priorityColors = {
                       urgent: 'border-red-500/50 bg-red-500/5',
                       high: 'border-amber-500/50 bg-amber-500/5',
-                      medium: 'border-blue-500/50 bg-blue-500/5',
-                      low: 'border-slate-500/50 bg-slate-500/5',
+                      medium: 'border-[#c9a84c]/30 bg-[#c9a84c]/5',
+                      low: 'border-[#3a5442]/50 bg-[#3a5442]/5',
                     };
                     const priorityBadge = {
-                      urgent: 'bg-red-500/20 text-red-400',
-                      high: 'bg-amber-500/20 text-amber-400',
-                      medium: 'bg-blue-500/20 text-blue-400',
-                      low: 'bg-slate-500/20 text-slate-400',
+                      urgent: 'bg-[#c9a84c]/15 text-[#d4b96b]',
+                      high: 'bg-[#c9a84c]/15 text-[#d4b96b]',
+                      medium: 'bg-[#c9a84c]/15 text-[#d4b96b]',
+                      low: 'bg-[#3a5442]/20 text-[#8fa89b]',
                     };
                     return (
                       <div key={i} className={`p-4 rounded-xl border ${priorityColors[opp.priority]}`}>
@@ -5322,12 +5325,12 @@ export default function AIPortfolioManager() {
                                 {opp.priority}
                               </span>
                             </div>
-                            <p className="text-sm text-slate-300 mb-2">{opp.description}</p>
-                            <p className="text-sm text-slate-400">{opp.action}</p>
+                            <p className="text-sm text-[#b8c9bd] mb-2">{opp.description}</p>
+                            <p className="text-sm text-[#8fa89b]">{opp.action}</p>
                           </div>
                           {opp.potentialSavings > 0 && (
                             <div className="text-right ml-4">
-                              <p className="text-xs text-slate-400">Potential Savings</p>
+                              <p className="text-xs text-[#8fa89b]">Potential Savings</p>
                               <p className="text-lg font-bold text-green-400">${opp.potentialSavings.toLocaleString()}</p>
                             </div>
                           )}
@@ -5342,16 +5345,16 @@ export default function AIPortfolioManager() {
             {/* Monthly Projections */}
             {taxAnalysis?.projections && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
-                  <p className="text-xs text-slate-400 mb-1">Monthly Tax Burden</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4 text-center">
+                  <p className="text-xs text-[#8fa89b] mb-1">Monthly Tax Burden</p>
                   <p className="text-2xl font-bold text-red-400">${taxAnalysis.projections.monthlyTaxBurden?.toLocaleString()}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
-                  <p className="text-xs text-slate-400 mb-1">Monthly Take-Home</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4 text-center">
+                  <p className="text-xs text-[#8fa89b] mb-1">Monthly Take-Home</p>
                   <p className="text-2xl font-bold text-green-400">${taxAnalysis.projections.takeHomePay?.toLocaleString()}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4 text-center">
-                  <p className="text-xs text-slate-400 mb-1">Tax Saved from Deductions</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4 text-center">
+                  <p className="text-xs text-[#8fa89b] mb-1">Tax Saved from Deductions</p>
                   <p className="text-2xl font-bold text-emerald-400">${taxAnalysis.projections.savingsFromDeductions?.toLocaleString()}</p>
                 </div>
               </div>
@@ -5359,10 +5362,10 @@ export default function AIPortfolioManager() {
 
             {/* No Tax Profile Yet */}
             {!taxAnalysis && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
                 <div className="text-4xl mb-4">📋</div>
-                <h4 className="text-lg font-semibold text-white mb-2">Set Up Your Tax Profile</h4>
-                <p className="text-slate-400 mb-4">Enter your income and tax information to see estimates and optimization opportunities.</p>
+                <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-2">Set Up Your Tax Profile</h4>
+                <p className="text-[#8fa89b] mb-4">Enter your income and tax information to see estimates and optimization opportunities.</p>
                 <button
                   onClick={() => setShowTaxSetup(true)}
                   className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white font-medium px-6 py-3 rounded-xl"
@@ -5391,7 +5394,7 @@ export default function AIPortfolioManager() {
                         {partnershipData.ownershipPct}% ownership
                       </span>
                     </div>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-[#8fa89b] text-sm">
                       {partnershipData.quarterlyReports.length} quarterly reports
                     </p>
                   </div>
@@ -5408,22 +5411,22 @@ export default function AIPortfolioManager() {
             {/* Partnership Metrics */}
             {partnershipMetrics?.hasData && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-slate-400 text-xs mb-1">Your Share Value</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-[#8fa89b] text-xs mb-1">Your Share Value</p>
                   <p className="text-xl font-bold text-white">${partnershipMetrics.currentValue?.yourShare?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-slate-400 text-xs mb-1">Annualized Return</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-[#8fa89b] text-xs mb-1">Annualized Return</p>
                   <p className={`text-xl font-bold ${parseFloat(partnershipMetrics.performanceMetrics?.annualizedReturn) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                     {partnershipMetrics.performanceMetrics?.annualizedReturn}%
                   </p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-slate-400 text-xs mb-1">Distributions Received</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-[#8fa89b] text-xs mb-1">Distributions Received</p>
                   <p className="text-xl font-bold text-green-400">${partnershipMetrics.cumulativeMetrics?.yourDistributions?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
-                  <p className="text-slate-400 text-xs mb-1">Sharpe Ratio</p>
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
+                  <p className="text-[#8fa89b] text-xs mb-1">Sharpe Ratio</p>
                   <p className="text-xl font-bold text-white">{partnershipMetrics.performanceMetrics?.sharpeRatio}</p>
                 </div>
               </div>
@@ -5431,8 +5434,8 @@ export default function AIPortfolioManager() {
 
             {/* Performance Chart */}
             {partnershipMetrics?.navHistory?.length > 1 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4">Your Share Value Over Time</h3>
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Your Share Value Over Time</h3>
                 <div className="h-48">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={partnershipMetrics.navHistory}>
@@ -5453,28 +5456,28 @@ export default function AIPortfolioManager() {
             )}
 
             {/* Quarterly Reports */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-4 border-b border-slate-700">
+            <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-4 border-b border-[#2a3f32]">
                 <h3 className="font-semibold text-white flex items-center gap-2"><FileText className="w-4 h-4 text-amber-400" /> Quarterly Reports</h3>
               </div>
               {partnershipData.quarterlyReports.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-900/50">
+                    <thead className="bg-[#0a1410]/50">
                       <tr>
-                        <th className="px-4 py-2 text-left text-xs text-slate-400">Period</th>
-                        <th className="px-4 py-2 text-right text-xs text-slate-400">NAV</th>
-                        <th className="px-4 py-2 text-right text-xs text-slate-400">Your Share</th>
-                        <th className="px-4 py-2 text-right text-xs text-slate-400">Return</th>
-                        <th className="px-4 py-2 text-right text-xs text-slate-400">Distribution</th>
-                        <th className="px-4 py-2 text-right text-xs text-slate-400"></th>
+                        <th className="px-4 py-2 text-left text-xs text-[#8fa89b]">Period</th>
+                        <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">NAV</th>
+                        <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">Your Share</th>
+                        <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">Return</th>
+                        <th className="px-4 py-2 text-right text-xs text-[#8fa89b]">Distribution</th>
+                        <th className="px-4 py-2 text-right text-xs text-[#8fa89b]"></th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-700">
+                    <tbody className="divide-y divide-[#2a3f32]">
                       {partnershipData.quarterlyReports.sort((a, b) => (b.year * 4 + b.quarter) - (a.year * 4 + a.quarter)).map((r) => (
-                        <tr key={r.id} className="hover:bg-slate-700/30">
+                        <tr key={r.id} className="hover:bg-[#1e3328]/30">
                           <td className="px-4 py-2 text-white">Q{r.quarter} {r.year}</td>
-                          <td className="px-4 py-2 text-right text-slate-300">${r.totalNav?.toLocaleString()}</td>
+                          <td className="px-4 py-2 text-right text-[#b8c9bd]">${r.totalNav?.toLocaleString()}</td>
                           <td className="px-4 py-2 text-right text-cyan-400">${(r.totalNav * partnershipData.ownershipPct / 100)?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
                           <td className={`px-4 py-2 text-right ${r.netReturn >= 0 ? 'text-green-400' : 'text-red-400'}`}>{r.netReturn >= 0 ? '+' : ''}{r.netReturn}%</td>
                           <td className="px-4 py-2 text-right text-green-400">{r.distributions > 0 ? `$${(r.distributions * partnershipData.ownershipPct / 100).toFixed(0)}` : '-'}</td>
@@ -5485,21 +5488,21 @@ export default function AIPortfolioManager() {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center text-slate-400">
+                <div className="p-8 text-center text-[#8fa89b]">
                   <p>No reports yet. Add quarterly reports to track performance.</p>
                 </div>
               )}
             </div>
 
             {/* Settings */}
-            <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4 flex items-center gap-6 flex-wrap">
+            <div className="bg-[#152019]/30 rounded-xl border border-[#2a3f32] p-4 flex items-center gap-6 flex-wrap">
               <div>
-                <label className="text-xs text-slate-400">Partnership Name</label>
-                <input type="text" value={partnershipData.name} onChange={(e) => setPartnershipData(p => ({ ...p, name: e.target.value }))} className="block mt-1 bg-slate-700/50 border border-slate-600 rounded px-3 py-1.5 text-white text-sm w-48" />
+                <label className="text-xs text-[#8fa89b]">Partnership Name</label>
+                <input type="text" value={partnershipData.name} onChange={(e) => setPartnershipData(p => ({ ...p, name: e.target.value }))} className="block mt-1 bg-[#1e3328]/50 border border-[#3a5442] rounded px-3 py-1.5 text-white text-sm w-48" />
               </div>
               <div>
-                <label className="text-xs text-slate-400">Ownership %</label>
-                <input type="number" step="0.1" value={partnershipData.ownershipPct} onChange={(e) => setPartnershipData(p => ({ ...p, ownershipPct: parseFloat(e.target.value) || 0 }))} className="block mt-1 bg-slate-700/50 border border-slate-600 rounded px-3 py-1.5 text-white text-sm w-24" />
+                <label className="text-xs text-[#8fa89b]">Ownership %</label>
+                <input type="number" step="0.1" value={partnershipData.ownershipPct} onChange={(e) => setPartnershipData(p => ({ ...p, ownershipPct: parseFloat(e.target.value) || 0 }))} className="block mt-1 bg-[#1e3328]/50 border border-[#3a5442] rounded px-3 py-1.5 text-white text-sm w-24" />
               </div>
             </div>
           </div>
@@ -5509,28 +5512,28 @@ export default function AIPortfolioManager() {
         {activeTab === 'ai-arena' && (
           <div className="space-y-6">
             {/* Arena Header */}
-            <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-6">
+            <div className="bg-gradient-to-r from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/25 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-xl flex items-center justify-center">
                     <Bot className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">AI Trading Arena</h2>
-                    <p className="text-slate-400 text-sm">Watch AI models compete with $100k paper portfolios</p>
+                    <p className="text-[#8fa89b] text-sm">Watch AI models compete with $100k paper portfolios</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   <button
                     onClick={resetCompetition}
-                    className="bg-slate-700 hover:bg-slate-600 text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
+                    className="bg-[#1e3328] hover:bg-[#2a4035] text-white font-medium px-4 py-2 rounded-lg flex items-center gap-2"
                   >
                     <RefreshCw className="w-4 h-4" /> Reset
                   </button>
                   <button
                     onClick={runAICompetition}
                     disabled={competitionRunning}
-                    className="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                    className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-6 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
                   >
                     {competitionRunning ? (
                       <><RefreshCw className="w-4 h-4 animate-spin" /> Running...</>
@@ -5544,9 +5547,9 @@ export default function AIPortfolioManager() {
 
             {/* Leaderboard */}
             {leaderboard.length > 0 && (
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-6 border-b border-slate-700">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-6 border-b border-[#2a3f32]">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                     <BarChart3 className="w-5 h-5 text-amber-400" /> Leaderboard
                   </h3>
                 </div>
@@ -5557,16 +5560,16 @@ export default function AIPortfolioManager() {
                         key={entry.model}
                         className={`flex items-center gap-4 p-4 rounded-xl ${
                           i === 0 ? 'bg-gradient-to-r from-amber-500/20 to-yellow-500/20 border border-amber-500/30' :
-                          i === 1 ? 'bg-gradient-to-r from-slate-400/20 to-slate-300/20 border border-slate-400/30' :
+                          i === 1 ? 'bg-gradient-to-r from-[#8fa89b]/20 to-[#b8c9bd]/20 border border-[#8fa89b]/30' :
                           i === 2 ? 'bg-gradient-to-r from-orange-600/20 to-orange-500/20 border border-orange-500/30' :
-                          'bg-slate-700/30 border border-slate-600'
+                          'bg-[#1e3328]/30 border border-[#3a5442]'
                         }`}
                       >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold ${
                           i === 0 ? 'bg-amber-500 text-amber-900' :
-                          i === 1 ? 'bg-slate-300 text-slate-700' :
+                          i === 1 ? 'bg-[#b8c9bd] text-[#2a4035]' :
                           i === 2 ? 'bg-orange-500 text-orange-900' :
-                          'bg-slate-600 text-slate-300'
+                          'bg-[#2a4035] text-[#b8c9bd]'
                         }`}>
                           {i + 1}
                         </div>
@@ -5574,9 +5577,9 @@ export default function AIPortfolioManager() {
                           <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.color }} />
                             <span className="font-bold text-white">{entry.name}</span>
-                            <span className="text-xs text-slate-400">{entry.provider}</span>
+                            <span className="text-xs text-[#8fa89b]">{entry.provider}</span>
                           </div>
-                          <p className="text-xs text-slate-400 mt-0.5">{entry.style}</p>
+                          <p className="text-xs text-[#8fa89b] mt-0.5">{entry.style}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-lg font-bold text-white">${entry.portfolioValue?.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
@@ -5585,8 +5588,8 @@ export default function AIPortfolioManager() {
                           </p>
                         </div>
                         <div className="text-right text-sm">
-                          <p className="text-slate-400">Trades: {entry.tradeCount}</p>
-                          <p className="text-slate-400">Win: {entry.winRate?.toFixed(0)}%</p>
+                          <p className="text-[#8fa89b]">Trades: {entry.tradeCount}</p>
+                          <p className="text-[#8fa89b]">Win: {entry.winRate?.toFixed(0)}%</p>
                         </div>
                       </div>
                     ))}
@@ -5605,23 +5608,23 @@ export default function AIPortfolioManager() {
                 return (
                   <div
                     key={trader.model}
-                    className={`bg-slate-800/50 backdrop-blur-xl rounded-xl border overflow-hidden ${
-                      trader.enabled ? 'border-slate-700' : 'border-slate-800 opacity-50'
+                    className={`bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border overflow-hidden ${
+                      trader.enabled ? 'border-[#2a3f32]' : 'border-[#152019] opacity-50'
                     }`}
                   >
-                    <div className="p-4 border-b border-slate-700 flex items-center justify-between" style={{ borderLeftWidth: 4, borderLeftColor: profile.color }}>
+                    <div className="p-4 border-b border-[#2a3f32] flex items-center justify-between" style={{ borderLeftWidth: 4, borderLeftColor: profile.color }}>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: profile.color + '30' }}>
                           <Brain className="w-5 h-5" style={{ color: profile.color }} />
                         </div>
                         <div>
                           <p className="font-bold text-white">{profile.name}</p>
-                          <p className="text-xs text-slate-400">{profile.provider} • {profile.style}</p>
+                          <p className="text-xs text-[#8fa89b]">{profile.provider} • {profile.style}</p>
                         </div>
                       </div>
                       <button
                         onClick={() => toggleTrader(trader.model)}
-                        className={`p-2 rounded-lg ${trader.enabled ? 'bg-green-500/20 text-green-400' : 'bg-slate-700 text-slate-400'}`}
+                        className={`p-2 rounded-lg ${trader.enabled ? 'bg-green-500/20 text-green-400' : 'bg-[#1e3328] text-[#8fa89b]'}`}
                       >
                         <Power className="w-4 h-4" />
                       </button>
@@ -5630,13 +5633,13 @@ export default function AIPortfolioManager() {
                     <div className="p-4">
                       <div className="flex items-center justify-between mb-4">
                         <div>
-                          <p className="text-slate-400 text-xs">Portfolio Value</p>
-                          <p className="text-2xl font-bold text-white">
+                          <p className="text-[#8fa89b] text-xs">Portfolio Value</p>
+                          <p className="text-2xl font-serif font-bold text-white tracking-wide">
                             ${trader.portfolioValue.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-slate-400 text-xs">Return</p>
+                          <p className="text-[#8fa89b] text-xs">Return</p>
                           <p className={`text-xl font-bold ${returnPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {returnPct >= 0 ? '+' : ''}{returnPct.toFixed(2)}%
                           </p>
@@ -5663,17 +5666,17 @@ export default function AIPortfolioManager() {
                       {/* Recent Decisions */}
                       {decisions.length > 0 && (
                         <div>
-                          <p className="text-xs text-slate-400 mb-2">Latest Decisions</p>
+                          <p className="text-xs text-[#8fa89b] mb-2">Latest Decisions</p>
                           <div className="space-y-2">
                             {decisions.slice(0, 2).map((d, i) => (
-                              <div key={i} className="bg-slate-700/30 rounded-lg p-2 text-sm">
+                              <div key={i} className="bg-[#1e3328]/30 rounded-lg p-2 text-sm">
                                 <div className="flex items-center justify-between">
                                   <span className={`font-medium ${d.action === 'BUY' || d.action === 'ADD' ? 'text-green-400' : 'text-red-400'}`}>
                                     {d.action} {d.symbol}
                                   </span>
-                                  <span className="text-slate-400">{d.confidence}%</span>
+                                  <span className="text-[#8fa89b]">{d.confidence}%</span>
                                 </div>
-                                <p className="text-xs text-slate-500 mt-1">{d.reasoning}</p>
+                                <p className="text-xs text-[#6b8a76] mt-1">{d.reasoning}</p>
                               </div>
                             ))}
                           </div>
@@ -5681,7 +5684,7 @@ export default function AIPortfolioManager() {
                       )}
 
                       {decisions.length === 0 && trader.enabled && (
-                        <p className="text-center text-slate-500 text-sm py-4">
+                        <p className="text-center text-[#6b8a76] text-sm py-4">
                           Run a round to see decisions
                         </p>
                       )}
@@ -5692,9 +5695,9 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Competition Info */}
-            <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+            <div className="bg-[#152019]/30 rounded-xl border border-[#2a3f32] p-4">
               <h4 className="font-medium text-white mb-2">How It Works</h4>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-slate-400">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-[#8fa89b]">
                 <div>
                   <p className="text-amber-400 font-medium">Claude</p>
                   <p>Balanced approach, focuses on risk-adjusted returns and diversification</p>
@@ -5708,7 +5711,7 @@ export default function AIPortfolioManager() {
                   <p>Contrarian plays, high conviction bets, unconventional picks</p>
                 </div>
                 <div>
-                  <p className="text-blue-400 font-medium">Gemini</p>
+                  <p className="text-[#d4b96b] font-medium">Gemini</p>
                   <p>Data-driven conservative, pattern recognition, fundamental analysis</p>
                 </div>
               </div>
@@ -5728,7 +5731,7 @@ export default function AIPortfolioManager() {
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Research Center</h2>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-[#8fa89b] text-sm">
                       {lastResearchUpdate
                         ? `Last updated ${lastResearchUpdate.toLocaleTimeString()}`
                         : 'Multi-agent analysis pipeline'}
@@ -5750,12 +5753,12 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Holdings Ratings */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32]">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                   <Activity className="w-5 h-5 text-emerald-400" /> Holdings Analysis
                 </h3>
-                <p className="text-slate-400 text-sm mt-1">AI-generated buy/sell/hold ratings for your positions</p>
+                <p className="text-[#8fa89b] text-sm mt-1">AI-generated buy/sell/hold ratings for your positions</p>
               </div>
               <div className="p-4">
                 {Object.keys(holdingsRatings).length > 0 ? (
@@ -5792,8 +5795,8 @@ export default function AIPortfolioManager() {
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-sm text-slate-400">Confidence</div>
-                              <div className={`text-lg font-bold ${rating.confidence >= 80 ? 'text-green-400' : rating.confidence >= 60 ? 'text-amber-400' : 'text-slate-400'}`}>
+                              <div className="text-sm text-[#8fa89b]">Confidence</div>
+                              <div className={`text-lg font-bold ${rating.confidence >= 80 ? 'text-green-400' : rating.confidence >= 60 ? 'text-amber-400' : 'text-[#8fa89b]'}`}>
                                 {rating.confidence}%
                               </div>
                             </div>
@@ -5802,8 +5805,8 @@ export default function AIPortfolioManager() {
                           {/* Score bars */}
                           <div className="space-y-2 mb-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-slate-400 w-16">Sentiment</span>
-                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                              <span className="text-xs text-[#8fa89b] w-16">Sentiment</span>
+                              <div className="flex-1 h-1.5 bg-[#1e3328] rounded-full overflow-hidden">
                                 <div
                                   className={`h-full rounded-full ${rating.scores?.sentiment > 0 ? 'bg-green-400' : 'bg-red-400'}`}
                                   style={{ width: `${Math.abs(rating.scores?.sentiment || 0) * 50 + 50}%` }}
@@ -5811,19 +5814,19 @@ export default function AIPortfolioManager() {
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-slate-400 w-16">Technical</span>
-                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                              <span className="text-xs text-[#8fa89b] w-16">Technical</span>
+                              <div className="flex-1 h-1.5 bg-[#1e3328] rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-blue-400 rounded-full"
+                                  className="h-full bg-[#c9a84c] rounded-full"
                                   style={{ width: `${rating.scores?.technical || 0}%` }}
                                 />
                               </div>
                             </div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-slate-400 w-16">Risk</span>
-                              <div className="flex-1 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+                              <span className="text-xs text-[#8fa89b] w-16">Risk</span>
+                              <div className="flex-1 h-1.5 bg-[#1e3328] rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-purple-400 rounded-full"
+                                  className="h-full bg-[#c9a84c] rounded-full"
                                   style={{ width: `${rating.scores?.risk || 0}%` }}
                                 />
                               </div>
@@ -5832,7 +5835,7 @@ export default function AIPortfolioManager() {
 
                           {/* Key reasoning */}
                           {rating.reasoning && rating.reasoning.length > 0 && (
-                            <div className="text-xs text-slate-300 border-t border-slate-600/50 pt-2 mt-2">
+                            <div className="text-xs text-[#b8c9bd] border-t border-[#3a5442]/50 pt-2 mt-2">
                               {rating.reasoning[0]}
                             </div>
                           )}
@@ -5843,7 +5846,7 @@ export default function AIPortfolioManager() {
                             className={`w-full mt-3 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-2 ${
                               rating.rating === 'BUY' ? 'bg-green-500/30 hover:bg-green-500/50 text-green-300' :
                               rating.rating === 'SELL' ? 'bg-red-500/30 hover:bg-red-500/50 text-red-300' :
-                              'bg-slate-600/30 hover:bg-slate-600/50 text-slate-300'
+                              'bg-[#2a4035]/30 hover:bg-[#2a4035]/50 text-[#b8c9bd]'
                             }`}
                           >
                             <Zap className="w-4 h-4" />
@@ -5854,7 +5857,7 @@ export default function AIPortfolioManager() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-[#8fa89b]">
                     <Activity className="w-12 h-12 mx-auto mb-4 opacity-50" />
                     <p>Run research pipeline to get holdings analysis</p>
                   </div>
@@ -5865,48 +5868,48 @@ export default function AIPortfolioManager() {
             {/* News Feed & Events Row */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* News Feed */}
-              <div className="lg:col-span-2 bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-6 border-b border-slate-700">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Newspaper className="w-5 h-5 text-blue-400" /> Latest News
+              <div className="lg:col-span-2 bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-6 border-b border-[#2a3f32]">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <Newspaper className="w-5 h-5 text-[#d4b96b]" /> Latest News
                   </h3>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {newsFeed.length > 0 ? (
-                    <div className="divide-y divide-slate-700">
+                    <div className="divide-y divide-[#2a3f32]">
                       {newsFeed.map((item) => (
-                        <div key={item.id} className="p-4 hover:bg-slate-700/30 transition-colors">
+                        <div key={item.id} className="p-4 hover:bg-[#1e3328]/30 transition-colors">
                           <div className="flex items-start gap-3">
                             <div className={`mt-1 p-1.5 rounded ${
                               item.sentiment === 'positive' ? 'bg-green-500/20' :
-                              item.sentiment === 'negative' ? 'bg-red-500/20' : 'bg-slate-500/20'
+                              item.sentiment === 'negative' ? 'bg-red-500/20' : 'bg-[#3a5442]/20'
                             }`}>
                               {item.sentiment === 'positive' ? (
                                 <TrendingUp className="w-4 h-4 text-green-400" />
                               ) : item.sentiment === 'negative' ? (
                                 <TrendingDown className="w-4 h-4 text-red-400" />
                               ) : (
-                                <Minus className="w-4 h-4 text-slate-400" />
+                                <Minus className="w-4 h-4 text-[#8fa89b]" />
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 mb-1">
-                                <span className="text-xs font-medium px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">
+                                <span className="text-xs font-medium px-2 py-0.5 bg-[#c9a84c]/15 text-[#d4b96b] rounded">
                                   {item.symbol}
                                 </span>
-                                <span className="text-xs text-slate-500">{item.source}</span>
-                                <span className="text-xs text-slate-500">
+                                <span className="text-xs text-[#6b8a76]">{item.source}</span>
+                                <span className="text-xs text-[#6b8a76]">
                                   {new Date(item.timestamp).toLocaleDateString()}
                                 </span>
                               </div>
-                              <p className="text-sm text-slate-200 line-clamp-2">{item.headline}</p>
+                              <p className="text-sm text-[#d4ddd7] line-clamp-2">{item.headline}</p>
                             </div>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-slate-400">
+                    <div className="p-8 text-center text-[#8fa89b]">
                       <Newspaper className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>Run research to load news feed</p>
                     </div>
@@ -5915,38 +5918,38 @@ export default function AIPortfolioManager() {
               </div>
 
               {/* Upcoming Events */}
-              <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-6 border-b border-slate-700">
-                  <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-purple-400" /> Upcoming Events
+              <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-6 border-b border-[#2a3f32]">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                    <Calendar className="w-5 h-5 text-[#d4b96b]" /> Upcoming Events
                   </h3>
                 </div>
                 <div className="max-h-96 overflow-y-auto">
                   {upcomingEvents.length > 0 ? (
-                    <div className="divide-y divide-slate-700">
+                    <div className="divide-y divide-[#2a3f32]">
                       {upcomingEvents.map((event, i) => (
                         <div key={i} className="p-4">
                           <div className="flex items-center gap-3">
                             <div className={`p-2 rounded-lg ${
                               event.type === 'earnings' ? 'bg-amber-500/20' :
-                              event.type === 'dividend' ? 'bg-green-500/20' : 'bg-blue-500/20'
+                              event.type === 'dividend' ? 'bg-green-500/20' : 'bg-[#c9a84c]/15'
                             }`}>
                               {event.type === 'earnings' ? (
                                 <FileText className={`w-4 h-4 text-amber-400`} />
                               ) : event.type === 'dividend' ? (
                                 <DollarSign className="w-4 h-4 text-green-400" />
                               ) : (
-                                <Users className="w-4 h-4 text-blue-400" />
+                                <Users className="w-4 h-4 text-[#d4b96b]" />
                               )}
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <span className="text-xs font-medium px-2 py-0.5 bg-slate-600 text-slate-300 rounded">
+                                <span className="text-xs font-medium px-2 py-0.5 bg-[#2a4035] text-[#b8c9bd] rounded">
                                   {event.symbol}
                                 </span>
                               </div>
                               <p className="text-sm text-white mt-1">{event.title}</p>
-                              <p className="text-xs text-slate-400 mt-1">
+                              <p className="text-xs text-[#8fa89b] mt-1">
                                 In {event.daysUntil} days
                               </p>
                             </div>
@@ -5955,7 +5958,7 @@ export default function AIPortfolioManager() {
                       ))}
                     </div>
                   ) : (
-                    <div className="p-8 text-center text-slate-400">
+                    <div className="p-8 text-center text-[#8fa89b]">
                       <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
                       <p>No upcoming events</p>
                     </div>
@@ -5965,9 +5968,9 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Market Insights - Phase 17 */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+            <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-cyan-400" /> Market Insights
                 </h3>
                 <button
@@ -5984,18 +5987,18 @@ export default function AIPortfolioManager() {
                 <div className="space-y-6">
                   {/* Market Themes */}
                   <div>
-                    <h4 className="text-sm font-medium text-slate-400 mb-3">Current Themes</h4>
+                    <h4 className="text-sm font-medium text-[#8fa89b] mb-3">Current Themes</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {marketInsights.themes?.slice(0, 6).map((theme, i) => (
-                        <div key={i} className={`p-3 rounded-lg border ${theme.sentiment === 'bullish' ? 'bg-green-500/10 border-green-500/30' : theme.sentiment === 'cautious' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-slate-700/30 border-slate-600'}`}>
+                        <div key={i} className={`p-3 rounded-lg border ${theme.sentiment === 'bullish' ? 'bg-green-500/10 border-green-500/30' : theme.sentiment === 'cautious' ? 'bg-amber-500/10 border-amber-500/30' : 'bg-[#1e3328]/30 border-[#3a5442]'}`}>
                           <div className="flex items-center justify-between mb-2">
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${theme.sentiment === 'bullish' ? 'bg-green-500/20 text-green-400' : theme.sentiment === 'cautious' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${theme.sentiment === 'bullish' ? 'bg-green-500/20 text-green-400' : theme.sentiment === 'cautious' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#3a5442]/20 text-[#8fa89b]'}`}>
                               {theme.sentiment}
                             </span>
-                            <span className="text-xs text-slate-400">{theme.confidence}% conf</span>
+                            <span className="text-xs text-[#8fa89b]">{theme.confidence}% conf</span>
                           </div>
                           <div className="text-white font-medium text-sm mb-1">{theme.theme}</div>
-                          <div className="text-slate-400 text-xs">{theme.description}</div>
+                          <div className="text-[#8fa89b] text-xs">{theme.description}</div>
                           {theme.hasExposure && (
                             <div className="mt-2 text-xs text-green-400 flex items-center gap-1">
                               <Check className="w-3 h-3" /> You have exposure
@@ -6009,19 +6012,19 @@ export default function AIPortfolioManager() {
                   {/* Investment Ideas */}
                   {marketInsights.investmentIdeas?.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-400 mb-3">Investment Ideas for You</h4>
+                      <h4 className="text-sm font-medium text-[#8fa89b] mb-3">Investment Ideas for You</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {marketInsights.investmentIdeas.map((idea, i) => (
-                          <div key={i} className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                          <div key={i} className="p-3 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-lg">
                             <div className="flex items-center justify-between mb-2">
                               <span className="text-white font-bold">{idea.symbol}</span>
-                              <span className="text-xs text-blue-400">{idea.confidence}% confidence</span>
+                              <span className="text-xs text-[#d4b96b]">{idea.confidence}% confidence</span>
                             </div>
-                            <div className="text-slate-300 text-sm mb-2">{idea.theme}</div>
-                            <div className="text-slate-400 text-xs">{idea.reason}</div>
+                            <div className="text-[#b8c9bd] text-sm mb-2">{idea.theme}</div>
+                            <div className="text-[#8fa89b] text-xs">{idea.reason}</div>
                             <button
                               onClick={() => openTradePanel(idea.symbol, 'buy')}
-                              className="w-full mt-3 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm flex items-center justify-center gap-2"
+                              className="w-full mt-3 py-2 bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] rounded text-sm flex items-center justify-center gap-2"
                             >
                               <Zap className="w-4 h-4" /> Research {idea.symbol}
                             </button>
@@ -6034,7 +6037,7 @@ export default function AIPortfolioManager() {
                   {/* Diversification Analysis */}
                   {marketInsights.diversification && (
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="p-4 bg-slate-700/30 rounded-lg">
+                      <div className="p-4 bg-[#1e3328]/30 rounded-lg">
                         <div className="flex items-center justify-between mb-3">
                           <h4 className="text-sm font-medium text-white">Diversification Score</h4>
                           <span className={`text-2xl font-bold ${marketInsights.diversification.diversificationScore >= 70 ? 'text-green-400' : marketInsights.diversification.diversificationScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
@@ -6044,18 +6047,18 @@ export default function AIPortfolioManager() {
                         <div className="space-y-2">
                           {marketInsights.diversification.sectorExposure?.slice(0, 5).map((sector, i) => (
                             <div key={i} className="flex items-center justify-between text-sm">
-                              <span className="text-slate-400">{sector.sector}</span>
+                              <span className="text-[#8fa89b]">{sector.sector}</span>
                               <span className="text-white">{sector.weight}%</span>
                             </div>
                           ))}
                         </div>
                       </div>
-                      <div className="p-4 bg-slate-700/30 rounded-lg">
+                      <div className="p-4 bg-[#1e3328]/30 rounded-lg">
                         <h4 className="text-sm font-medium text-white mb-3">Recommendations</h4>
                         <div className="space-y-2">
                           {marketInsights.diversification.recommendations?.slice(0, 4).map((rec, i) => (
-                            <div key={i} className="text-sm text-slate-300 flex items-start gap-2">
-                              <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                            <div key={i} className="text-sm text-[#b8c9bd] flex items-start gap-2">
+                              <ChevronRight className="w-4 h-4 text-[#d4b96b] flex-shrink-0 mt-0.5" />
                               {rec}
                             </div>
                           ))}
@@ -6067,19 +6070,19 @@ export default function AIPortfolioManager() {
                   {/* Market News from Insights */}
                   {marketNews.length > 0 && (
                     <div>
-                      <h4 className="text-sm font-medium text-slate-400 mb-3">Market News</h4>
+                      <h4 className="text-sm font-medium text-[#8fa89b] mb-3">Market News</h4>
                       <div className="space-y-2">
                         {marketNews.map((news, i) => (
-                          <div key={i} className="p-3 bg-slate-700/30 rounded-lg flex items-start gap-3">
-                            <div className={`p-1.5 rounded ${news.sentiment === 'bullish' ? 'bg-green-500/20' : news.sentiment === 'bearish' ? 'bg-red-500/20' : 'bg-slate-500/20'}`}>
-                              {news.sentiment === 'bullish' ? <TrendingUp className="w-4 h-4 text-green-400" /> : news.sentiment === 'bearish' ? <TrendingDown className="w-4 h-4 text-red-400" /> : <Minus className="w-4 h-4 text-slate-400" />}
+                          <div key={i} className="p-3 bg-[#1e3328]/30 rounded-lg flex items-start gap-3">
+                            <div className={`p-1.5 rounded ${news.sentiment === 'bullish' ? 'bg-green-500/20' : news.sentiment === 'bearish' ? 'bg-red-500/20' : 'bg-[#3a5442]/20'}`}>
+                              {news.sentiment === 'bullish' ? <TrendingUp className="w-4 h-4 text-green-400" /> : news.sentiment === 'bearish' ? <TrendingDown className="w-4 h-4 text-red-400" /> : <Minus className="w-4 h-4 text-[#8fa89b]" />}
                             </div>
                             <div className="flex-1">
                               <div className="text-white text-sm font-medium">{news.headline}</div>
-                              <div className="text-slate-400 text-xs mt-1">{news.source} • {news.time}</div>
+                              <div className="text-[#8fa89b] text-xs mt-1">{news.source} • {news.time}</div>
                               <div className="flex gap-2 mt-2">
                                 {news.relatedStocks?.map((stock, j) => (
-                                  <span key={j} className="text-xs px-2 py-0.5 bg-blue-500/20 text-blue-400 rounded">{stock}</span>
+                                  <span key={j} className="text-xs px-2 py-0.5 bg-[#c9a84c]/15 text-[#d4b96b] rounded">{stock}</span>
                                 ))}
                               </div>
                             </div>
@@ -6090,7 +6093,7 @@ export default function AIPortfolioManager() {
                   )}
                 </div>
               ) : (
-                <div className="text-center py-8 text-slate-400">
+                <div className="text-center py-8 text-[#8fa89b]">
                   <TrendingUp className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>Click "Refresh" to load market insights</p>
                 </div>
@@ -6099,21 +6102,21 @@ export default function AIPortfolioManager() {
 
             {/* Research Pipeline Status */}
             {researchData && (
-              <div className="bg-slate-800/30 rounded-xl border border-slate-700 p-4">
+              <div className="bg-[#152019]/30 rounded-xl border border-[#2a3f32] p-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <span className="text-slate-400 text-sm">Pipeline Status:</span>
+                    <span className="text-[#8fa89b] text-sm">Pipeline Status:</span>
                     <div className="flex items-center gap-2">
                       {['Research', 'Analysis', 'Decision'].map((stage, i) => (
                         <div key={stage} className="flex items-center gap-1">
                           <div className="w-2 h-2 bg-green-400 rounded-full" />
-                          <span className="text-xs text-slate-300">{stage}</span>
-                          {i < 2 && <ChevronRight className="w-3 h-3 text-slate-500" />}
+                          <span className="text-xs text-[#b8c9bd]">{stage}</span>
+                          {i < 2 && <ChevronRight className="w-3 h-3 text-[#6b8a76]" />}
                         </div>
                       ))}
                     </div>
                   </div>
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-[#6b8a76]">
                     {researchData.pipeline?.completedAt && new Date(researchData.pipeline.completedAt).toLocaleTimeString()}
                   </span>
                 </div>
@@ -6125,22 +6128,22 @@ export default function AIPortfolioManager() {
         {/* TRADE TAB */}
         {activeTab === 'trade' && (
           <div className="space-y-6">
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Search className="w-5 h-5 text-blue-400" /> Quick Trade</h2>
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-6">
+              <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2"><Search className="w-5 h-5 text-[#d4b96b]" /> Quick Trade</h2>
               <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery) openTradePanel(searchQuery); }} placeholder="Search stock symbol..." className="w-full bg-slate-700/50 border border-slate-600 rounded-xl pl-12 pr-4 py-4 text-white text-lg placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#8fa89b]" />
+                <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === 'Enter' && searchQuery) openTradePanel(searchQuery); }} placeholder="Search stock symbol..." className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-xl pl-12 pr-4 py-4 text-white text-lg placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]" />
                 {searchQuery && (
-                  <button onClick={() => openTradePanel(searchQuery)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                  <button onClick={() => openTradePanel(searchQuery)} className="absolute right-4 top-1/2 -translate-y-1/2 bg-[#c9a84c]hover:bg-[#b39643] text-white px-4 py-2 rounded-lg text-sm font-medium">
                     Trade {searchQuery}
                   </button>
                 )}
               </div>
               <div>
-                <p className="text-slate-400 text-sm mb-3">Popular Stocks</p>
+                <p className="text-[#8fa89b] text-sm mb-3">Popular Stocks</p>
                 <div className="flex flex-wrap gap-2">
                   {filteredStocks.map(symbol => (
-                    <button key={symbol} onClick={() => openTradePanel(symbol)} className="px-4 py-2 bg-slate-700/50 hover:bg-slate-700 border border-slate-600 rounded-lg text-white font-medium transition-all">
+                    <button key={symbol} onClick={() => openTradePanel(symbol)} className="px-4 py-2 bg-[#1e3328]/50 hover:bg-[#1e3328] border border-[#3a5442] rounded-lg text-white font-medium transition-all">
                       {symbol}
                     </button>
                   ))}
@@ -6148,20 +6151,20 @@ export default function AIPortfolioManager() {
               </div>
             </div>
 
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Your Positions</h3>
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32]">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2"><Briefcase className="w-5 h-5 text-green-400" /> Your Positions</h3>
               </div>
               <div className="p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {positions.length > 0 ? positions.map((pos) => {
                   const plPct = parseFloat(pos.unrealized_plpc) * 100;
                   return (
-                    <div key={pos.symbol} className="bg-slate-700/30 rounded-xl p-4 hover:bg-slate-700/50 transition-all">
+                    <div key={pos.symbol} className="bg-[#1e3328]/30 rounded-xl p-4 hover:bg-[#1e3328]/50 transition-all">
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-lg font-bold text-white">{pos.symbol}</span>
                         <span className={`text-sm ${plPct >= 0 ? 'text-green-400' : 'text-red-400'}`}>{plPct >= 0 ? '+' : ''}{plPct.toFixed(1)}%</span>
                       </div>
-                      <div className="text-slate-400 text-sm mb-3">{parseFloat(pos.qty).toFixed(0)} @ ${parseFloat(pos.current_price).toFixed(2)}</div>
+                      <div className="text-[#8fa89b] text-sm mb-3">{parseFloat(pos.qty).toFixed(0)} @ ${parseFloat(pos.current_price).toFixed(2)}</div>
                       <div className="flex gap-2">
                         <button onClick={() => openTradePanel(pos.symbol, 'buy')} className="flex-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 py-2 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
                           <ArrowUpCircle className="w-4 h-4" /> Buy
@@ -6173,7 +6176,7 @@ export default function AIPortfolioManager() {
                     </div>
                   );
                 }) : (
-                  <div className="col-span-full text-center py-8 text-slate-400">No positions yet</div>
+                  <div className="col-span-full text-center py-8 text-[#8fa89b]">No positions yet</div>
                 )}
               </div>
             </div>
@@ -6183,22 +6186,22 @@ export default function AIPortfolioManager() {
         {/* SUGGESTIONS TAB */}
         {activeTab === 'suggestions' && (
           <div className="space-y-6">
-            <div className="bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-xl border border-blue-500/30 p-6">
+            <div className="bg-gradient-to-r from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/30 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#c9a84c] to-[#8a6a2d] rounded-xl flex items-center justify-center">
                     <Sparkles className="w-6 h-6 text-white" />
                   </div>
                   <div>
                     <h2 className="text-xl font-bold text-white">AI Trade Suggestions</h2>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-[#8fa89b] text-sm">
                       {autoTradeSettings.enabled
                         ? `Auto-execute when confidence ≥ ${autoTradeSettings.confidenceThreshold}%`
                         : 'Auto-trading disabled'}
                     </p>
                   </div>
                 </div>
-                <button onClick={runAIAnalysis} disabled={analyzingMarket} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50">
+                <button onClick={runAIAnalysis} disabled={analyzingMarket} className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium px-6 py-3 rounded-xl flex items-center gap-2 disabled:opacity-50">
                   {analyzingMarket ? <><RefreshCw className="w-5 h-5 animate-spin" /> Analyzing...</> : <><Brain className="w-5 h-5" /> Run Analysis</>}
                 </button>
               </div>
@@ -6207,42 +6210,42 @@ export default function AIPortfolioManager() {
             {suggestions.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {suggestions.map((s, i) => (
-                  <div key={i} className={`bg-slate-800/50 rounded-xl border overflow-hidden ${s.confidence >= autoTradeSettings.confidenceThreshold && autoTradeSettings.enabled ? 'border-purple-500/50' : 'border-slate-700'}`}>
-                    <div className="p-5 border-b border-slate-700">
+                  <div key={i} className={`bg-[#1a2b22]/50 rounded-xl border overflow-hidden ${s.confidence >= autoTradeSettings.confidenceThreshold && autoTradeSettings.enabled ? 'border-[#c9a84c]/30' : 'border-[#2a3f32]'}`}>
+                    <div className="p-5 border-b border-[#2a3f32]">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
-                          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${s.action === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                          <span className={`px-3 py-1 rounded-lg text-sm font-medium ${s.action === 'BUY' ? 'bg-green-500/20 text-green-400' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                             {s.action.replace('_', ' ')}
                           </span>
                           <span className="text-xl font-bold text-white">{s.symbol}</span>
                           {s.confidence >= autoTradeSettings.confidenceThreshold && autoTradeSettings.enabled && (
-                            <span className="px-2 py-0.5 bg-purple-500/20 text-purple-400 text-xs rounded-full flex items-center gap-1">
+                            <span className="px-2 py-0.5 bg-[#c9a84c]/15 text-[#d4b96b] text-xs rounded-full flex items-center gap-1">
                               <Bot className="w-3 h-3" /> Auto
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-2">
-                          <Gauge className="w-4 h-4 text-slate-400" />
-                          <span className={`font-bold ${s.confidence >= 85 ? 'text-green-400' : s.confidence >= 70 ? 'text-amber-400' : 'text-slate-400'}`}>
+                          <Gauge className="w-4 h-4 text-[#8fa89b]" />
+                          <span className={`font-bold ${s.confidence >= 85 ? 'text-green-400' : s.confidence >= 70 ? 'text-amber-400' : 'text-[#8fa89b]'}`}>
                             {s.confidence}%
                           </span>
                         </div>
                       </div>
-                      <div className="text-sm text-slate-400">{s.sector} • {s.industry}</div>
+                      <div className="text-sm text-[#8fa89b]">{s.sector} • {s.industry}</div>
                     </div>
-                    <div className="p-5 border-b border-slate-700">
+                    <div className="p-5 border-b border-[#2a3f32]">
                       <ul className="space-y-1">
                         {s.analysis.reasons.map((r, j) => (
-                          <li key={j} className="flex items-start gap-2 text-sm text-slate-400">
-                            <ChevronRight className="w-4 h-4 text-blue-400 flex-shrink-0" />{r}
+                          <li key={j} className="flex items-start gap-2 text-sm text-[#8fa89b]">
+                            <ChevronRight className="w-4 h-4 text-[#d4b96b] flex-shrink-0" />{r}
                           </li>
                         ))}
                       </ul>
                     </div>
-                    <div className="p-5 bg-slate-900/30">
+                    <div className="p-5 bg-[#0a1410]/30">
                       <div className="flex justify-between mb-3 text-sm">
-                        <span className="text-slate-400">Qty: <span className="text-white font-medium">{s.suggestedQty}</span></span>
-                        <span className="text-slate-400">Price: <span className="text-white font-medium">${s.currentPrice?.toFixed(2)}</span></span>
+                        <span className="text-[#8fa89b]">Qty: <span className="text-white font-medium">{s.suggestedQty}</span></span>
+                        <span className="text-[#8fa89b]">Price: <span className="text-white font-medium">${s.currentPrice?.toFixed(2)}</span></span>
                       </div>
                       <button onClick={() => openTradePanel(s.symbol, s.action === 'BUY' ? 'buy' : 'sell')} className={`w-full py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${s.action === 'BUY' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white`}>
                         <Zap className="w-5 h-5" /> Execute {s.action.replace('_', ' ')}
@@ -6252,11 +6255,11 @@ export default function AIPortfolioManager() {
                 ))}
               </div>
             ) : (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                <Brain className="w-16 h-16 text-[#5a7a65] mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">No Suggestions Yet</h3>
-                <p className="text-slate-400 mb-6">Run AI analysis to get recommendations</p>
-                <button onClick={runAIAnalysis} className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl inline-flex items-center gap-2">
+                <p className="text-[#8fa89b] mb-6">Run AI analysis to get recommendations</p>
+                <button onClick={runAIAnalysis} className="bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] text-white px-6 py-3 rounded-xl inline-flex items-center gap-2">
                   <Brain className="w-5 h-5" /> Run Analysis
                 </button>
               </div>
@@ -6267,54 +6270,54 @@ export default function AIPortfolioManager() {
         {/* HISTORY TAB */}
         {activeTab === 'history' && (
           <div className="space-y-6">
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-6 border-b border-slate-700">
-                <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                  <History className="w-5 h-5 text-blue-400" /> Trade History
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-6 border-b border-[#2a3f32]">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide flex items-center gap-2">
+                  <History className="w-5 h-5 text-[#d4b96b]" /> Trade History
                 </h3>
               </div>
               {tradeHistory.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-slate-900/50">
+                    <thead className="bg-[#0a1410]/50">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Time</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Symbol</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-slate-400 uppercase">Side</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Qty</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-slate-400 uppercase">Price</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">Type</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-slate-400 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#8fa89b] uppercase">Time</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#8fa89b] uppercase">Symbol</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-[#8fa89b] uppercase">Side</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Qty</th>
+                        <th className="px-6 py-3 text-right text-xs font-medium text-[#8fa89b] uppercase">Price</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-[#8fa89b] uppercase">Type</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-[#8fa89b] uppercase">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-700">
+                    <tbody className="divide-y divide-[#2a3f32]">
                       {tradeHistory.map((trade) => (
-                        <tr key={trade.id} className="hover:bg-slate-700/30">
-                          <td className="px-6 py-4 text-slate-300 text-sm">
+                        <tr key={trade.id} className="hover:bg-[#1e3328]/30">
+                          <td className="px-6 py-4 text-[#b8c9bd] text-sm">
                             <div className="flex items-center gap-2">
-                              <Clock className="w-4 h-4 text-slate-500" />
+                              <Clock className="w-4 h-4 text-[#6b8a76]" />
                               {new Date(trade.timestamp).toLocaleTimeString()}
                             </div>
                           </td>
                           <td className="px-6 py-4 font-medium text-white">{trade.symbol}</td>
                           <td className="px-6 py-4">
-                            <span className={`px-2 py-1 rounded text-xs font-medium ${trade.side === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                            <span className={`px-2 py-1 rounded text-xs font-medium ${trade.side === 'buy' ? 'bg-green-500/20 text-green-400' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                               {trade.side.toUpperCase()}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-right text-slate-300">{trade.qty}</td>
-                          <td className="px-6 py-4 text-right text-slate-300">${trade.price?.toFixed(2)}</td>
+                          <td className="px-6 py-4 text-right text-[#b8c9bd]">{trade.qty}</td>
+                          <td className="px-6 py-4 text-right text-[#b8c9bd]">${trade.price?.toFixed(2)}</td>
                           <td className="px-6 py-4 text-center">
                             {trade.auto ? (
-                              <span className="px-2 py-1 bg-purple-500/20 text-purple-400 rounded text-xs flex items-center justify-center gap-1">
+                              <span className="px-2 py-1 bg-[#c9a84c]/15 text-[#d4b96b] rounded text-xs flex items-center justify-center gap-1">
                                 <Bot className="w-3 h-3" /> Auto
                               </span>
                             ) : (
-                              <span className="px-2 py-1 bg-slate-500/20 text-slate-400 rounded text-xs">Manual</span>
+                              <span className="px-2 py-1 bg-[#3a5442]/20 text-[#8fa89b] rounded text-xs">Manual</span>
                             )}
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span className={`px-2 py-1 rounded text-xs ${trade.status === 'filled' ? 'bg-green-500/20 text-green-400' : trade.status === 'failed' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                            <span className={`px-2 py-1 rounded text-xs ${trade.status === 'filled' ? 'bg-green-500/20 text-green-400' : trade.status === 'failed' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                               {trade.status}
                             </span>
                           </td>
@@ -6324,7 +6327,7 @@ export default function AIPortfolioManager() {
                   </table>
                 </div>
               ) : (
-                <div className="p-12 text-center text-slate-400">
+                <div className="p-12 text-center text-[#8fa89b]">
                   <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>No trades yet. Execute some trades to see history here.</p>
                 </div>
@@ -6337,9 +6340,9 @@ export default function AIPortfolioManager() {
         {activeTab === 'settings' && (
           <div className="max-w-2xl mx-auto space-y-6">
             {/* Auto-Trading Settings */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-6">
               <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-                <Bot className="w-5 h-5 text-purple-400" /> Auto-Trading
+                <Bot className="w-5 h-5 text-[#d4b96b]" /> Auto-Trading
               </h2>
 
               <div className="space-y-6">
@@ -6347,14 +6350,14 @@ export default function AIPortfolioManager() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="font-medium text-white">Enable Auto-Trading</h3>
-                    <p className="text-sm text-slate-400">Automatically execute high-confidence trades</p>
+                    <p className="text-sm text-[#8fa89b]">Automatically execute high-confidence trades</p>
                   </div>
                   <button
                     onClick={() => setAutoTradeSettings(s => ({ ...s, enabled: !s.enabled }))}
-                    className={`w-14 h-8 rounded-full transition-all flex items-center ${autoTradeSettings.enabled ? 'bg-purple-500 justify-end' : 'bg-slate-600 justify-start'}`}
+                    className={`w-14 h-8 rounded-full transition-all flex items-center ${autoTradeSettings.enabled ? 'bg-[#c9a84c] justify-end' : 'bg-[#2a4035] justify-start'}`}
                   >
                     <div className="w-6 h-6 bg-white rounded-full mx-1 shadow-md flex items-center justify-center">
-                      <Power className={`w-3 h-3 ${autoTradeSettings.enabled ? 'text-purple-500' : 'text-slate-400'}`} />
+                      <Power className={`w-3 h-3 ${autoTradeSettings.enabled ? 'text-[#c9a84c]' : 'text-[#8fa89b]'}`} />
                     </div>
                   </button>
                 </div>
@@ -6362,91 +6365,91 @@ export default function AIPortfolioManager() {
                 {/* Confidence Threshold */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-slate-300">Confidence Threshold</label>
-                    <span className="text-sm font-bold text-purple-400">{autoTradeSettings.confidenceThreshold}%</span>
+                    <label className="text-sm font-medium text-[#b8c9bd]">Confidence Threshold</label>
+                    <span className="text-sm font-bold text-[#d4b96b]">{autoTradeSettings.confidenceThreshold}%</span>
                   </div>
                   <input
                     type="range" min="60" max="95" step="5"
                     value={autoTradeSettings.confidenceThreshold}
                     onChange={(e) => setAutoTradeSettings(s => ({ ...s, confidenceThreshold: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-purple-500"
+                    className="w-full h-2 bg-[#1e3328] rounded-lg appearance-none cursor-pointer accent-[#c9a84c]"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Only auto-execute trades above this confidence level</p>
+                  <p className="text-xs text-[#6b8a76] mt-1">Only auto-execute trades above this confidence level</p>
                 </div>
 
                 {/* Max Position Size */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-slate-300">Max Position Size</label>
-                    <span className="text-sm font-bold text-blue-400">{autoTradeSettings.maxPositionPercent}%</span>
+                    <label className="text-sm font-medium text-[#b8c9bd]">Max Position Size</label>
+                    <span className="text-sm font-bold text-[#d4b96b]">{autoTradeSettings.maxPositionPercent}%</span>
                   </div>
                   <input
                     type="range" min="1" max="20" step="1"
                     value={autoTradeSettings.maxPositionPercent}
                     onChange={(e) => setAutoTradeSettings(s => ({ ...s, maxPositionPercent: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    className="w-full h-2 bg-[#1e3328] rounded-lg appearance-none cursor-pointer accent-[#c9a84c]"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Maximum % of portfolio per auto-trade</p>
+                  <p className="text-xs text-[#6b8a76] mt-1">Maximum % of portfolio per auto-trade</p>
                 </div>
 
                 {/* Daily Loss Limit */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-slate-300">Daily Loss Limit (Circuit Breaker)</label>
+                    <label className="text-sm font-medium text-[#b8c9bd]">Daily Loss Limit (Circuit Breaker)</label>
                     <span className="text-sm font-bold text-red-400">{autoTradeSettings.dailyLossLimit}%</span>
                   </div>
                   <input
                     type="range" min="1" max="10" step="1"
                     value={autoTradeSettings.dailyLossLimit}
                     onChange={(e) => setAutoTradeSettings(s => ({ ...s, dailyLossLimit: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-red-500"
+                    className="w-full h-2 bg-[#1e3328] rounded-lg appearance-none cursor-pointer accent-red-500"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Stop auto-trading if daily loss exceeds this %</p>
+                  <p className="text-xs text-[#6b8a76] mt-1">Stop auto-trading if daily loss exceeds this %</p>
                 </div>
 
                 {/* Max Trades Per Day */}
                 <div>
                   <div className="flex justify-between mb-2">
-                    <label className="text-sm font-medium text-slate-300">Max Trades Per Day</label>
+                    <label className="text-sm font-medium text-[#b8c9bd]">Max Trades Per Day</label>
                     <span className="text-sm font-bold text-amber-400">{autoTradeSettings.maxTradesPerDay}</span>
                   </div>
                   <input
                     type="range" min="1" max="50" step="1"
                     value={autoTradeSettings.maxTradesPerDay}
                     onChange={(e) => setAutoTradeSettings(s => ({ ...s, maxTradesPerDay: parseInt(e.target.value) }))}
-                    className="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-amber-500"
+                    className="w-full h-2 bg-[#1e3328] rounded-lg appearance-none cursor-pointer accent-amber-500"
                   />
                 </div>
               </div>
             </div>
 
             {/* Trading Preferences */}
-            <div className="bg-slate-800/50 backdrop-blur-xl rounded-xl border border-slate-700 p-6">
-              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-blue-400" /> Trading Preferences</h2>
+            <div className="bg-[#1a2b22]/50 backdrop-blur-xl rounded-xl border border-[#2a3f32] p-6">
+              <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2"><Settings className="w-5 h-5 text-[#d4b96b]" /> Trading Preferences</h2>
               <div className="space-y-6">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-3">Trading Style</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-3">Trading Style</label>
                   <div className="grid grid-cols-3 gap-3">
                     {['conservative', 'balanced', 'aggressive'].map(s => (
-                      <button key={s} onClick={() => setPreferences(p => ({ ...p, tradingStyle: s }))} className={`p-4 rounded-xl border capitalize ${preferences.tradingStyle === s ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>{s}</button>
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, tradingStyle: s }))} className={`p-4 rounded-xl border capitalize ${preferences.tradingStyle === s ? 'border-[#c9a84c] bg-[#c9a84c]/15 text-[#d4b96b]' : 'border-[#3a5442] bg-[#1e3328]/30 text-[#b8c9bd]'}`}>{s}</button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-3">Risk Tolerance</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-3">Risk Tolerance</label>
                   <div className="grid grid-cols-3 gap-3">
                     {[{ v: 'conservative', i: Shield, l: 'Low' }, { v: 'moderate', i: Target, l: 'Med' }, { v: 'aggressive', i: Zap, l: 'High' }].map(({ v, i: Icon, l }) => (
-                      <button key={v} onClick={() => setPreferences(p => ({ ...p, riskTolerance: v }))} className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${preferences.riskTolerance === v ? 'border-blue-500 bg-blue-500/20 text-blue-400' : 'border-slate-600 bg-slate-700/30 text-slate-300'}`}>
+                      <button key={v} onClick={() => setPreferences(p => ({ ...p, riskTolerance: v }))} className={`p-4 rounded-xl border flex flex-col items-center gap-2 ${preferences.riskTolerance === v ? 'border-[#c9a84c] bg-[#c9a84c]/15 text-[#d4b96b]' : 'border-[#3a5442] bg-[#1e3328]/30 text-[#b8c9bd]'}`}>
                         <Icon className="w-6 h-6" /><span className="text-sm">{l}</span>
                       </button>
                     ))}
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-3">Sectors</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-3">Sectors</label>
                   <div className="flex flex-wrap gap-2">
                     {['Technology', 'Healthcare', 'Financial', 'Consumer', 'Energy'].map(s => (
-                      <button key={s} onClick={() => setPreferences(p => ({ ...p, sectors: p.sectors.includes(s) ? p.sectors.filter(x => x !== s) : [...p.sectors, s] }))} className={`px-4 py-2 rounded-lg text-sm font-medium ${preferences.sectors.includes(s) ? 'bg-blue-500 text-white' : 'bg-slate-700/50 text-slate-300'}`}>{s}</button>
+                      <button key={s} onClick={() => setPreferences(p => ({ ...p, sectors: p.sectors.includes(s) ? p.sectors.filter(x => x !== s) : [...p.sectors, s] }))} className={`px-4 py-2 rounded-lg text-sm font-medium ${preferences.sectors.includes(s) ? 'bg-[#c9a84c]text-white' : 'bg-[#1e3328]/50 text-[#b8c9bd]'}`}>{s}</button>
                     ))}
                   </div>
                 </div>
@@ -6454,13 +6457,13 @@ export default function AIPortfolioManager() {
             </div>
 
             {/* Profile Summary */}
-            <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 rounded-xl border border-purple-500/30 p-6">
-              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-purple-400" /> Configuration Summary</h3>
-              <p className="text-slate-300 text-sm">
+            <div className="bg-gradient-to-r from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/25 p-6">
+              <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-3 flex items-center gap-2"><Check className="w-5 h-5 text-[#d4b96b]" /> Configuration Summary</h3>
+              <p className="text-[#b8c9bd] text-sm">
                 <strong className="text-white">{preferences.tradingStyle}</strong> trader with <strong className="text-white">{preferences.riskTolerance}</strong> risk.
-                Auto-trading is <strong className={autoTradeSettings.enabled ? 'text-purple-400' : 'text-slate-400'}>{autoTradeSettings.enabled ? 'ON' : 'OFF'}</strong>
-                {autoTradeSettings.enabled && <> at <strong className="text-purple-400">{autoTradeSettings.confidenceThreshold}%</strong> confidence threshold</>}.
-                Max <strong className="text-blue-400">{autoTradeSettings.maxPositionPercent}%</strong> per position,
+                Auto-trading is <strong className={autoTradeSettings.enabled ? 'text-[#d4b96b]' : 'text-[#8fa89b]'}>{autoTradeSettings.enabled ? 'ON' : 'OFF'}</strong>
+                {autoTradeSettings.enabled && <> at <strong className="text-[#d4b96b]">{autoTradeSettings.confidenceThreshold}%</strong> confidence threshold</>}.
+                Max <strong className="text-[#d4b96b]">{autoTradeSettings.maxPositionPercent}%</strong> per position,
                 circuit breaker at <strong className="text-red-400">{autoTradeSettings.dailyLossLimit}%</strong> daily loss.
               </p>
             </div>
@@ -6473,15 +6476,15 @@ export default function AIPortfolioManager() {
             {/* Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <Brain className="w-7 h-7 text-purple-400" /> AI Financial Advisor
+                <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
+                  <Brain className="w-7 h-7 text-[#d4b96b]" /> AI Financial Advisor
                 </h2>
-                <p className="text-slate-400 mt-1">Personalized wealth-building recommendations</p>
+                <p className="text-[#8fa89b] mt-1">Personalized wealth-building recommendations</p>
               </div>
               <button
                 onClick={fetchAIAdvisorAnalysis}
                 disabled={aiAdvisorLoading}
-                className="bg-gradient-to-r from-purple-500 to-blue-600 hover:from-purple-600 hover:to-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+                className="bg-gradient-to-r from-[#c9a84c] to-[#2d7a4f] hover:from-[#b39643] hover:to-[#256840] text-white px-6 py-3 rounded-xl flex items-center gap-2"
               >
                 {aiAdvisorLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
                 {aiAdvisorLoading ? 'Analyzing...' : 'Analyze My Finances'}
@@ -6492,13 +6495,13 @@ export default function AIPortfolioManager() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Financial Health Scores */}
                 <div className="lg:col-span-1 space-y-6">
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Activity className="w-5 h-5 text-blue-400" /> Financial Health
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
+                      <Activity className="w-5 h-5 text-[#d4b96b]" /> Financial Health
                     </h3>
                     <div className="text-center mb-6">
                       <div className="text-5xl font-bold text-white mb-2">{aiAdvisorAnalysis.overallScore}</div>
-                      <div className="text-slate-400">Overall Score</div>
+                      <div className="text-[#8fa89b]">Overall Score</div>
                       <div className={`text-sm mt-1 ${aiAdvisorAnalysis.overallScore >= 70 ? 'text-green-400' : aiAdvisorAnalysis.overallScore >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
                         {aiAdvisorAnalysis.overallScore >= 70 ? 'Excellent' : aiAdvisorAnalysis.overallScore >= 50 ? 'Good' : 'Needs Work'}
                       </div>
@@ -6507,10 +6510,10 @@ export default function AIPortfolioManager() {
                       {Object.entries(aiAdvisorAnalysis.scores).map(([key, value]) => (
                         <div key={key}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="text-slate-400 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                            <span className="text-[#8fa89b] capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
                             <span className="text-white font-medium">{value}/100</span>
                           </div>
-                          <div className="w-full bg-slate-700 rounded-full h-2">
+                          <div className="w-full bg-[#1e3328] rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${value >= 70 ? 'bg-green-500' : value >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
                               style={{ width: `${value}%` }}
@@ -6522,27 +6525,27 @@ export default function AIPortfolioManager() {
                   </div>
 
                   {/* Key Metrics */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Key Metrics</h3>
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Key Metrics</h3>
                     <div className="space-y-3">
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Net Worth</span>
+                        <span className="text-[#8fa89b]">Net Worth</span>
                         <span className="text-white font-medium">${aiAdvisorAnalysis.netWorth?.toLocaleString()}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Emergency Fund</span>
+                        <span className="text-[#8fa89b]">Emergency Fund</span>
                         <span className={`font-medium ${aiAdvisorAnalysis.emergencyFundMonths >= 3 ? 'text-green-400' : 'text-amber-400'}`}>
                           {aiAdvisorAnalysis.emergencyFundMonths?.toFixed(1)} months
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Savings Rate</span>
+                        <span className="text-[#8fa89b]">Savings Rate</span>
                         <span className={`font-medium ${aiAdvisorAnalysis.savingsRate >= 20 ? 'text-green-400' : 'text-amber-400'}`}>
                           {aiAdvisorAnalysis.savingsRate?.toFixed(1)}%
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-slate-400">Debt-to-Income</span>
+                        <span className="text-[#8fa89b]">Debt-to-Income</span>
                         <span className={`font-medium ${aiAdvisorAnalysis.debtToIncomeRatio <= 36 ? 'text-green-400' : 'text-red-400'}`}>
                           {aiAdvisorAnalysis.debtToIncomeRatio?.toFixed(1)}%
                         </span>
@@ -6553,19 +6556,19 @@ export default function AIPortfolioManager() {
 
                 {/* Recommendations */}
                 <div className="lg:col-span-2 space-y-6">
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                       <Target className="w-5 h-5 text-green-400" /> Priority Recommendations
                     </h3>
                     <div className="space-y-4">
                       {aiAdvisorAnalysis.recommendations?.slice(0, 5).map((rec, i) => (
-                        <div key={i} className={`p-4 rounded-lg border ${rec.priority === 'HIGH' ? 'border-red-500/30 bg-red-500/10' : rec.priority === 'MEDIUM' ? 'border-amber-500/30 bg-amber-500/10' : 'border-slate-600 bg-slate-700/30'}`}>
+                        <div key={i} className={`p-4 rounded-lg border ${rec.priority === 'HIGH' ? 'border-red-500/30 bg-red-500/10' : rec.priority === 'MEDIUM' ? 'border-amber-500/30 bg-amber-500/10' : 'border-[#3a5442] bg-[#1e3328]/30'}`}>
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <span className={`text-xs px-2 py-0.5 rounded-full ${rec.priority === 'HIGH' ? 'bg-red-500/20 text-red-400' : rec.priority === 'MEDIUM' ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-500/20 text-slate-400'}`}>
+                              <span className={`text-xs px-2 py-0.5 rounded-full ${rec.priority === 'HIGH' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : rec.priority === 'MEDIUM' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#3a5442]/20 text-[#8fa89b]'}`}>
                                 {rec.priority}
                               </span>
-                              <span className="text-xs text-slate-500 ml-2">{rec.category}</span>
+                              <span className="text-xs text-[#6b8a76] ml-2">{rec.category}</span>
                             </div>
                             {rec.potentialSavings > 0 && (
                               <span className="text-green-400 text-sm font-medium">
@@ -6574,8 +6577,8 @@ export default function AIPortfolioManager() {
                             )}
                           </div>
                           <h4 className="text-white font-medium mb-1">{rec.title}</h4>
-                          <p className="text-slate-400 text-sm mb-2">{rec.description}</p>
-                          <p className="text-blue-400 text-sm">→ {rec.actionable}</p>
+                          <p className="text-[#8fa89b] text-sm mb-2">{rec.description}</p>
+                          <p className="text-[#d4b96b] text-sm">→ {rec.actionable}</p>
                         </div>
                       ))}
                     </div>
@@ -6583,14 +6586,14 @@ export default function AIPortfolioManager() {
 
                   {/* Wealth Projection */}
                   {aiAdvisorAnalysis.wealthProjection && (
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                         <TrendingUp className="w-5 h-5 text-emerald-400" /> 10-Year Wealth Projection
                       </h3>
                       <div className="grid grid-cols-5 gap-4">
                         {aiAdvisorAnalysis.wealthProjection.filter((_, i) => i % 2 === 0).map((p, i) => (
                           <div key={i} className="text-center">
-                            <div className="text-xs text-slate-500 mb-1">{p.year}</div>
+                            <div className="text-xs text-[#6b8a76] mb-1">{p.year}</div>
                             <div className="text-white font-medium">${(p.wealth / 1000).toFixed(0)}K</div>
                           </div>
                         ))}
@@ -6599,9 +6602,9 @@ export default function AIPortfolioManager() {
                   )}
 
                   {/* Ask the Advisor */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Bot className="w-5 h-5 text-purple-400" /> Ask Your Advisor
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
+                      <Bot className="w-5 h-5 text-[#d4b96b]" /> Ask Your Advisor
                     </h3>
                     <div className="flex gap-3">
                       <input
@@ -6610,30 +6613,30 @@ export default function AIPortfolioManager() {
                         onChange={(e) => setAdvisorQuestion(e.target.value)}
                         onKeyPress={(e) => e.key === 'Enter' && askAdvisorQuestion()}
                         placeholder="Ask about savings, debt, retirement, investing..."
-                        className="flex-1 bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400"
+                        className="flex-1 bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76]"
                       />
                       <button
                         onClick={askAdvisorQuestion}
                         disabled={advisorResponseLoading || !advisorQuestion.trim()}
-                        className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                        className="bg-[#c9a84c] hover:bg-[#b39643] text-white px-6 py-3 rounded-lg flex items-center gap-2 disabled:opacity-50"
                       >
                         {advisorResponseLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
                       </button>
                     </div>
                     {advisorResponse && (
-                      <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded-lg">
-                        <p className="text-slate-300">{advisorResponse.answer}</p>
-                        <p className="text-xs text-slate-500 mt-2">Confidence: {advisorResponse.confidence}%</p>
+                      <div className="mt-4 p-4 bg-[#c9a84c]/10 border border-[#c9a84c]/25 rounded-lg">
+                        <p className="text-[#b8c9bd]">{advisorResponse.answer}</p>
+                        <p className="text-xs text-[#6b8a76] mt-2">Confidence: {advisorResponse.confidence}%</p>
                       </div>
                     )}
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                <Brain className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                <Brain className="w-16 h-16 text-[#5a7a65] mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">Get Personalized Advice</h3>
-                <p className="text-slate-400 mb-6">Click "Analyze My Finances" to receive AI-powered recommendations for building wealth</p>
+                <p className="text-[#8fa89b] mb-6">Click "Analyze My Finances" to receive AI-powered recommendations for building wealth</p>
               </div>
             )}
           </div>
@@ -6644,15 +6647,15 @@ export default function AIPortfolioManager() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                  <BarChart3 className="w-7 h-7 text-blue-400" /> Net Worth Timeline
+                <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
+                  <BarChart3 className="w-7 h-7 text-[#d4b96b]" /> Net Worth Timeline
                 </h2>
-                <p className="text-slate-400 mt-1">Track your wealth growth over time</p>
+                <p className="text-[#8fa89b] mt-1">Track your wealth growth over time</p>
               </div>
               <button
                 onClick={fetchNetWorthTimeline}
                 disabled={netWorthLoading}
-                className="bg-gradient-to-r from-blue-500 to-emerald-600 hover:from-blue-600 hover:to-emerald-700 text-white px-6 py-3 rounded-xl flex items-center gap-2"
+                className="bg-gradient-to-r from-[#c9a84c] to-[#2d7a4f] hover:from-[#b39643] hover:to-[#256840] text-white px-6 py-3 rounded-xl flex items-center gap-2"
               >
                 {netWorthLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Activity className="w-5 h-5" />}
                 {netWorthLoading ? 'Loading...' : 'Update Timeline'}
@@ -6663,25 +6666,25 @@ export default function AIPortfolioManager() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Summary Stats */}
                 <div className="lg:col-span-1 space-y-6">
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Growth Summary</h3>
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Growth Summary</h3>
                     <div className="space-y-4">
-                      <div className="text-center py-4 bg-slate-700/30 rounded-lg">
+                      <div className="text-center py-4 bg-[#1e3328]/30 rounded-lg">
                         <div className="text-3xl font-bold text-white">${netWorthTimeline.analysis?.summary?.currentNetWorth?.toLocaleString()}</div>
-                        <div className="text-slate-400 text-sm">Current Net Worth</div>
+                        <div className="text-[#8fa89b] text-sm">Current Net Worth</div>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="p-3 bg-slate-700/30 rounded-lg text-center">
+                        <div className="p-3 bg-[#1e3328]/30 rounded-lg text-center">
                           <div className={`text-lg font-bold ${netWorthTimeline.analysis?.summary?.totalGrowth >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {netWorthTimeline.analysis?.summary?.totalGrowth >= 0 ? '+' : ''}${netWorthTimeline.analysis?.summary?.totalGrowth?.toLocaleString()}
                           </div>
-                          <div className="text-slate-400 text-xs">Total Growth</div>
+                          <div className="text-[#8fa89b] text-xs">Total Growth</div>
                         </div>
-                        <div className="p-3 bg-slate-700/30 rounded-lg text-center">
+                        <div className="p-3 bg-[#1e3328]/30 rounded-lg text-center">
                           <div className={`text-lg font-bold ${parseFloat(netWorthTimeline.analysis?.summary?.annualizedGrowth) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
                             {netWorthTimeline.analysis?.summary?.annualizedGrowth}%
                           </div>
-                          <div className="text-slate-400 text-xs">Annual Growth</div>
+                          <div className="text-[#8fa89b] text-xs">Annual Growth</div>
                         </div>
                       </div>
                     </div>
@@ -6689,37 +6692,37 @@ export default function AIPortfolioManager() {
 
                   {/* Milestones */}
                   {netWorthTimeline.analysis?.milestones?.length > 0 && (
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                         <Target className="w-5 h-5 text-amber-400" /> Milestones Reached
                       </h3>
                       <div className="space-y-2">
                         {netWorthTimeline.analysis.milestones.map((m, i) => (
                           <div key={i} className="flex items-center justify-between p-2 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                             <span className="text-amber-400 font-medium">{m.label}</span>
-                            <span className="text-slate-400 text-sm">{m.reached}</span>
+                            <span className="text-[#8fa89b] text-sm">{m.reached}</span>
                           </div>
                         ))}
                       </div>
                       {netWorthTimeline.analysis.nextMilestone && (
-                        <div className="mt-4 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                          <div className="text-blue-400 text-sm">Next: {netWorthTimeline.analysis.nextMilestone.label}</div>
-                          <div className="text-slate-400 text-xs">{netWorthTimeline.analysis.nextMilestone.monthsAway} months away</div>
+                        <div className="mt-4 p-3 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-lg">
+                          <div className="text-[#d4b96b] text-sm">Next: {netWorthTimeline.analysis.nextMilestone.label}</div>
+                          <div className="text-[#8fa89b] text-xs">{netWorthTimeline.analysis.nextMilestone.monthsAway} months away</div>
                         </div>
                       )}
                     </div>
                   )}
 
                   {/* Insights */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-purple-400" /> Insights
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-[#d4b96b]" /> Insights
                     </h3>
                     <div className="space-y-3">
                       {netWorthTimeline.insights?.map((insight, i) => (
-                        <div key={i} className="flex items-start gap-3 p-3 bg-slate-700/30 rounded-lg">
+                        <div key={i} className="flex items-start gap-3 p-3 bg-[#1e3328]/30 rounded-lg">
                           <span className="text-2xl">{insight.icon}</span>
-                          <p className="text-slate-300 text-sm">{insight.message}</p>
+                          <p className="text-[#b8c9bd] text-sm">{insight.message}</p>
                         </div>
                       ))}
                     </div>
@@ -6729,8 +6732,8 @@ export default function AIPortfolioManager() {
                 {/* Charts */}
                 <div className="lg:col-span-2 space-y-6">
                   {/* Historical Chart */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Historical Net Worth (24 Months)</h3>
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Historical Net Worth (24 Months)</h3>
                     <div className="h-64">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart data={netWorthTimeline.history}>
@@ -6754,16 +6757,16 @@ export default function AIPortfolioManager() {
                   </div>
 
                   {/* Projection Chart */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-white">Future Projection</h3>
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide">Future Projection</h3>
                       <div className="flex items-center gap-4">
                         <div className="flex items-center gap-2">
-                          <label className="text-slate-400 text-sm">Years:</label>
+                          <label className="text-[#8fa89b] text-sm">Years:</label>
                           <select
                             value={projectionYears}
                             onChange={(e) => setProjectionYears(parseInt(e.target.value))}
-                            className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                            className="bg-[#1e3328] border border-[#3a5442] rounded px-2 py-1 text-white text-sm"
                           >
                             <option value={5}>5</option>
                             <option value={10}>10</option>
@@ -6772,11 +6775,11 @@ export default function AIPortfolioManager() {
                           </select>
                         </div>
                         <div className="flex items-center gap-2">
-                          <label className="text-slate-400 text-sm">Return:</label>
+                          <label className="text-[#8fa89b] text-sm">Return:</label>
                           <select
                             value={expectedReturn}
                             onChange={(e) => setExpectedReturn(parseInt(e.target.value))}
-                            className="bg-slate-700 border border-slate-600 rounded px-2 py-1 text-white text-sm"
+                            className="bg-[#1e3328] border border-[#3a5442] rounded px-2 py-1 text-white text-sm"
                           >
                             <option value={5}>5%</option>
                             <option value={7}>7%</option>
@@ -6809,10 +6812,10 @@ export default function AIPortfolioManager() {
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                <BarChart3 className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                <BarChart3 className="w-16 h-16 text-[#5a7a65] mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">Track Your Progress</h3>
-                <p className="text-slate-400 mb-6">Click "Update Timeline" to see your net worth history and future projections</p>
+                <p className="text-[#8fa89b] mb-6">Click "Update Timeline" to see your net worth history and future projections</p>
               </div>
             )}
           </div>
@@ -6823,10 +6826,10 @@ export default function AIPortfolioManager() {
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
                   <CreditCard className="w-7 h-7 text-red-400" /> Debt Payoff Optimizer
                 </h2>
-                <p className="text-slate-400 mt-1">Find the fastest and cheapest way to become debt-free</p>
+                <p className="text-[#8fa89b] mt-1">Find the fastest and cheapest way to become debt-free</p>
               </div>
             </div>
 
@@ -6836,25 +6839,25 @@ export default function AIPortfolioManager() {
                 <div className="lg:col-span-1 space-y-6">
                   {/* Debt Insights */}
                   {debtInsights && (
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                      <h3 className="text-lg font-semibold text-white mb-4">Debt Overview</h3>
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                      <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Debt Overview</h3>
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Total Debt</span>
+                          <span className="text-[#8fa89b]">Total Debt</span>
                           <span className="text-white font-medium">${debtInsights.summary?.totalDebt?.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Avg Interest Rate</span>
+                          <span className="text-[#8fa89b]">Avg Interest Rate</span>
                           <span className="text-amber-400 font-medium">{debtInsights.summary?.avgRate}%</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-slate-400">Monthly Minimum</span>
+                          <span className="text-[#8fa89b]">Monthly Minimum</span>
                           <span className="text-white font-medium">${debtInsights.summary?.totalMinPayments?.toLocaleString()}</span>
                         </div>
                       </div>
                       <div className="space-y-2">
                         {debtInsights.insights?.map((insight, i) => (
-                          <div key={i} className={`p-3 rounded-lg text-sm ${insight.type === 'warning' ? 'bg-red-500/10 border border-red-500/30 text-red-300' : insight.type === 'opportunity' ? 'bg-green-500/10 border border-green-500/30 text-green-300' : 'bg-slate-700/30 text-slate-300'}`}>
+                          <div key={i} className={`p-3 rounded-lg text-sm ${insight.type === 'warning' ? 'bg-red-500/10 border border-red-500/30 text-red-300' : insight.type === 'opportunity' ? 'bg-green-500/10 border border-green-500/30 text-green-300' : 'bg-[#1e3328]/30 text-[#b8c9bd]'}`}>
                             <div className="font-medium">{insight.title}</div>
                             <div className="text-xs opacity-80">{insight.message}</div>
                           </div>
@@ -6864,34 +6867,34 @@ export default function AIPortfolioManager() {
                   )}
 
                   {/* Calculator Settings */}
-                  <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4">Payoff Calculator</h3>
+                  <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Payoff Calculator</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Monthly Budget for Debt</label>
+                        <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Monthly Budget for Debt</label>
                         <input
                           type="number"
                           value={debtPayoffBudget}
                           onChange={(e) => setDebtPayoffBudget(parseFloat(e.target.value) || 0)}
-                          className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white"
+                          className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white"
                           placeholder="Enter monthly amount..."
                         />
-                        <p className="text-xs text-slate-500 mt-1">Min required: ${debtInsights?.summary?.totalMinPayments?.toLocaleString() || 0}</p>
+                        <p className="text-xs text-[#6b8a76] mt-1">Min required: ${debtInsights?.summary?.totalMinPayments?.toLocaleString() || 0}</p>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-slate-300 mb-2">Strategy</label>
+                        <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Strategy</label>
                         <div className="grid grid-cols-3 gap-2">
                           {['avalanche', 'snowball', 'hybrid'].map((s) => (
                             <button
                               key={s}
                               onClick={() => setDebtStrategy(s)}
-                              className={`py-2 px-3 rounded-lg text-sm capitalize ${debtStrategy === s ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300'}`}
+                              className={`py-2 px-3 rounded-lg text-sm capitalize ${debtStrategy === s ? 'bg-[#c9a84c]text-white' : 'bg-[#1e3328] text-[#b8c9bd]'}`}
                             >
                               {s}
                             </button>
                           ))}
                         </div>
-                        <p className="text-xs text-slate-500 mt-2">
+                        <p className="text-xs text-[#6b8a76] mt-2">
                           {debtStrategy === 'avalanche' && 'Pays off highest interest first (saves most money)'}
                           {debtStrategy === 'snowball' && 'Pays off smallest balance first (quick wins)'}
                           {debtStrategy === 'hybrid' && 'Balance between interest savings and quick wins'}
@@ -6914,21 +6917,21 @@ export default function AIPortfolioManager() {
                   {debtComparison ? (
                     <>
                       {/* Strategy Comparison */}
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                        <h3 className="text-lg font-semibold text-white mb-4">Strategy Comparison</h3>
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                        <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Strategy Comparison</h3>
                         <div className="grid grid-cols-3 gap-4">
                           {Object.entries(debtComparison.results).map(([strategy, result]) => (
                             <div
                               key={strategy}
-                              className={`p-4 rounded-lg border ${debtStrategy === strategy ? 'border-blue-500 bg-blue-500/10' : 'border-slate-600 bg-slate-700/30'}`}
+                              className={`p-4 rounded-lg border ${debtStrategy === strategy ? 'border-[#c9a84c] bg-[#c9a84c]/10' : 'border-[#3a5442] bg-[#1e3328]/30'}`}
                             >
                               <div className="text-center">
                                 <div className="text-lg font-bold text-white capitalize mb-2">{strategy}</div>
-                                <div className="text-2xl font-bold text-blue-400">{result.totalMonths} mo</div>
-                                <div className="text-slate-400 text-sm">to debt-free</div>
+                                <div className="text-2xl font-bold text-[#d4b96b]">{result.totalMonths} mo</div>
+                                <div className="text-[#8fa89b] text-sm">to debt-free</div>
                                 <div className="mt-2 text-sm">
                                   <span className="text-red-400">${result.totalInterestPaid?.toLocaleString()}</span>
-                                  <span className="text-slate-500"> interest</span>
+                                  <span className="text-[#6b8a76]"> interest</span>
                                 </div>
                               </div>
                             </div>
@@ -6945,40 +6948,40 @@ export default function AIPortfolioManager() {
 
                       {/* Payoff Order */}
                       {debtPayoffPlan && (
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                          <h3 className="text-lg font-semibold text-white mb-4">Payoff Order ({debtStrategy})</h3>
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                          <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4">Payoff Order ({debtStrategy})</h3>
                           <div className="space-y-3">
                             {debtPayoffPlan.payoffOrder?.map((debt, i) => (
-                              <div key={i} className="flex items-center gap-4 p-3 bg-slate-700/30 rounded-lg">
-                                <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+                              <div key={i} className="flex items-center gap-4 p-3 bg-[#1e3328]/30 rounded-lg">
+                                <div className="w-8 h-8 rounded-full bg-[#c9a84c]/15 text-[#d4b96b] flex items-center justify-center font-bold">
                                   {i + 1}
                                 </div>
                                 <div className="flex-1">
                                   <div className="text-white font-medium">{debt.name}</div>
-                                  <div className="text-slate-400 text-sm">Paid off in month {debt.month}</div>
+                                  <div className="text-[#8fa89b] text-sm">Paid off in month {debt.month}</div>
                                 </div>
                                 <div className="text-green-400">✓</div>
                               </div>
                             ))}
                           </div>
-                          <div className="mt-4 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
+                          <div className="mt-4 p-4 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-lg">
                             <div className="grid grid-cols-2 gap-4 text-sm">
                               <div>
-                                <span className="text-slate-400">Debt-Free Date:</span>
+                                <span className="text-[#8fa89b]">Debt-Free Date:</span>
                                 <span className="text-white font-medium ml-2">
                                   {new Date(new Date().setMonth(new Date().getMonth() + debtPayoffPlan.totalMonths)).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                                 </span>
                               </div>
                               <div>
-                                <span className="text-slate-400">Total Interest:</span>
+                                <span className="text-[#8fa89b]">Total Interest:</span>
                                 <span className="text-red-400 font-medium ml-2">${debtPayoffPlan.totalInterestPaid?.toLocaleString()}</span>
                               </div>
                               <div>
-                                <span className="text-slate-400">Total Paid:</span>
+                                <span className="text-[#8fa89b]">Total Paid:</span>
                                 <span className="text-white font-medium ml-2">${debtPayoffPlan.totalPaid?.toLocaleString()}</span>
                               </div>
                               <div>
-                                <span className="text-slate-400">Extra Payment:</span>
+                                <span className="text-[#8fa89b]">Extra Payment:</span>
                                 <span className="text-green-400 font-medium ml-2">${debtPayoffPlan.extraPayment?.toLocaleString()}/mo</span>
                               </div>
                             </div>
@@ -6987,22 +6990,22 @@ export default function AIPortfolioManager() {
                       )}
                     </>
                   ) : (
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                      <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                      <CreditCard className="w-16 h-16 text-[#5a7a65] mx-auto mb-4" />
                       <h3 className="text-xl font-semibold text-white mb-2">Plan Your Debt Freedom</h3>
-                      <p className="text-slate-400">Set your monthly budget and click Calculate to see your payoff timeline</p>
+                      <p className="text-[#8fa89b]">Set your monthly budget and click Calculate to see your payoff timeline</p>
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
-                <CreditCard className="w-16 h-16 text-slate-600 mx-auto mb-4" />
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
+                <CreditCard className="w-16 h-16 text-[#5a7a65] mx-auto mb-4" />
                 <h3 className="text-xl font-semibold text-white mb-2">No Debts Found</h3>
-                <p className="text-slate-400 mb-6">Add debts in the Overview tab to use the debt payoff optimizer</p>
+                <p className="text-[#8fa89b] mb-6">Add debts in the Overview tab to use the debt payoff optimizer</p>
                 <button
                   onClick={() => setActiveTab('overview')}
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl"
+                  className="bg-[#c9a84c]hover:bg-[#b39643] text-white px-6 py-3 rounded-xl"
                 >
                   Go to Overview
                 </button>
@@ -7018,10 +7021,10 @@ export default function AIPortfolioManager() {
             <div className="bg-gradient-to-r from-cyan-600/20 via-teal-600/20 to-emerald-600/20 rounded-2xl border border-cyan-500/30 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
                     🛡️ Insurance Dashboard
                   </h2>
-                  <p className="text-slate-400 mt-1">Track all your policies, premiums, and coverage in one place</p>
+                  <p className="text-[#8fa89b] mt-1">Track all your policies, premiums, and coverage in one place</p>
                 </div>
                 <button
                   onClick={() => setShowAddInsurance(true)}
@@ -7035,39 +7038,39 @@ export default function AIPortfolioManager() {
             {/* Summary Cards */}
             {insuranceAnalysis && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm">Total Annual</span>
+                    <span className="text-[#8fa89b] text-sm">Total Annual</span>
                     <Shield className="w-5 h-5 text-cyan-400" />
                   </div>
-                  <p className="text-2xl font-bold text-white mt-2">${insuranceAnalysis.totalAnnualPremiums?.toLocaleString() || 0}</p>
-                  <p className="text-slate-500 text-xs mt-1">{insurancePolicies.length} policies</p>
+                  <p className="text-2xl font-serif font-bold text-white tracking-wide mt-2">${insuranceAnalysis.totalAnnualPremiums?.toLocaleString() || 0}</p>
+                  <p className="text-[#6b8a76] text-xs mt-1">{insurancePolicies.length} policies</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm">Monthly Cost</span>
+                    <span className="text-[#8fa89b] text-sm">Monthly Cost</span>
                     <Calendar className="w-5 h-5 text-teal-400" />
                   </div>
-                  <p className="text-2xl font-bold text-white mt-2">${Math.round(insuranceAnalysis.totalMonthlyPremiums || 0).toLocaleString()}</p>
-                  <p className="text-slate-500 text-xs mt-1">avg per month</p>
+                  <p className="text-2xl font-serif font-bold text-white tracking-wide mt-2">${Math.round(insuranceAnalysis.totalMonthlyPremiums || 0).toLocaleString()}</p>
+                  <p className="text-[#6b8a76] text-xs mt-1">avg per month</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm">Coverage Gaps</span>
+                    <span className="text-[#8fa89b] text-sm">Coverage Gaps</span>
                     <AlertTriangle className="w-5 h-5 text-amber-400" />
                   </div>
                   <p className="text-2xl font-bold text-amber-400 mt-2">{insuranceAnalysis.coverageGaps?.length || 0}</p>
-                  <p className="text-slate-500 text-xs mt-1">areas to review</p>
+                  <p className="text-[#6b8a76] text-xs mt-1">areas to review</p>
                 </div>
-                <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-5">
+                <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-slate-400 text-sm">5-Year Projection</span>
+                    <span className="text-[#8fa89b] text-sm">5-Year Projection</span>
                     <TrendingUp className="w-5 h-5 text-emerald-400" />
                   </div>
-                  <p className="text-2xl font-bold text-white mt-2">
+                  <p className="text-2xl font-serif font-bold text-white tracking-wide mt-2">
                     ${(insuranceAnalysis.projectedCosts?.[5]?.annual || 0).toLocaleString()}
                   </p>
-                  <p className="text-slate-500 text-xs mt-1">estimated in 2031</p>
+                  <p className="text-[#6b8a76] text-xs mt-1">estimated in 2031</p>
                 </div>
               </div>
             )}
@@ -7083,12 +7086,12 @@ export default function AIPortfolioManager() {
                     <div key={i} className={`p-3 rounded-lg ${gap.severity === 'high' ? 'bg-red-500/10 border border-red-500/30' : 'bg-yellow-500/10 border border-yellow-500/30'}`}>
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-white font-medium capitalize">{gap.type} Insurance</span>
-                        <span className={`text-xs px-2 py-0.5 rounded ${gap.severity === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
+                        <span className={`text-xs px-2 py-0.5 rounded ${gap.severity === 'high' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                           {gap.severity} priority
                         </span>
                       </div>
-                      <p className="text-slate-300 text-sm">{gap.recommendation}</p>
-                      <p className="text-slate-500 text-xs mt-1">{gap.estimatedCost}</p>
+                      <p className="text-[#b8c9bd] text-sm">{gap.recommendation}</p>
+                      <p className="text-[#6b8a76] text-xs mt-1">{gap.estimatedCost}</p>
                     </div>
                   ))}
                 </div>
@@ -7097,21 +7100,21 @@ export default function AIPortfolioManager() {
 
             {/* Recommendations */}
             {insuranceAnalysis?.recommendations?.length > 0 && (
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
-                <h3 className="text-blue-400 font-semibold mb-3">💡 Recommendations</h3>
+              <div className="bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-xl p-4">
+                <h3 className="text-[#d4b96b] font-semibold mb-3">💡 Recommendations</h3>
                 <div className="space-y-2">
                   {insuranceAnalysis.recommendations.map((rec, i) => (
-                    <div key={i} className="p-3 bg-slate-800/50 rounded-lg flex items-start gap-3">
+                    <div key={i} className="p-3 bg-[#1a2b22]/50 rounded-lg flex items-start gap-3">
                       <span className={`text-xs px-2 py-0.5 rounded mt-0.5 ${
-                        rec.type === 'renewal' ? 'bg-amber-500/20 text-amber-400' :
+                        rec.type === 'renewal' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
                         rec.type === 'bundle' ? 'bg-green-500/20 text-green-400' :
-                        'bg-slate-500/20 text-slate-400'
+                        'bg-[#3a5442]/20 text-[#8fa89b]'
                       }`}>
                         {rec.type}
                       </span>
                       <div>
                         <span className="text-white font-medium">{rec.policy}</span>
-                        <p className="text-slate-400 text-sm">{rec.message}</p>
+                        <p className="text-[#8fa89b] text-sm">{rec.message}</p>
                       </div>
                     </div>
                   ))}
@@ -7121,14 +7124,14 @@ export default function AIPortfolioManager() {
 
             {/* Policies by Category */}
             {insuranceAnalysis?.byCategory && Object.keys(insuranceAnalysis.byCategory).length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                 <h3 className="text-white font-semibold mb-4">Annual Cost by Category</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {Object.entries(insuranceAnalysis.byCategory).map(([category, amount]) => (
-                    <div key={category} className="p-3 bg-slate-700/30 rounded-lg">
-                      <p className="text-slate-400 text-sm">{category}</p>
+                    <div key={category} className="p-3 bg-[#1e3328]/30 rounded-lg">
+                      <p className="text-[#8fa89b] text-sm">{category}</p>
                       <p className="text-xl font-bold text-white">${amount.toLocaleString()}</p>
-                      <p className="text-slate-500 text-xs">{Math.round((amount / insuranceAnalysis.totalAnnualPremiums) * 100)}% of total</p>
+                      <p className="text-[#6b8a76] text-xs">{Math.round((amount / insuranceAnalysis.totalAnnualPremiums) * 100)}% of total</p>
                     </div>
                   ))}
                 </div>
@@ -7137,14 +7140,14 @@ export default function AIPortfolioManager() {
 
             {/* Cost Projection Chart */}
             {insuranceAnalysis?.projectedCosts?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-4">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-4">
                 <h3 className="text-white font-semibold mb-4">5-Year Premium Projection (4% annual increase)</h3>
                 <div className="grid grid-cols-6 gap-2">
                   {insuranceAnalysis.projectedCosts.map((proj, i) => (
-                    <div key={i} className={`p-3 rounded-lg text-center ${i === 0 ? 'bg-cyan-500/20 border border-cyan-500/50' : 'bg-slate-700/30'}`}>
-                      <p className="text-slate-400 text-sm">{proj.year}</p>
+                    <div key={i} className={`p-3 rounded-lg text-center ${i === 0 ? 'bg-cyan-500/20 border border-cyan-500/50' : 'bg-[#1e3328]/30'}`}>
+                      <p className="text-[#8fa89b] text-sm">{proj.year}</p>
                       <p className={`text-lg font-bold ${i === 0 ? 'text-cyan-400' : 'text-white'}`}>${proj.annual.toLocaleString()}</p>
-                      <p className="text-slate-500 text-xs">${proj.monthly}/mo</p>
+                      <p className="text-[#6b8a76] text-xs">${proj.monthly}/mo</p>
                     </div>
                   ))}
                 </div>
@@ -7152,14 +7155,14 @@ export default function AIPortfolioManager() {
             )}
 
             {/* Policies List */}
-            <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-              <div className="p-4 border-b border-slate-700 bg-slate-700/30">
-                <h3 className="text-lg font-semibold text-white">Your Policies</h3>
+            <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+              <div className="p-4 border-b border-[#2a3f32] bg-[#1e3328]/30">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide">Your Policies</h3>
               </div>
               {insurancePolicies.length > 0 ? (
-                <div className="divide-y divide-slate-700">
+                <div className="divide-y divide-[#2a3f32]">
                   {insurancePolicies.map((policy) => (
-                    <div key={policy.id} className="p-4 hover:bg-slate-700/30 transition-colors">
+                    <div key={policy.id} className="p-4 hover:bg-[#1e3328]/30 transition-colors">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-3">
                           <span className="text-2xl">
@@ -7178,44 +7181,44 @@ export default function AIPortfolioManager() {
                           </span>
                           <div>
                             <h4 className="text-white font-medium">{policy.name}</h4>
-                            <p className="text-slate-400 text-sm">{policy.provider} • {policy.type}</p>
+                            <p className="text-[#8fa89b] text-sm">{policy.provider} • {policy.type}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
                           <div className="text-right">
                             <p className="text-white font-medium">${policy.premium.toLocaleString()}/{policy.paymentFrequency === 'monthly' ? 'mo' : policy.paymentFrequency === 'annual' ? 'yr' : policy.paymentFrequency}</p>
-                            {policy.coverage > 0 && <p className="text-slate-400 text-xs">${policy.coverage.toLocaleString()} coverage</p>}
+                            {policy.coverage > 0 && <p className="text-[#8fa89b] text-xs">${policy.coverage.toLocaleString()} coverage</p>}
                           </div>
                           <div className="flex gap-2">
                             <button
                               onClick={() => setEditingInsurance(policy)}
-                              className="p-2 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg"
+                              className="p-2 text-[#8fa89b] hover:text-[#f0ede6] hover:bg-[#1e3328] rounded-lg"
                             >
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => deleteInsurancePolicy(policy.id)}
-                              className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-lg"
+                              className="p-2 text-[#8fa89b] hover:text-red-400 hover:bg-red-500/10 rounded-lg"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
                       </div>
-                      <div className="flex flex-wrap gap-3 text-xs text-slate-500 mt-2">
+                      <div className="flex flex-wrap gap-3 text-xs text-[#6b8a76] mt-2">
                         {policy.deductible > 0 && <span>Deductible: ${policy.deductible.toLocaleString()}</span>}
                         {policy.renewalDate && <span>Renews: {new Date(policy.renewalDate).toLocaleDateString()}</span>}
                         {policy.policyNumber && <span>Policy #: {policy.policyNumber}</span>}
                       </div>
-                      {policy.notes && <p className="text-slate-500 text-sm mt-2">{policy.notes}</p>}
+                      {policy.notes && <p className="text-[#6b8a76] text-sm mt-2">{policy.notes}</p>}
                     </div>
                   ))}
                 </div>
               ) : (
                 <div className="p-12 text-center">
-                  <Shield className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+                  <Shield className="w-12 h-12 text-[#5a7a65] mx-auto mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">No Insurance Policies</h3>
-                  <p className="text-slate-400 mb-6">Add your policies to track premiums and find coverage gaps</p>
+                  <p className="text-[#8fa89b] mb-6">Add your policies to track premiums and find coverage gaps</p>
                   <button
                     onClick={() => setShowAddInsurance(true)}
                     className="bg-cyan-500 hover:bg-cyan-600 text-white px-6 py-3 rounded-xl"
@@ -7235,15 +7238,15 @@ export default function AIPortfolioManager() {
             <div className="bg-gradient-to-r from-yellow-600/20 via-amber-600/20 to-orange-600/20 rounded-2xl border border-yellow-500/30 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
                     🎓 Investment Masters
                   </h2>
-                  <p className="text-slate-300 mt-1">Learn from the greatest investors of all time</p>
+                  <p className="text-[#b8c9bd] mt-1">Learn from the greatest investors of all time</p>
                 </div>
                 {dailyQuote && (
                   <div className="max-w-md text-right">
                     <p className="text-amber-300 italic text-sm">"{dailyQuote.text}"</p>
-                    <p className="text-slate-400 text-xs mt-1">— {dailyQuote.author}</p>
+                    <p className="text-[#8fa89b] text-xs mt-1">— {dailyQuote.author}</p>
                   </div>
                 )}
               </div>
@@ -7259,7 +7262,7 @@ export default function AIPortfolioManager() {
                 <button
                   key={view}
                   onClick={() => setMastersView(view)}
-                  className={`px-4 py-3 rounded-xl font-medium transition-all flex-1 ${mastersView === view ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/50' : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:border-slate-600'}`}
+                  className={`px-4 py-3 rounded-xl font-medium transition-all flex-1 ${mastersView === view ? 'bg-[#c9a84c]/15 text-[#d4b96b] border border-yellow-500/50' : 'bg-[#1a2b22]/50 text-[#8fa89b] border border-[#2a3f32] hover:border-[#3a5442]'}`}
                 >
                   <div className="text-lg">{label}</div>
                   <div className="text-xs opacity-70">{desc}</div>
@@ -7272,9 +7275,9 @@ export default function AIPortfolioManager() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Investor List */}
                 <div className="lg:col-span-1 space-y-3">
-                  <h3 className="text-sm font-medium text-slate-400 mb-2">Select an Investor</h3>
+                  <h3 className="text-sm font-medium text-[#8fa89b] mb-2">Select an Investor</h3>
                   {investorsLoading ? (
-                    <div className="text-center py-8 text-slate-400">
+                    <div className="text-center py-8 text-[#8fa89b]">
                       <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
                       Loading...
                     </div>
@@ -7283,17 +7286,17 @@ export default function AIPortfolioManager() {
                       <button
                         key={inv.id}
                         onClick={() => fetchInvestorDetail(inv.id)}
-                        className={`w-full p-4 rounded-xl text-left transition-all ${selectedInvestor?.id === inv.id ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-slate-800/50 border border-slate-700 hover:border-slate-600'}`}
+                        className={`w-full p-4 rounded-xl text-left transition-all ${selectedInvestor?.id === inv.id ? 'bg-yellow-500/20 border border-yellow-500/50' : 'bg-[#1a2b22]/50 border border-[#2a3f32] hover:border-[#3a5442]'}`}
                       >
                         <div className="flex items-center gap-3">
                           <span className="text-3xl">{inv.image}</span>
                           <div className="flex-1 min-w-0">
                             <div className="text-white font-medium truncate">{inv.name}</div>
-                            <div className="text-slate-400 text-sm truncate">{inv.firm}</div>
+                            <div className="text-[#8fa89b] text-sm truncate">{inv.firm}</div>
                           </div>
                           <div className="text-right">
                             <div className="text-emerald-400 font-bold text-sm">{inv.annualReturn}</div>
-                            <div className="text-slate-500 text-xs">/year</div>
+                            <div className="text-[#6b8a76] text-xs">/year</div>
                           </div>
                         </div>
                       </button>
@@ -7306,44 +7309,44 @@ export default function AIPortfolioManager() {
                   {selectedInvestor ? (
                     <div className="space-y-6">
                       {/* Profile Header */}
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                         <div className="flex items-start gap-4">
                           <span className="text-5xl">{selectedInvestor.image}</span>
                           <div className="flex-1">
-                            <h3 className="text-2xl font-bold text-white">{selectedInvestor.name}</h3>
-                            <p className="text-slate-400">{selectedInvestor.title} at {selectedInvestor.firm}</p>
+                            <h3 className="text-2xl font-serif font-bold text-white tracking-wide">{selectedInvestor.name}</h3>
+                            <p className="text-[#8fa89b]">{selectedInvestor.title} at {selectedInvestor.firm}</p>
                             <div className="flex gap-4 mt-3">
-                              <div className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-sm">
+                              <div className="px-3 py-1 bg-[#c9a84c]/15 text-[#d4b96b] rounded-lg text-sm">
                                 {selectedInvestor.annualReturn} annual return
                               </div>
-                              <div className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg text-sm">
+                              <div className="px-3 py-1 bg-[#c9a84c]/15 text-[#d4b96b] rounded-lg text-sm">
                                 Since {selectedInvestor.since}
                               </div>
-                              <div className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-lg text-sm">
+                              <div className="px-3 py-1 bg-[#c9a84c]/15 text-[#d4b96b] rounded-lg text-sm">
                                 {selectedInvestor.style}
                               </div>
                             </div>
                           </div>
                         </div>
-                        <p className="text-slate-300 mt-4">{selectedInvestor.bio}</p>
+                        <p className="text-[#b8c9bd] mt-4">{selectedInvestor.bio}</p>
                       </div>
 
                       {/* Holdings */}
                       {selectedInvestor.holdings?.length > 0 && (
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                            <Briefcase className="w-5 h-5 text-blue-400" /> Current Holdings (13F)
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                          <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
+                            <Briefcase className="w-5 h-5 text-[#d4b96b]" /> Current Holdings (13F)
                           </h4>
                           <div className="space-y-2">
                             {selectedInvestor.holdings.slice(0, 8).map((h, i) => (
-                              <div key={i} className="flex items-center justify-between p-3 bg-slate-700/30 rounded-lg">
+                              <div key={i} className="flex items-center justify-between p-3 bg-[#1e3328]/30 rounded-lg">
                                 <div className="flex items-center gap-3">
                                   <span className="text-white font-bold w-16">{h.symbol}</span>
-                                  <span className="text-slate-400 text-sm">{h.company}</span>
+                                  <span className="text-[#8fa89b] text-sm">{h.company}</span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                  <span className="text-slate-300 text-sm">{h.portfolioPct}%</span>
-                                  <span className={`text-xs px-2 py-0.5 rounded ${h.change === 'increased' ? 'bg-green-500/20 text-green-400' : h.change === 'reduced' ? 'bg-red-500/20 text-red-400' : h.change === 'new' ? 'bg-blue-500/20 text-blue-400' : 'bg-slate-600 text-slate-400'}`}>
+                                  <span className="text-[#b8c9bd] text-sm">{h.portfolioPct}%</span>
+                                  <span className={`text-xs px-2 py-0.5 rounded ${h.change === 'increased' ? 'bg-green-500/20 text-green-400' : h.change === 'reduced' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : h.change === 'new' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#2a4035] text-[#8fa89b]'}`}>
                                     {h.change}
                                   </span>
                                 </div>
@@ -7354,30 +7357,30 @@ export default function AIPortfolioManager() {
                       )}
 
                       {/* Principles */}
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                        <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                           <Target className="w-5 h-5 text-amber-400" /> Investment Principles
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {selectedInvestor.principles?.map((p, i) => (
                             <div key={i} className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
                               <div className="text-amber-400 font-medium text-sm mb-1">{p.title}</div>
-                              <div className="text-slate-300 text-xs">{p.description}</div>
+                              <div className="text-[#b8c9bd] text-xs">{p.description}</div>
                             </div>
                           ))}
                         </div>
                       </div>
 
                       {/* Quotes */}
-                      <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                        <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                      <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                        <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                           💬 Famous Quotes
                         </h4>
                         <div className="space-y-3">
                           {selectedInvestor.quotes?.slice(0, 5).map((q, i) => (
-                            <div key={i} className="p-4 bg-slate-700/30 rounded-lg border-l-2 border-yellow-500/50">
-                              <p className="text-slate-200 italic">"{q.text}"</p>
-                              <p className="text-slate-500 text-xs mt-2">{q.context}</p>
+                            <div key={i} className="p-4 bg-[#1e3328]/30 rounded-lg border-l-2 border-yellow-500/50">
+                              <p className="text-[#d4ddd7] italic">"{q.text}"</p>
+                              <p className="text-[#6b8a76] text-xs mt-2">{q.context}</p>
                             </div>
                           ))}
                         </div>
@@ -7385,8 +7388,8 @@ export default function AIPortfolioManager() {
 
                       {/* Resources */}
                       {selectedInvestor.resources?.length > 0 && (
-                        <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                          <h4 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                        <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                          <h4 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                             📖 Resources
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -7396,11 +7399,11 @@ export default function AIPortfolioManager() {
                                 href={r.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 transition-colors"
+                                className="p-3 bg-[#c9a84c]/10 border border-[#c9a84c]/30 rounded-lg hover:bg-[#c9a84c]/15 transition-colors"
                               >
-                                <div className="text-blue-400 font-medium text-sm">{r.title}</div>
-                                <div className="text-slate-400 text-xs mt-1">{r.description}</div>
-                                {r.author && <div className="text-slate-500 text-xs mt-1">by {r.author}</div>}
+                                <div className="text-[#d4b96b] font-medium text-sm">{r.title}</div>
+                                <div className="text-[#8fa89b] text-xs mt-1">{r.description}</div>
+                                {r.author && <div className="text-[#6b8a76] text-xs mt-1">by {r.author}</div>}
                               </a>
                             ))}
                           </div>
@@ -7408,10 +7411,10 @@ export default function AIPortfolioManager() {
                       )}
                     </div>
                   ) : (
-                    <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-12 text-center">
+                    <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-12 text-center">
                       <span className="text-6xl mb-4 block">🎓</span>
                       <h3 className="text-xl font-semibold text-white mb-2">Select an Investor</h3>
-                      <p className="text-slate-400">Choose a legendary investor to view their profile, holdings, and wisdom</p>
+                      <p className="text-[#8fa89b]">Choose a legendary investor to view their profile, holdings, and wisdom</p>
                     </div>
                   )}
                 </div>
@@ -7420,30 +7423,30 @@ export default function AIPortfolioManager() {
 
             {/* Holdings View - Who Owns What */}
             {mastersView === 'holdings' && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-blue-400" /> Popular Holdings Among Legends
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-[#d4b96b]" /> Popular Holdings Among Legends
                 </h3>
-                <p className="text-slate-400 text-sm mb-4">See which stocks are owned by multiple legendary investors</p>
+                <p className="text-[#8fa89b] text-sm mb-4">See which stocks are owned by multiple legendary investors</p>
                 <div className="space-y-3">
                   {legendaryHoldings
                     .filter(h => h.investors.length > 1)
                     .sort((a, b) => b.investors.length - a.investors.length)
                     .slice(0, 15)
                     .map((holding, i) => (
-                      <div key={i} className="p-4 bg-slate-700/30 rounded-lg">
+                      <div key={i} className="p-4 bg-[#1e3328]/30 rounded-lg">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <span className="text-white font-bold text-lg">{holding.symbol}</span>
-                            <span className="text-slate-400">{holding.company}</span>
+                            <span className="text-[#8fa89b]">{holding.company}</span>
                           </div>
-                          <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-full text-sm">
+                          <span className="px-3 py-1 bg-[#c9a84c]/15 text-[#d4b96b] rounded-full text-sm">
                             {holding.investors.length} investors
                           </span>
                         </div>
                         <div className="flex flex-wrap gap-2">
                           {holding.investors.map((inv, j) => (
-                            <span key={j} className="px-2 py-1 bg-slate-600/50 text-slate-300 rounded text-xs">
+                            <span key={j} className="px-2 py-1 bg-[#2a4035]/50 text-[#b8c9bd] rounded text-xs">
                               {inv.name} ({(inv.value / 1000000000).toFixed(1)}B)
                             </span>
                           ))}
@@ -7452,7 +7455,7 @@ export default function AIPortfolioManager() {
                     ))}
                 </div>
                 {legendaryHoldings.filter(h => h.investors.length > 1).length === 0 && (
-                  <div className="text-center py-8 text-slate-400">
+                  <div className="text-center py-8 text-[#8fa89b]">
                     Loading holdings data...
                   </div>
                 )}
@@ -7463,22 +7466,22 @@ export default function AIPortfolioManager() {
             {mastersView === 'wisdom' && (
               <div className="space-y-6">
                 {investorWisdom.map((category, i) => (
-                  <div key={i} className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
-                    <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                  <div key={i} className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
+                    <h3 className="text-lg font-serif font-semibold text-white tracking-wide mb-4 flex items-center gap-2">
                       <span className="text-2xl">{category.icon}</span> {category.category}
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {category.lessons.map((lesson, j) => (
-                        <div key={j} className="p-4 bg-slate-700/30 rounded-lg border-l-2 border-yellow-500/50">
-                          <p className="text-slate-200 italic mb-2">"{lesson.text}"</p>
-                          <p className="text-yellow-400 text-sm">— {lesson.author}</p>
+                        <div key={j} className="p-4 bg-[#1e3328]/30 rounded-lg border-l-2 border-yellow-500/50">
+                          <p className="text-[#d4ddd7] italic mb-2">"{lesson.text}"</p>
+                          <p className="text-[#d4b96b] text-sm">— {lesson.author}</p>
                         </div>
                       ))}
                     </div>
                   </div>
                 ))}
                 {investorWisdom.length === 0 && (
-                  <div className="text-center py-12 text-slate-400">
+                  <div className="text-center py-12 text-[#8fa89b]">
                     <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2" />
                     Loading wisdom...
                   </div>
@@ -7495,10 +7498,10 @@ export default function AIPortfolioManager() {
             <div className="bg-gradient-to-r from-red-600/20 via-orange-600/20 to-yellow-600/20 rounded-2xl border border-red-500/30 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
                     📊 Market Movers & Why
                   </h2>
-                  <p className="text-slate-400 mt-1">Understand what's driving price action across all markets</p>
+                  <p className="text-[#8fa89b] mt-1">Understand what's driving price action across all markets</p>
                 </div>
                 <button
                   onClick={() => fetchMarketMovers(marketCategory)}
@@ -7526,7 +7529,7 @@ export default function AIPortfolioManager() {
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     marketCategory === key
                       ? `bg-${color}-500/20 text-${color}-400 border border-${color}-500/50`
-                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                      : 'bg-[#1a2b22]/50 text-[#8fa89b] border border-[#2a3f32] hover:bg-[#1e3328]'
                   }`}
                 >
                   {label}
@@ -7536,36 +7539,36 @@ export default function AIPortfolioManager() {
 
             {/* Market Analysis Summary */}
             {marketMovers?.analysis && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 p-6">
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-white">Market Sentiment</h3>
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide">Market Sentiment</h3>
                   <div className="flex items-center gap-4">
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       marketMovers.analysis.overallSentiment === 'bullish' ? 'bg-green-500/20 text-green-400' :
-                      marketMovers.analysis.overallSentiment === 'bearish' ? 'bg-red-500/20 text-red-400' :
-                      'bg-yellow-500/20 text-yellow-400'
+                      marketMovers.analysis.overallSentiment === 'bearish' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                      'bg-[#c9a84c]/15 text-[#d4b96b]'
                     }`}>
                       {marketMovers.analysis.overallSentiment.toUpperCase()}
                     </span>
-                    <span className="text-slate-400">VIX: <span className="text-white font-medium">{marketMovers.analysis.volatilityIndex}</span></span>
-                    <span className="text-slate-400">Fear/Greed: <span className={`font-medium ${marketMovers.analysis.fearGreedIndex < 40 ? 'text-red-400' : marketMovers.analysis.fearGreedIndex > 60 ? 'text-green-400' : 'text-yellow-400'}`}>{marketMovers.analysis.fearGreedIndex}</span></span>
+                    <span className="text-[#8fa89b]">VIX: <span className="text-white font-medium">{marketMovers.analysis.volatilityIndex}</span></span>
+                    <span className="text-[#8fa89b]">Fear/Greed: <span className={`font-medium ${marketMovers.analysis.fearGreedIndex < 40 ? 'text-red-400' : marketMovers.analysis.fearGreedIndex > 60 ? 'text-green-400' : 'text-[#d4b96b]'}`}>{marketMovers.analysis.fearGreedIndex}</span></span>
                   </div>
                 </div>
-                <p className="text-slate-300">{marketMovers.analysis.summary}</p>
+                <p className="text-[#b8c9bd]">{marketMovers.analysis.summary}</p>
 
                 {/* Key Themes */}
                 <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
                   {marketMovers.analysis.keyThemes?.map((theme, i) => (
-                    <div key={i} className="p-3 bg-slate-700/30 rounded-lg border-l-2 border-blue-500/50">
+                    <div key={i} className="p-3 bg-[#1e3328]/30 rounded-lg border-l-2 border-[#c9a84c]/30">
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-white font-medium">{theme.theme}</span>
                         <span className={`text-xs px-2 py-0.5 rounded ${
                           theme.impact === 'bullish' ? 'bg-green-500/20 text-green-400' :
-                          theme.impact === 'bearish' ? 'bg-red-500/20 text-red-400' :
-                          'bg-slate-500/20 text-slate-400'
+                          theme.impact === 'bearish' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                          'bg-[#3a5442]/20 text-[#8fa89b]'
                         }`}>{theme.impact}</span>
                       </div>
-                      <p className="text-slate-400 text-sm">{theme.description}</p>
+                      <p className="text-[#8fa89b] text-sm">{theme.description}</p>
                     </div>
                   ))}
                 </div>
@@ -7576,20 +7579,20 @@ export default function AIPortfolioManager() {
             {marketMovers?.analysis && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {/* Contrarian Opportunities */}
-                <div className="bg-gradient-to-br from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/30 p-4">
+                <div className="bg-gradient-to-br from-[#c9a84c]/8 to-[#2d7a4f]/8 rounded-xl border border-[#c9a84c]/25 p-4">
                   <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🔄 Contrarian Plays</h4>
                   <div className="space-y-2">
                     {marketMovers.analysis.contraianOpportunities?.map((opp, i) => (
-                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                      <div key={i} className="p-2 bg-[#1a2b22]/50 rounded-lg">
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium">{opp.symbol}</span>
                           <span className={`text-xs px-2 py-0.5 rounded ${
                             opp.risk === 'low' ? 'bg-green-500/20 text-green-400' :
-                            opp.risk === 'medium' ? 'bg-yellow-500/20 text-yellow-400' :
-                            'bg-red-500/20 text-red-400'
+                            opp.risk === 'medium' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                            'bg-[#c9a84c]/15 text-[#d4b96b]'
                           }`}>{opp.risk} risk</span>
                         </div>
-                        <p className="text-slate-400 text-xs mt-1">{opp.thesis}</p>
+                        <p className="text-[#8fa89b] text-xs mt-1">{opp.thesis}</p>
                       </div>
                     ))}
                   </div>
@@ -7600,12 +7603,12 @@ export default function AIPortfolioManager() {
                   <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🐢 Boring Compounders</h4>
                   <div className="space-y-2">
                     {marketMovers.analysis.boringCompounders?.map((stock, i) => (
-                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                      <div key={i} className="p-2 bg-[#1a2b22]/50 rounded-lg">
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium">{stock.symbol}</span>
                           <span className="text-xs px-2 py-0.5 rounded bg-green-500/20 text-green-400">{stock.moat} moat</span>
                         </div>
-                        <p className="text-slate-400 text-xs mt-1">{stock.thesis}</p>
+                        <p className="text-[#8fa89b] text-xs mt-1">{stock.thesis}</p>
                       </div>
                     ))}
                   </div>
@@ -7616,14 +7619,14 @@ export default function AIPortfolioManager() {
                   <h4 className="text-white font-semibold mb-3 flex items-center gap-2">🚀 Momentum Plays</h4>
                   <div className="space-y-2">
                     {marketMovers.analysis.momentumPlays?.map((stock, i) => (
-                      <div key={i} className="p-2 bg-slate-800/50 rounded-lg">
+                      <div key={i} className="p-2 bg-[#1a2b22]/50 rounded-lg">
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium">{stock.symbol}</span>
                           <span className={`text-xs px-2 py-0.5 rounded ${
-                            stock.risk === 'high' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                            stock.risk === 'high' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#c9a84c]/15 text-[#d4b96b]'
                           }`}>{stock.risk} risk</span>
                         </div>
-                        <p className="text-slate-400 text-xs mt-1">{stock.thesis}</p>
+                        <p className="text-[#8fa89b] text-xs mt-1">{stock.thesis}</p>
                       </div>
                     ))}
                   </div>
@@ -7633,22 +7636,22 @@ export default function AIPortfolioManager() {
 
             {/* Market Movers Grid */}
             {marketMovers?.movers && Object.entries(marketMovers.movers).map(([category, items]) => (
-              <div key={category} className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
-                  <h3 className="text-lg font-semibold text-white capitalize flex items-center gap-2">
+              <div key={category} className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-4 border-b border-[#2a3f32] bg-[#1e3328]/30">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide capitalize flex items-center gap-2">
                     {category === 'metals' && '🥇'} {category === 'crypto' && '₿'} {category === 'commodities' && '🛢️'} {category === 'stocks' && '📈'}
                     {category}
                   </h3>
                 </div>
-                <div className="divide-y divide-slate-700">
+                <div className="divide-y divide-[#2a3f32]">
                   {items.map((item, i) => (
-                    <div key={i} className="p-4 hover:bg-slate-700/30 transition-colors">
+                    <div key={i} className="p-4 hover:bg-[#1e3328]/30 transition-colors">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <span className="text-xl font-bold text-white">{item.symbol}</span>
-                          <span className="text-slate-400">{item.name}</span>
+                          <span className="text-[#8fa89b]">{item.name}</span>
                           <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                            item.volatility === 'extreme' ? 'bg-red-500/20 text-red-400' :
+                            item.volatility === 'extreme' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
                             item.volatility === 'high' ? 'bg-orange-500/20 text-orange-400' :
                             'bg-green-500/20 text-green-400'
                           }`}>{item.volatility} vol</span>
@@ -7664,13 +7667,13 @@ export default function AIPortfolioManager() {
 
                       {/* Drivers */}
                       <div className="mb-3">
-                        <p className="text-slate-400 text-sm mb-2">Key Drivers:</p>
+                        <p className="text-[#8fa89b] text-sm mb-2">Key Drivers:</p>
                         <div className="flex flex-wrap gap-2">
                           {item.drivers?.slice(0, 4).map((driver, j) => (
                             <div key={j} className={`px-3 py-1.5 rounded-lg text-xs ${
                               driver.impact === 'bullish' ? 'bg-green-500/10 border border-green-500/30 text-green-400' :
                               driver.impact === 'bearish' ? 'bg-red-500/10 border border-red-500/30 text-red-400' :
-                              'bg-slate-700/50 border border-slate-600 text-slate-300'
+                              'bg-[#1e3328]/50 border border-[#3a5442] text-[#b8c9bd]'
                             }`}>
                               <span className="font-medium">{driver.factor}</span> ({driver.weight}%)
                             </div>
@@ -7679,14 +7682,14 @@ export default function AIPortfolioManager() {
                       </div>
 
                       {/* Outlook */}
-                      <div className="p-3 bg-slate-700/30 rounded-lg">
-                        <p className="text-slate-300 text-sm">{item.outlook}</p>
+                      <div className="p-3 bg-[#1e3328]/30 rounded-lg">
+                        <p className="text-[#b8c9bd] text-sm">{item.outlook}</p>
                         {item.technicals && (
-                          <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
+                          <div className="flex items-center gap-4 mt-2 text-xs text-[#8fa89b]">
                             <span>Support: <span className="text-white">${item.technicals.support}</span></span>
                             <span>Resistance: <span className="text-white">${item.technicals.resistance}</span></span>
                             <span>RSI: <span className={item.technicals.rsi > 70 ? 'text-red-400' : item.technicals.rsi < 30 ? 'text-green-400' : 'text-white'}>{item.technicals.rsi}</span></span>
-                            <span>Trend: <span className={item.technicals.trend === 'bullish' ? 'text-green-400' : item.technicals.trend === 'bearish' ? 'text-red-400' : 'text-yellow-400'}>{item.technicals.trend}</span></span>
+                            <span>Trend: <span className={item.technicals.trend === 'bullish' ? 'text-green-400' : item.technicals.trend === 'bearish' ? 'text-red-400' : 'text-[#d4b96b]'}>{item.technicals.trend}</span></span>
                           </div>
                         )}
                       </div>
@@ -7699,7 +7702,7 @@ export default function AIPortfolioManager() {
             {moversLoading && (
               <div className="text-center py-12">
                 <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-red-400" />
-                <p className="text-slate-400">Loading market data...</p>
+                <p className="text-[#8fa89b]">Loading market data...</p>
               </div>
             )}
           </div>
@@ -7709,18 +7712,18 @@ export default function AIPortfolioManager() {
         {activeTab === 'insiders' && (
           <div className="space-y-6">
             {/* Header */}
-            <div className="bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/20 rounded-2xl border border-indigo-500/30 p-6">
+            <div className="bg-gradient-to-r from-[#1a2b22] via-[#1e3328] to-[#1a2b22] rounded-2xl border border-[#c9a84c]/20 p-6">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                  <h2 className="text-2xl font-serif font-bold text-white tracking-wide flex items-center gap-3">
                     🏛️ Insider & Politician Trades
                   </h2>
-                  <p className="text-slate-400 mt-1">Track what Congress, corporate insiders, and legendary investors are buying</p>
+                  <p className="text-[#8fa89b] mt-1">Track what Congress, corporate insiders, and legendary investors are buying</p>
                 </div>
                 <button
                   onClick={() => fetchInsiderTrades(insiderType)}
                   disabled={insidersLoading}
-                  className="px-6 py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-medium rounded-xl flex items-center gap-2 disabled:opacity-50"
+                  className="px-6 py-3 bg-[#c9a84c] hover:bg-[#b39643] text-white font-medium rounded-xl flex items-center gap-2 disabled:opacity-50"
                 >
                   {insidersLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <RefreshCw className="w-5 h-5" />}
                   Refresh
@@ -7742,7 +7745,7 @@ export default function AIPortfolioManager() {
                   className={`px-4 py-2 rounded-xl font-medium transition-all ${
                     insiderType === key
                       ? `bg-${color}-500/20 text-${color}-400 border border-${color}-500/50`
-                      : 'bg-slate-800/50 text-slate-400 border border-slate-700 hover:bg-slate-700'
+                      : 'bg-[#1a2b22]/50 text-[#8fa89b] border border-[#2a3f32] hover:bg-[#1e3328]'
                   }`}
                 >
                   {label}
@@ -7757,7 +7760,7 @@ export default function AIPortfolioManager() {
                   <h4 className="text-white font-semibold mb-3">📈 Most Bought by Politicians</h4>
                   <div className="space-y-2">
                     {insiderTrades.signals.mostBoughtByPoliticians?.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
+                      <div key={i} className="flex items-center justify-between p-2 bg-[#1a2b22]/50 rounded-lg">
                         <span className="text-white font-medium">{item.symbol}</span>
                         <div className="flex items-center gap-3 text-sm">
                           <span className="text-green-400">{item.buyers} buyers</span>
@@ -7772,7 +7775,7 @@ export default function AIPortfolioManager() {
                   <h4 className="text-white font-semibold mb-3">📉 Most Sold by Politicians</h4>
                   <div className="space-y-2">
                     {insiderTrades.signals.mostSoldByPoliticians?.map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-2 bg-slate-800/50 rounded-lg">
+                      <div key={i} className="flex items-center justify-between p-2 bg-[#1a2b22]/50 rounded-lg">
                         <span className="text-white font-medium">{item.symbol}</span>
                         <div className="flex items-center gap-3 text-sm">
                           <span className="text-green-400">{item.buyers} buyers</span>
@@ -7789,20 +7792,20 @@ export default function AIPortfolioManager() {
             {/* Unusual Activity Alert */}
             {insiderTrades?.signals?.unusualActivity?.length > 0 && (
               <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
-                <h4 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+                <h4 className="text-[#d4b96b] font-semibold mb-3 flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5" /> Unusual Activity Detected
                 </h4>
                 <div className="space-y-2">
                   {insiderTrades.signals.unusualActivity.map((alert, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg">
+                    <div key={i} className="flex items-center justify-between p-3 bg-[#1a2b22]/50 rounded-lg">
                       <div>
                         <span className="text-white font-medium">{alert.symbol}</span>
-                        <p className="text-slate-400 text-sm">{alert.pattern}</p>
+                        <p className="text-[#8fa89b] text-sm">{alert.pattern}</p>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                        alert.suspicionScore > 80 ? 'bg-red-500/20 text-red-400' :
-                        alert.suspicionScore > 60 ? 'bg-yellow-500/20 text-yellow-400' :
-                        'bg-slate-500/20 text-slate-400'
+                        alert.suspicionScore > 80 ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                        alert.suspicionScore > 60 ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                        'bg-[#3a5442]/20 text-[#8fa89b]'
                       }`}>
                         {alert.suspicionScore}% suspicious
                       </span>
@@ -7814,27 +7817,27 @@ export default function AIPortfolioManager() {
 
             {/* Politicians Section */}
             {insiderTrades?.politicians?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
-                  <h3 className="text-lg font-semibold text-white">🏛️ Congressional Trades</h3>
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-4 border-b border-[#2a3f32] bg-[#1e3328]/30">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide">🏛️ Congressional Trades</h3>
                 </div>
-                <div className="divide-y divide-slate-700">
+                <div className="divide-y divide-[#2a3f32]">
                   {insiderTrades.politicians.map((pol, i) => (
                     <div key={i} className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-3">
                           <span className="text-lg font-bold text-white">{pol.name}</span>
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${pol.party === 'D' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'}`}>
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${pol.party === 'D' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' : 'bg-[#c9a84c]/15 text-[#d4b96b]'}`}>
                             {pol.party === 'D' ? 'Democrat' : 'Republican'}
                           </span>
-                          <span className="text-slate-400 text-sm">{pol.chamber} - {pol.state}</span>
+                          <span className="text-[#8fa89b] text-sm">{pol.chamber} - {pol.state}</span>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="text-slate-400 text-sm">YTD: <span className="text-green-400 font-medium">+{pol.ytdReturn}%</span></span>
-                          <span className="text-slate-400 text-sm">Watch Score: <span className="text-yellow-400 font-medium">{pol.watchScore}</span></span>
+                          <span className="text-[#8fa89b] text-sm">YTD: <span className="text-green-400 font-medium">+{pol.ytdReturn}%</span></span>
+                          <span className="text-[#8fa89b] text-sm">Watch Score: <span className="text-[#d4b96b] font-medium">{pol.watchScore}</span></span>
                         </div>
                       </div>
-                      <p className="text-slate-400 text-sm mb-3">{pol.notablePattern}</p>
+                      <p className="text-[#8fa89b] text-sm mb-3">{pol.notablePattern}</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                         {pol.recentTrades.map((trade, j) => (
                           <div key={j} className={`p-3 rounded-lg ${
@@ -7846,10 +7849,10 @@ export default function AIPortfolioManager() {
                                 {trade.action.toUpperCase()}
                               </span>
                             </div>
-                            <div className="text-slate-400 text-xs mt-1">
+                            <div className="text-[#8fa89b] text-xs mt-1">
                               {trade.amount} • {trade.date}
                             </div>
-                            <div className="text-slate-500 text-xs">Disclosed after {trade.daysToDisclose} days</div>
+                            <div className="text-[#6b8a76] text-xs">Disclosed after {trade.daysToDisclose} days</div>
                           </div>
                         ))}
                       </div>
@@ -7861,29 +7864,29 @@ export default function AIPortfolioManager() {
 
             {/* Notable Investors Section */}
             {insiderTrades?.notableInvestors?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
-                  <h3 className="text-lg font-semibold text-white">🎯 Notable Investor 13F Changes</h3>
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-4 border-b border-[#2a3f32] bg-[#1e3328]/30">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide">🎯 Notable Investor 13F Changes</h3>
                 </div>
-                <div className="divide-y divide-slate-700">
+                <div className="divide-y divide-[#2a3f32]">
                   {insiderTrades.notableInvestors.map((investor, i) => (
                     <div key={i} className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <span className="text-lg font-bold text-white">{investor.name}</span>
-                          <span className="text-slate-400 ml-2">— {investor.firm}</span>
+                          <span className="text-[#8fa89b] ml-2">— {investor.firm}</span>
                         </div>
                         <div className="flex items-center gap-4 text-sm">
-                          <span className="text-slate-400">AUM: <span className="text-white">{investor.aum}</span></span>
-                          <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400">{investor.style}</span>
+                          <span className="text-[#8fa89b]">AUM: <span className="text-white">{investor.aum}</span></span>
+                          <span className="px-2 py-0.5 rounded bg-[#c9a84c]/15 text-[#d4b96b]">{investor.style}</span>
                         </div>
                       </div>
                       {investor.recentCommentary && (
-                        <p className="text-slate-300 text-sm italic mb-3">"{investor.recentCommentary}"</p>
+                        <p className="text-[#b8c9bd] text-sm italic mb-3">"{investor.recentCommentary}"</p>
                       )}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <h5 className="text-slate-400 text-sm mb-2">Q4 2025 Changes</h5>
+                          <h5 className="text-[#8fa89b] text-sm mb-2">Q4 2025 Changes</h5>
                           <div className="space-y-1">
                             {investor.q4_2025_changes?.slice(0, 5).map((change, j) => (
                               <div key={j} className={`flex items-center justify-between p-2 rounded ${
@@ -7894,19 +7897,19 @@ export default function AIPortfolioManager() {
                                   <span className={`text-xs font-medium ${change.action === 'NEW' || change.action === 'ADDED' ? 'text-green-400' : 'text-red-400'}`}>
                                     {change.action}
                                   </span>
-                                  <span className="text-slate-400 text-xs">{change.portfolioPct}%</span>
+                                  <span className="text-[#8fa89b] text-xs">{change.portfolioPct}%</span>
                                 </div>
                               </div>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <h5 className="text-slate-400 text-sm mb-2">Top Holdings</h5>
+                          <h5 className="text-[#8fa89b] text-sm mb-2">Top Holdings</h5>
                           <div className="space-y-1">
                             {investor.topHoldings?.slice(0, 5).map((holding, j) => (
-                              <div key={j} className="flex items-center justify-between p-2 bg-slate-700/30 rounded">
+                              <div key={j} className="flex items-center justify-between p-2 bg-[#1e3328]/30 rounded">
                                 <span className="text-white">{holding.symbol}</span>
-                                <span className="text-slate-400 text-sm">{holding.portfolioPct}%</span>
+                                <span className="text-[#8fa89b] text-sm">{holding.portfolioPct}%</span>
                               </div>
                             ))}
                           </div>
@@ -7920,54 +7923,54 @@ export default function AIPortfolioManager() {
 
             {/* Corporate Insiders Section */}
             {insiderTrades?.insiders?.length > 0 && (
-              <div className="bg-slate-800/50 rounded-xl border border-slate-700 overflow-hidden">
-                <div className="p-4 border-b border-slate-700 bg-slate-700/30">
-                  <h3 className="text-lg font-semibold text-white">👔 Corporate Insider Activity</h3>
+              <div className="bg-[#1a2b22]/50 rounded-xl border border-[#2a3f32] overflow-hidden">
+                <div className="p-4 border-b border-[#2a3f32] bg-[#1e3328]/30">
+                  <h3 className="text-lg font-serif font-semibold text-white tracking-wide">👔 Corporate Insider Activity</h3>
                 </div>
-                <div className="divide-y divide-slate-700">
+                <div className="divide-y divide-[#2a3f32]">
                   {insiderTrades.insiders.map((company, i) => (
                     <div key={i} className="p-4">
                       <div className="flex items-center justify-between mb-3">
                         <div>
                           <span className="text-lg font-bold text-white">{company.symbol}</span>
-                          <span className="text-slate-400 ml-2">— {company.company}</span>
+                          <span className="text-[#8fa89b] ml-2">— {company.company}</span>
                         </div>
                         <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                           company.insiderSentiment === 'buying' ? 'bg-green-500/20 text-green-400' :
-                          company.insiderSentiment === 'selling' ? 'bg-red-500/20 text-red-400' :
-                          'bg-slate-500/20 text-slate-400'
+                          company.insiderSentiment === 'selling' ? 'bg-[#c9a84c]/15 text-[#d4b96b]' :
+                          'bg-[#3a5442]/20 text-[#8fa89b]'
                         }`}>
                           {company.insiderSentiment}
                         </span>
                       </div>
                       {company.note && (
-                        <p className="text-slate-400 text-sm mb-3">ℹ️ {company.note}</p>
+                        <p className="text-[#8fa89b] text-sm mb-3">ℹ️ {company.note}</p>
                       )}
                       <div className="space-y-2">
                         {company.recentFilings.map((filing, j) => (
                           <div key={j} className={`p-3 rounded-lg ${
                             filing.action === 'buy' ? 'bg-green-500/10 border border-green-500/30' :
                             filing.action === 'sell' ? 'bg-red-500/10 border border-red-500/30' :
-                            'bg-slate-700/30 border border-slate-600'
+                            'bg-[#1e3328]/30 border border-[#3a5442]'
                           }`}>
                             <div className="flex items-center justify-between">
                               <div>
                                 <span className="text-white font-medium">{filing.insider}</span>
-                                <span className="text-slate-400 ml-2">({filing.title})</span>
+                                <span className="text-[#8fa89b] ml-2">({filing.title})</span>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className={`text-sm font-medium ${
                                   filing.action === 'buy' ? 'text-green-400' :
                                   filing.action === 'sell' ? 'text-red-400' :
-                                  'text-slate-400'
+                                  'text-[#8fa89b]'
                                 }`}>
                                   {filing.action.toUpperCase()}
                                 </span>
                                 <span className="text-white">{filing.shares?.toLocaleString()} shares</span>
-                                <span className="text-slate-400">${(filing.value / 1000000).toFixed(1)}M</span>
+                                <span className="text-[#8fa89b]">${(filing.value / 1000000).toFixed(1)}M</span>
                               </div>
                             </div>
-                            <div className="text-slate-500 text-xs mt-1">{filing.date} • {filing.purpose}</div>
+                            <div className="text-[#6b8a76] text-xs mt-1">{filing.date} • {filing.purpose}</div>
                           </div>
                         ))}
                       </div>
@@ -7979,8 +7982,8 @@ export default function AIPortfolioManager() {
 
             {insidersLoading && (
               <div className="text-center py-12">
-                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-indigo-400" />
-                <p className="text-slate-400">Loading insider data...</p>
+                <RefreshCw className="w-8 h-8 animate-spin mx-auto mb-2 text-[#d4b96b]" />
+                <p className="text-[#8fa89b]">Loading insider data...</p>
               </div>
             )}
           </div>
@@ -7990,38 +7993,38 @@ export default function AIPortfolioManager() {
       {/* Trade Panel Modal */}
       {showTradePanel && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">Trade {selectedStock}</h3>
-              <button onClick={() => setShowTradePanel(false)} className="text-slate-400 hover:text-white"><X className="w-6 h-6" /></button>
+              <button onClick={() => setShowTradePanel(false)} className="text-[#8fa89b] hover:text-[#f0ede6]"><X className="w-6 h-6" /></button>
             </div>
             <div className="space-y-4">
               <div className="flex gap-2">
-                <button onClick={() => setTradeSide('buy')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                <button onClick={() => setTradeSide('buy')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 text-white' : 'bg-[#1e3328] text-[#b8c9bd]'}`}>
                   <ArrowUpCircle className="w-5 h-5" /> Buy
                 </button>
-                <button onClick={() => setTradeSide('sell')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'sell' ? 'bg-red-500 text-white' : 'bg-slate-700 text-slate-300'}`}>
+                <button onClick={() => setTradeSide('sell')} className={`flex-1 py-3 rounded-xl font-medium flex items-center justify-center gap-2 ${tradeSide === 'sell' ? 'bg-red-500 text-white' : 'bg-[#1e3328] text-[#b8c9bd]'}`}>
                   <ArrowDownCircle className="w-5 h-5" /> Sell
                 </button>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Quantity</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Quantity</label>
                 <div className="flex items-center gap-3">
-                  <button onClick={() => setTradeQty(Math.max(1, tradeQty - 1))} className="w-12 h-12 bg-slate-700 hover:bg-slate-600 rounded-xl text-white text-xl">-</button>
-                  <input type="number" value={tradeQty} onChange={(e) => setTradeQty(Math.max(1, parseInt(e.target.value) || 1))} className="flex-1 bg-slate-700/50 border border-slate-600 rounded-xl px-4 py-3 text-white text-center text-xl font-bold" />
-                  <button onClick={() => setTradeQty(tradeQty + 1)} className="w-12 h-12 bg-slate-700 hover:bg-slate-600 rounded-xl text-white text-xl">+</button>
+                  <button onClick={() => setTradeQty(Math.max(1, tradeQty - 1))} className="w-12 h-12 bg-[#1e3328] hover:bg-[#2a4035] rounded-xl text-white text-xl">-</button>
+                  <input type="number" value={tradeQty} onChange={(e) => setTradeQty(Math.max(1, parseInt(e.target.value) || 1))} className="flex-1 bg-[#1e3328]/50 border border-[#3a5442] rounded-xl px-4 py-3 text-white text-center text-xl font-bold" />
+                  <button onClick={() => setTradeQty(tradeQty + 1)} className="w-12 h-12 bg-[#1e3328] hover:bg-[#2a4035] rounded-xl text-white text-xl">+</button>
                 </div>
               </div>
               <div className="flex gap-2">
                 {[1, 5, 10, 25, 50, 100].map(q => (
-                  <button key={q} onClick={() => setTradeQty(q)} className={`flex-1 py-2 rounded-lg text-sm font-medium ${tradeQty === q ? 'bg-blue-500 text-white' : 'bg-slate-700 text-slate-300'}`}>{q}</button>
+                  <button key={q} onClick={() => setTradeQty(q)} className={`flex-1 py-2 rounded-lg text-sm font-medium ${tradeQty === q ? 'bg-[#c9a84c]text-white' : 'bg-[#1e3328] text-[#b8c9bd]'}`}>{q}</button>
                 ))}
               </div>
               <button onClick={executeQuickTrade} disabled={executingTrade} className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 ${tradeSide === 'buy' ? 'bg-green-500 hover:bg-green-600' : 'bg-red-500 hover:bg-red-600'} text-white disabled:opacity-50`}>
                 {executingTrade ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Zap className="w-5 h-5" />}
                 {tradeSide === 'buy' ? 'Buy' : 'Sell'} {tradeQty} {selectedStock}
               </button>
-              <p className="text-slate-400 text-xs text-center">Market order • {mode === 'demo' ? 'Demo' : 'Paper Trading'}</p>
+              <p className="text-[#8fa89b] text-xs text-center">Market order • {mode === 'demo' ? 'Demo' : 'Paper Trading'}</p>
             </div>
           </div>
         </div>
@@ -8030,21 +8033,21 @@ export default function AIPortfolioManager() {
       {/* Add/Edit Account Modal */}
       {(showAddAccount || editingAccount) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">
                 {editingAccount ? 'Edit Account' : 'Add Account'}
               </h3>
               <button
                 onClick={() => { setShowAddAccount(false); setEditingAccount(null); }}
-                className="text-slate-400 hover:text-white"
+                className="text-[#8fa89b] hover:text-[#f0ede6]"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Account Name</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Account Name</label>
                 <input
                   type="text"
                   value={editingAccount ? editingAccount.name : newAccount.name}
@@ -8053,18 +8056,18 @@ export default function AIPortfolioManager() {
                     : setNewAccount({ ...newAccount, name: e.target.value })
                   }
                   placeholder="e.g., Roth IRA, Checking"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Account Type</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Account Type</label>
                 <select
                   value={editingAccount ? editingAccount.type : newAccount.type}
                   onChange={(e) => editingAccount
                     ? setEditingAccount({ ...editingAccount, type: e.target.value })
                     : setNewAccount({ ...newAccount, type: e.target.value })
                   }
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 >
                   <option value="checking">Checking</option>
                   <option value="savings">Savings</option>
@@ -8079,7 +8082,7 @@ export default function AIPortfolioManager() {
               {/* Partnership-specific field */}
               {(editingAccount?.type === 'partnership' || newAccount.type === 'partnership') && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Ownership %</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Ownership %</label>
                   <input
                     type="number"
                     step="0.1"
@@ -8089,7 +8092,7 @@ export default function AIPortfolioManager() {
                       : setNewAccount({ ...newAccount, ownershipPct: e.target.value })
                     }
                     placeholder="e.g., 1.8"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                   />
                 </div>
               )}
@@ -8097,7 +8100,7 @@ export default function AIPortfolioManager() {
               {/* Crypto-specific field */}
               {(editingAccount?.type === 'crypto' || newAccount.type === 'crypto') && (
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Holdings (e.g., BTC, ETH)</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Holdings (e.g., BTC, ETH)</label>
                   <input
                     type="text"
                     value={editingAccount ? editingAccount.holdings : newAccount.holdings}
@@ -8106,13 +8109,13 @@ export default function AIPortfolioManager() {
                       : setNewAccount({ ...newAccount, holdings: e.target.value })
                     }
                     placeholder="BTC, ETH, SOL"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Institution</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Institution</label>
                 <input
                   type="text"
                   value={editingAccount ? editingAccount.institution : newAccount.institution}
@@ -8121,13 +8124,13 @@ export default function AIPortfolioManager() {
                     : setNewAccount({ ...newAccount, institution: e.target.value })
                   }
                   placeholder="e.g., Fidelity, Chase"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Balance</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Balance</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                   <input
                     type="number"
                     value={editingAccount ? editingAccount.balance : newAccount.balance}
@@ -8136,7 +8139,7 @@ export default function AIPortfolioManager() {
                       : setNewAccount({ ...newAccount, balance: e.target.value })
                     }
                     placeholder="0.00"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                   />
                 </div>
               </div>
@@ -8148,7 +8151,7 @@ export default function AIPortfolioManager() {
                     addAccount();
                   }
                 }}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-medium py-3 rounded-xl"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium py-3 rounded-xl"
               >
                 {editingAccount ? 'Save Changes' : 'Add Account'}
               </button>
@@ -8160,21 +8163,21 @@ export default function AIPortfolioManager() {
       {/* Add/Edit Debt Modal */}
       {(showAddDebt || editingDebt) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] p-6 max-w-md w-full">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">
                 {editingDebt ? 'Edit Debt' : 'Add Debt'}
               </h3>
               <button
                 onClick={() => { setShowAddDebt(false); setEditingDebt(null); }}
-                className="text-slate-400 hover:text-white"
+                className="text-[#8fa89b] hover:text-[#f0ede6]"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Debt Name</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Debt Name</label>
                 <input
                   type="text"
                   value={editingDebt ? editingDebt.name : newDebt.name}
@@ -8183,18 +8186,18 @@ export default function AIPortfolioManager() {
                     : setNewDebt({ ...newDebt, name: e.target.value })
                   }
                   placeholder="e.g., Mortgage, Student Loan"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Debt Type</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Debt Type</label>
                 <select
                   value={editingDebt ? editingDebt.type : newDebt.type}
                   onChange={(e) => editingDebt
                     ? setEditingDebt({ ...editingDebt, type: e.target.value })
                     : setNewDebt({ ...newDebt, type: e.target.value })
                   }
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-red-500"
                 >
                   <option value="mortgage">Mortgage</option>
                   <option value="student">Student Loan</option>
@@ -8204,7 +8207,7 @@ export default function AIPortfolioManager() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Lender/Institution</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Lender/Institution</label>
                 <input
                   type="text"
                   value={editingDebt ? editingDebt.institution : newDebt.institution}
@@ -8213,14 +8216,14 @@ export default function AIPortfolioManager() {
                     : setNewDebt({ ...newDebt, institution: e.target.value })
                   }
                   placeholder="e.g., Wells Fargo, Nelnet"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-red-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Balance</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Balance</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={editingDebt ? editingDebt.balance : newDebt.balance}
@@ -8229,12 +8232,12 @@ export default function AIPortfolioManager() {
                         : setNewDebt({ ...newDebt, balance: e.target.value })
                       }
                       placeholder="0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Interest Rate</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Interest Rate</label>
                   <div className="relative">
                     <input
                       type="number"
@@ -8245,16 +8248,16 @@ export default function AIPortfolioManager() {
                         : setNewDebt({ ...newDebt, interestRate: e.target.value })
                       }
                       placeholder="0.0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 pr-8 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">%</span>
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Minimum Payment (Monthly)</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Minimum Payment (Monthly)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                   <input
                     type="number"
                     value={editingDebt ? editingDebt.minimumPayment : newDebt.minimumPayment}
@@ -8263,7 +8266,7 @@ export default function AIPortfolioManager() {
                       : setNewDebt({ ...newDebt, minimumPayment: e.target.value })
                     }
                     placeholder="0"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-red-500"
                   />
                 </div>
               </div>
@@ -8287,21 +8290,21 @@ export default function AIPortfolioManager() {
       {/* Add/Edit Insurance Modal */}
       {(showAddInsurance || editingInsurance) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
               <h3 className="text-xl font-bold text-white">
                 {editingInsurance ? 'Edit Policy' : 'Add Insurance Policy'}
               </h3>
               <button
                 onClick={() => { setShowAddInsurance(false); setEditingInsurance(null); }}
-                className="text-slate-400 hover:text-white"
+                className="text-[#8fa89b] hover:text-[#f0ede6]"
               >
                 <X className="w-6 h-6" />
               </button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Policy Name</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Policy Name</label>
                 <input
                   type="text"
                   value={editingInsurance ? editingInsurance.name : newInsurance.name}
@@ -8310,19 +8313,19 @@ export default function AIPortfolioManager() {
                     : setNewInsurance({ ...newInsurance, name: e.target.value })
                   }
                   placeholder="e.g., Auto Insurance, Term Life"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Type</label>
                   <select
                     value={editingInsurance ? editingInsurance.type : newInsurance.type}
                     onChange={(e) => editingInsurance
                       ? setEditingInsurance({ ...editingInsurance, type: e.target.value })
                       : setNewInsurance({ ...newInsurance, type: e.target.value })
                     }
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   >
                     <optgroup label="Vehicle">
                       <option value="auto">Auto</option>
@@ -8358,7 +8361,7 @@ export default function AIPortfolioManager() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Provider</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Provider</label>
                   <input
                     type="text"
                     value={editingInsurance ? editingInsurance.provider : newInsurance.provider}
@@ -8367,15 +8370,15 @@ export default function AIPortfolioManager() {
                       : setNewInsurance({ ...newInsurance, provider: e.target.value })
                     }
                     placeholder="e.g., State Farm, Geico"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Premium Amount</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Premium Amount</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={editingInsurance ? editingInsurance.premium : newInsurance.premium}
@@ -8384,19 +8387,19 @@ export default function AIPortfolioManager() {
                         : setNewInsurance({ ...newInsurance, premium: e.target.value })
                       }
                       placeholder="0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Payment Frequency</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Payment Frequency</label>
                   <select
                     value={editingInsurance ? editingInsurance.paymentFrequency : newInsurance.paymentFrequency}
                     onChange={(e) => editingInsurance
                       ? setEditingInsurance({ ...editingInsurance, paymentFrequency: e.target.value })
                       : setNewInsurance({ ...newInsurance, paymentFrequency: e.target.value })
                     }
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   >
                     <option value="monthly">Monthly</option>
                     <option value="quarterly">Quarterly</option>
@@ -8407,9 +8410,9 @@ export default function AIPortfolioManager() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Coverage Amount</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Coverage Amount</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={editingInsurance ? editingInsurance.coverage : newInsurance.coverage}
@@ -8418,14 +8421,14 @@ export default function AIPortfolioManager() {
                         : setNewInsurance({ ...newInsurance, coverage: e.target.value })
                       }
                       placeholder="0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Deductible</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Deductible</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={editingInsurance ? editingInsurance.deductible : newInsurance.deductible}
@@ -8434,14 +8437,14 @@ export default function AIPortfolioManager() {
                         : setNewInsurance({ ...newInsurance, deductible: e.target.value })
                       }
                       placeholder="0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                     />
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Renewal Date</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Renewal Date</label>
                   <input
                     type="date"
                     value={editingInsurance ? editingInsurance.renewalDate : newInsurance.renewalDate}
@@ -8449,11 +8452,11 @@ export default function AIPortfolioManager() {
                       ? setEditingInsurance({ ...editingInsurance, renewalDate: e.target.value })
                       : setNewInsurance({ ...newInsurance, renewalDate: e.target.value })
                     }
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-300 mb-2">Policy Number</label>
+                  <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Policy Number</label>
                   <input
                     type="text"
                     value={editingInsurance ? editingInsurance.policyNumber : newInsurance.policyNumber}
@@ -8462,12 +8465,12 @@ export default function AIPortfolioManager() {
                       : setNewInsurance({ ...newInsurance, policyNumber: e.target.value })
                     }
                     placeholder="Optional"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-2">Notes</label>
+                <label className="block text-sm font-medium text-[#b8c9bd] mb-2">Notes</label>
                 <textarea
                   value={editingInsurance ? editingInsurance.notes : newInsurance.notes}
                   onChange={(e) => editingInsurance
@@ -8476,7 +8479,7 @@ export default function AIPortfolioManager() {
                   }
                   placeholder="Any additional details..."
                   rows={2}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                 />
               </div>
               <button
@@ -8499,17 +8502,17 @@ export default function AIPortfolioManager() {
       {/* What-If Simulator Modal */}
       {showSimulator && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className={`${theme === 'light' ? 'bg-white' : 'bg-slate-800'} rounded-2xl border ${theme === 'light' ? 'border-slate-200' : 'border-slate-700'} w-full max-w-4xl max-h-[90vh] overflow-y-auto`}>
-            <div className={`p-6 border-b ${theme === 'light' ? 'border-slate-200' : 'border-slate-700'} sticky top-0 ${theme === 'light' ? 'bg-white' : 'bg-slate-800'} z-10`}>
+          <div className={`${theme === 'light' ? 'bg-white' : 'bg-[#152019]'} rounded-2xl border ${theme === 'light' ? 'border-[#d4cbb8]' : 'border-[#2a3f32]'} w-full max-w-4xl max-h-[90vh] overflow-y-auto`}>
+            <div className={`p-6 border-b ${theme === 'light' ? 'border-[#d4cbb8]' : 'border-[#2a3f32]'} sticky top-0 ${theme === 'light' ? 'bg-white' : 'bg-[#152019]'} z-10`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className={`text-2xl font-bold ${theme === 'light' ? 'text-slate-900' : 'text-white'} flex items-center gap-3`}>
-                    <Calculator className="w-6 h-6 text-purple-500" />
+                  <h2 className={`text-2xl font-bold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'} flex items-center gap-3`}>
+                    <Calculator className="w-6 h-6 text-[#c9a84c]" />
                     What-If Financial Simulator
                   </h2>
-                  <p className={`${theme === 'light' ? 'text-slate-600' : 'text-slate-400'} mt-1`}>Model big decisions before you make them</p>
+                  <p className={`${theme === 'light' ? 'text-[#5a7a65]' : 'text-[#8fa89b]'} mt-1`}>Model big decisions before you make them</p>
                 </div>
-                <button onClick={() => { setShowSimulator(false); setSimulatorResult(null); setSimulatorScenario(null); }} className={`${theme === 'light' ? 'text-slate-400 hover:text-slate-600' : 'text-slate-400 hover:text-white'}`}>
+                <button onClick={() => { setShowSimulator(false); setSimulatorResult(null); setSimulatorScenario(null); }} className={`${theme === 'light' ? 'text-[#8fa89b] hover:text-[#5a7a65]' : 'text-[#8fa89b] hover:text-[#f0ede6]'}`}>
                   <X className="w-6 h-6" />
                 </button>
               </div>
@@ -8530,40 +8533,40 @@ export default function AIPortfolioManager() {
                     <button
                       key={scenario.type}
                       onClick={() => { setSimulatorScenario(scenario.type); setScenarioInputs({}); }}
-                      className={`p-4 rounded-xl border text-left transition-all hover:scale-105 ${theme === 'light' ? 'bg-slate-50 border-slate-200 hover:border-purple-400 hover:bg-purple-50' : 'bg-slate-700/50 border-slate-600 hover:border-purple-500 hover:bg-purple-500/10'}`}
+                      className={`p-4 rounded-xl border text-left transition-all hover:scale-105 ${theme === 'light' ? 'bg-[#f5f2eb] border-[#d4cbb8] hover:border-[#c9a84c] hover:bg-[#fdf8ed]' : 'bg-[#1e3328]/50 border-[#3a5442] hover:border-[#c9a84c] hover:bg-[#c9a84c]/10'}`}
                     >
                       <span className="text-3xl mb-2 block">{scenario.icon}</span>
-                      <h3 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>{scenario.title}</h3>
-                      <p className={`text-sm ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'}`}>{scenario.desc}</p>
+                      <h3 className={`font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>{scenario.title}</h3>
+                      <p className={`text-sm ${theme === 'light' ? 'text-[#5a7a65]' : 'text-[#8fa89b]'}`}>{scenario.desc}</p>
                     </button>
                   ))}
                 </div>
               ) : !simulatorResult ? (
                 /* Scenario Inputs */
                 <div className="space-y-6">
-                  <button onClick={() => setSimulatorScenario(null)} className="text-purple-400 hover:text-purple-300 flex items-center gap-2 text-sm">
+                  <button onClick={() => setSimulatorScenario(null)} className="text-[#d4b96b] hover:text-[#d4b96b] flex items-center gap-2 text-sm">
                     ← Back to scenarios
                   </button>
 
                   {simulatorScenario === 'buy_house' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>🏠 Home Purchase Details</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>🏠 Home Purchase Details</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Home Price</label>
-                          <input type="number" value={scenarioInputs.homePrice || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, homePrice: parseInt(e.target.value)})} placeholder="500000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Home Price</label>
+                          <input type="number" value={scenarioInputs.homePrice || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, homePrice: parseInt(e.target.value)})} placeholder="500000" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Down Payment %</label>
-                          <input type="number" value={scenarioInputs.downPaymentPct || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, downPaymentPct: parseInt(e.target.value)})} placeholder="20" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Down Payment %</label>
+                          <input type="number" value={scenarioInputs.downPaymentPct || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, downPaymentPct: parseInt(e.target.value)})} placeholder="20" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Interest Rate %</label>
-                          <input type="number" step="0.1" value={scenarioInputs.interestRate || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, interestRate: parseFloat(e.target.value)})} placeholder="6.5" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Interest Rate %</label>
+                          <input type="number" step="0.1" value={scenarioInputs.interestRate || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, interestRate: parseFloat(e.target.value)})} placeholder="6.5" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Rent</label>
-                          <input type="number" value={scenarioInputs.currentRent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentRent: parseInt(e.target.value)})} placeholder="2000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Current Rent</label>
+                          <input type="number" value={scenarioInputs.currentRent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentRent: parseInt(e.target.value)})} placeholder="2000" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                       </div>
                     </div>
@@ -8571,15 +8574,15 @@ export default function AIPortfolioManager() {
 
                   {simulatorScenario === 'change_job' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>💼 Job Change Details</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>💼 Job Change Details</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Salary</label>
-                          <input type="number" value={scenarioInputs.currentSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentSalary: parseInt(e.target.value)})} placeholder="100000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Current Salary</label>
+                          <input type="number" value={scenarioInputs.currentSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentSalary: parseInt(e.target.value)})} placeholder="100000" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>New Salary</label>
-                          <input type="number" value={scenarioInputs.newSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, newSalary: parseInt(e.target.value)})} placeholder="120000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>New Salary</label>
+                          <input type="number" value={scenarioInputs.newSalary || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, newSalary: parseInt(e.target.value)})} placeholder="120000" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                       </div>
                     </div>
@@ -8587,15 +8590,15 @@ export default function AIPortfolioManager() {
 
                   {simulatorScenario === 'have_child' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>👶 Family Planning</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>👶 Family Planning</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Monthly Childcare Cost</label>
-                          <input type="number" value={scenarioInputs.childcareMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, childcareMonthly: parseInt(e.target.value)})} placeholder="1500" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Monthly Childcare Cost</label>
+                          <input type="number" value={scenarioInputs.childcareMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, childcareMonthly: parseInt(e.target.value)})} placeholder="1500" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Years of Childcare</label>
-                          <input type="number" value={scenarioInputs.yearsOfChildcare || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, yearsOfChildcare: parseInt(e.target.value)})} placeholder="5" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Years of Childcare</label>
+                          <input type="number" value={scenarioInputs.yearsOfChildcare || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, yearsOfChildcare: parseInt(e.target.value)})} placeholder="5" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                       </div>
                     </div>
@@ -8603,15 +8606,15 @@ export default function AIPortfolioManager() {
 
                   {simulatorScenario === 'max_401k' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>📈 401(k) Analysis</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>📈 401(k) Analysis</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Current Monthly Contribution</label>
-                          <input type="number" value={scenarioInputs.currentMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentMonthly: parseInt(e.target.value)})} placeholder="500" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Current Monthly Contribution</label>
+                          <input type="number" value={scenarioInputs.currentMonthly || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, currentMonthly: parseInt(e.target.value)})} placeholder="500" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Tax Bracket %</label>
-                          <input type="number" value={scenarioInputs.taxBracket ? scenarioInputs.taxBracket * 100 : ''} onChange={(e) => setScenarioInputs({...scenarioInputs, taxBracket: parseInt(e.target.value) / 100})} placeholder="24" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Tax Bracket %</label>
+                          <input type="number" value={scenarioInputs.taxBracket ? scenarioInputs.taxBracket * 100 : ''} onChange={(e) => setScenarioInputs({...scenarioInputs, taxBracket: parseInt(e.target.value) / 100})} placeholder="24" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                       </div>
                     </div>
@@ -8619,26 +8622,26 @@ export default function AIPortfolioManager() {
 
                   {simulatorScenario === 'market_crash' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>📉 Stress Test</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>📉 Stress Test</h3>
                       <div>
-                        <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Market Drop %</label>
-                        <input type="number" value={scenarioInputs.dropPercent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, dropPercent: parseInt(e.target.value)})} placeholder="40" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
-                        <p className={`text-sm ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'} mt-1`}>2008 crash was ~50%, 2020 was ~34%</p>
+                        <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Market Drop %</label>
+                        <input type="number" value={scenarioInputs.dropPercent || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, dropPercent: parseInt(e.target.value)})} placeholder="40" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
+                        <p className={`text-sm ${theme === 'light' ? 'text-[#6b8a76]' : 'text-[#8fa89b]'} mt-1`}>2008 crash was ~50%, 2020 was ~34%</p>
                       </div>
                     </div>
                   )}
 
                   {simulatorScenario === 'retire_early' && (
                     <div className="space-y-4">
-                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>🏖️ Early Retirement</h3>
+                      <h3 className={`text-xl font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>🏖️ Early Retirement</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Target Retirement Age</label>
-                          <input type="number" value={scenarioInputs.targetAge || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, targetAge: parseInt(e.target.value)})} placeholder="50" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Target Retirement Age</label>
+                          <input type="number" value={scenarioInputs.targetAge || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, targetAge: parseInt(e.target.value)})} placeholder="50" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                         <div>
-                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-slate-700' : 'text-slate-300'} mb-1`}>Annual Spending in Retirement</label>
-                          <input type="number" value={scenarioInputs.annualSpending || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, annualSpending: parseInt(e.target.value)})} placeholder="60000" className={`w-full ${theme === 'light' ? 'bg-white border-slate-300' : 'bg-slate-700 border-slate-600'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`} />
+                          <label className={`block text-sm font-medium ${theme === 'light' ? 'text-[#2a4035]' : 'text-[#b8c9bd]'} mb-1`}>Annual Spending in Retirement</label>
+                          <input type="number" value={scenarioInputs.annualSpending || ''} onChange={(e) => setScenarioInputs({...scenarioInputs, annualSpending: parseInt(e.target.value)})} placeholder="60000" className={`w-full ${theme === 'light' ? 'bg-white border-[#b8c9bd]' : 'bg-[#1e3328] border-[#3a5442]'} border rounded-lg px-4 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`} />
                         </div>
                       </div>
                     </div>
@@ -8647,7 +8650,7 @@ export default function AIPortfolioManager() {
                   <button
                     onClick={() => runSimulation(simulatorScenario)}
                     disabled={simulatorLoading}
-                    className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-3 bg-gradient-to-r from-[#c9a84c] to-[#a07c35] hover:from-[#b39643] hover:to-[#8a6a2d] text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {simulatorLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Lightbulb className="w-5 h-5" />}
                     Run Simulation
@@ -8656,23 +8659,23 @@ export default function AIPortfolioManager() {
               ) : (
                 /* Results */
                 <div className="space-y-6">
-                  <button onClick={() => { setSimulatorResult(null); setSimulatorScenario(null); }} className="text-purple-400 hover:text-purple-300 flex items-center gap-2 text-sm">
+                  <button onClick={() => { setSimulatorResult(null); setSimulatorScenario(null); }} className="text-[#d4b96b] hover:text-[#d4b96b] flex items-center gap-2 text-sm">
                     ← Try another scenario
                   </button>
 
-                  <div className={`${theme === 'light' ? 'bg-purple-50 border-purple-200' : 'bg-purple-500/10 border-purple-500/30'} border rounded-xl p-4`}>
-                    <h3 className={`text-xl font-bold ${theme === 'light' ? 'text-purple-900' : 'text-purple-300'}`}>{simulatorResult.title}</h3>
-                    <p className={`${theme === 'light' ? 'text-purple-700' : 'text-purple-200'} mt-1`}>{simulatorResult.summary}</p>
+                  <div className={`${theme === 'light' ? 'bg-[#fdf8ed] border-[#f0d99b]' : 'bg-[#c9a84c]/10 border-[#c9a84c]/25'} border rounded-xl p-4`}>
+                    <h3 className={`text-xl font-bold ${theme === 'light' ? 'text-[#7a5c28]' : 'text-[#d4b96b]'}`}>{simulatorResult.title}</h3>
+                    <p className={`${theme === 'light' ? 'text-[#8a6a2d]' : 'text-[#e5c167]'} mt-1`}>{simulatorResult.summary}</p>
                   </div>
 
                   {/* Impact Summary */}
-                  <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
-                    <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Financial Impact</h4>
+                  <div className={`${theme === 'light' ? 'bg-[#f5f2eb]' : 'bg-[#1e3328]/50'} rounded-xl p-4`}>
+                    <h4 className={`font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'} mb-3`}>Financial Impact</h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                       {Object.entries(simulatorResult.impact || {}).map(([key, value]) => (
-                        <div key={key} className={`p-3 ${theme === 'light' ? 'bg-white' : 'bg-slate-800'} rounded-lg`}>
-                          <p className={`text-xs ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'} capitalize`}>{key.replace(/([A-Z])/g, ' $1').trim()}</p>
-                          <p className={`text-lg font-semibold ${typeof value === 'number' && value < 0 ? 'text-red-400' : theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
+                        <div key={key} className={`p-3 ${theme === 'light' ? 'bg-white' : 'bg-[#152019]'} rounded-lg`}>
+                          <p className={`text-xs ${theme === 'light' ? 'text-[#6b8a76]' : 'text-[#8fa89b]'} capitalize`}>{key.replace(/([A-Z])/g, ' $1').trim()}</p>
+                          <p className={`text-lg font-semibold ${typeof value === 'number' && value < 0 ? 'text-red-400' : theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>
                             {typeof value === 'number' ? (value >= 1000 || value <= -1000 ? `$${value.toLocaleString()}` : value.toLocaleString()) : value}
                           </p>
                         </div>
@@ -8682,17 +8685,17 @@ export default function AIPortfolioManager() {
 
                   {/* Trade-offs */}
                   {simulatorResult.tradeoffs?.length > 0 && (
-                    <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
-                      <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Trade-offs to Consider</h4>
+                    <div className={`${theme === 'light' ? 'bg-[#f5f2eb]' : 'bg-[#1e3328]/50'} rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'} mb-3`}>Trade-offs to Consider</h4>
                       <div className="space-y-2">
                         {simulatorResult.tradeoffs.map((t, i) => (
                           <div key={i} className={`flex items-start gap-2 p-2 rounded ${
                             t.pro === true ? (theme === 'light' ? 'bg-green-50' : 'bg-green-500/10') :
                             t.pro === false ? (theme === 'light' ? 'bg-red-50' : 'bg-red-500/10') :
-                            (theme === 'light' ? 'bg-slate-100' : 'bg-slate-600/30')
+                            (theme === 'light' ? 'bg-[#f0ede6]' : 'bg-[#2a4035]/30')
                           }`}>
                             <span>{t.pro === true ? '✅' : t.pro === false ? '⚠️' : '💡'}</span>
-                            <span className={theme === 'light' ? 'text-slate-700' : 'text-slate-200'}>{t.text}</span>
+                            <span className={theme === 'light' ? 'text-[#2a4035]' : 'text-[#d4ddd7]'}>{t.text}</span>
                           </div>
                         ))}
                       </div>
@@ -8701,24 +8704,24 @@ export default function AIPortfolioManager() {
 
                   {/* Recommendation */}
                   {simulatorResult.recommendation && (
-                    <div className={`${theme === 'light' ? 'bg-blue-50 border-blue-200' : 'bg-blue-500/10 border-blue-500/30'} border rounded-xl p-4`}>
-                      <h4 className={`font-semibold ${theme === 'light' ? 'text-blue-900' : 'text-blue-300'} mb-1 flex items-center gap-2`}>
+                    <div className={`${theme === 'light' ? 'bg-[#fdf8ed] border-[#f0d99b]' : 'bg-[#c9a84c]/10 border-[#c9a84c]/30'} border rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-[#7a5c28]' : 'text-[#d4b96b]'} mb-1 flex items-center gap-2`}>
                         <Lightbulb className="w-4 h-4" /> Recommendation
                       </h4>
-                      <p className={theme === 'light' ? 'text-blue-700' : 'text-blue-200'}>{simulatorResult.recommendation}</p>
+                      <p className={theme === 'light' ? 'text-[#8a6a2d]' : 'text-[#e5c167]'}>{simulatorResult.recommendation}</p>
                     </div>
                   )}
 
                   {/* Timeline */}
                   {simulatorResult.timeline?.length > 0 && (
-                    <div className={`${theme === 'light' ? 'bg-slate-50' : 'bg-slate-700/50'} rounded-xl p-4`}>
-                      <h4 className={`font-semibold ${theme === 'light' ? 'text-slate-900' : 'text-white'} mb-3`}>Projection Timeline</h4>
+                    <div className={`${theme === 'light' ? 'bg-[#f5f2eb]' : 'bg-[#1e3328]/50'} rounded-xl p-4`}>
+                      <h4 className={`font-semibold ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'} mb-3`}>Projection Timeline</h4>
                       <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                           <thead>
-                            <tr className={theme === 'light' ? 'border-slate-200' : 'border-slate-600'}>
+                            <tr className={theme === 'light' ? 'border-[#d4cbb8]' : 'border-[#3a5442]'}>
                               {Object.keys(simulatorResult.timeline[0]).map(key => (
-                                <th key={key} className={`px-3 py-2 text-left ${theme === 'light' ? 'text-slate-600' : 'text-slate-400'} font-medium capitalize`}>
+                                <th key={key} className={`px-3 py-2 text-left ${theme === 'light' ? 'text-[#5a7a65]' : 'text-[#8fa89b]'} font-medium capitalize`}>
                                   {key.replace(/([A-Z])/g, ' $1').trim()}
                                 </th>
                               ))}
@@ -8726,9 +8729,9 @@ export default function AIPortfolioManager() {
                           </thead>
                           <tbody>
                             {simulatorResult.timeline.map((row, i) => (
-                              <tr key={i} className={`border-t ${theme === 'light' ? 'border-slate-200' : 'border-slate-600'}`}>
+                              <tr key={i} className={`border-t ${theme === 'light' ? 'border-[#d4cbb8]' : 'border-[#3a5442]'}`}>
                                 {Object.values(row).map((val, j) => (
-                                  <td key={j} className={`px-3 py-2 ${theme === 'light' ? 'text-slate-900' : 'text-white'}`}>
+                                  <td key={j} className={`px-3 py-2 ${theme === 'light' ? 'text-[#1a2b22]' : 'text-white'}`}>
                                     {typeof val === 'number' && val > 1000 ? `$${val.toLocaleString()}` : val}
                                   </td>
                                 ))}
@@ -8749,8 +8752,8 @@ export default function AIPortfolioManager() {
       {/* Add Quarterly Report Modal */}
       {showAddReport && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-lg max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <FileText className="w-5 h-5 text-cyan-400" />
@@ -8758,22 +8761,22 @@ export default function AIPortfolioManager() {
                 </h2>
                 <button
                   onClick={() => setShowAddReport(false)}
-                  className="text-slate-400 hover:text-white"
+                  className="text-[#8fa89b] hover:text-[#f0ede6]"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Enter data from your partnership quarterly report</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Enter data from your partnership quarterly report</p>
             </div>
             <div className="p-6 space-y-4">
               {/* Period */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Quarter</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Quarter</label>
                   <select
                     value={newReport.quarter}
                     onChange={(e) => setNewReport({ ...newReport, quarter: parseInt(e.target.value) })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   >
                     <option value={1}>Q1</option>
                     <option value={2}>Q2</option>
@@ -8782,13 +8785,13 @@ export default function AIPortfolioManager() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Year</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Year</label>
                   <input
                     type="number"
                     value={newReport.year}
                     onChange={(e) => setNewReport({ ...newReport, year: parseInt(e.target.value) })}
                     placeholder="2025"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
@@ -8796,24 +8799,24 @@ export default function AIPortfolioManager() {
               {/* NAV Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Total NAV ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Total NAV ($)</label>
                   <input
                     type="number"
                     value={newReport.totalNav}
                     onChange={(e) => setNewReport({ ...newReport, totalNav: e.target.value })}
                     placeholder="10,000,000"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">NAV per Unit ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">NAV per Unit ($)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={newReport.navPerUnit}
                     onChange={(e) => setNewReport({ ...newReport, navPerUnit: e.target.value })}
                     placeholder="1,234.56"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
@@ -8821,25 +8824,25 @@ export default function AIPortfolioManager() {
               {/* Returns */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Gross Return (%)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Gross Return (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={newReport.grossReturn}
                     onChange={(e) => setNewReport({ ...newReport, grossReturn: e.target.value })}
                     placeholder="5.5"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Net Return (%)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Net Return (%)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={newReport.netReturn}
                     onChange={(e) => setNewReport({ ...newReport, netReturn: e.target.value })}
                     placeholder="4.2"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
@@ -8847,23 +8850,23 @@ export default function AIPortfolioManager() {
               {/* Cash Flows */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Distributions ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Distributions ($)</label>
                   <input
                     type="number"
                     value={newReport.distributions}
                     onChange={(e) => setNewReport({ ...newReport, distributions: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Capital Calls ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Capital Calls ($)</label>
                   <input
                     type="number"
                     value={newReport.capitalCalls}
                     onChange={(e) => setNewReport({ ...newReport, capitalCalls: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
@@ -8871,36 +8874,36 @@ export default function AIPortfolioManager() {
               {/* Fees */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Management Fee ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Management Fee ($)</label>
                   <input
                     type="number"
                     value={newReport.managementFee}
                     onChange={(e) => setNewReport({ ...newReport, managementFee: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Performance Fee ($)</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Performance Fee ($)</label>
                   <input
                     type="number"
                     value={newReport.performanceFee}
                     onChange={(e) => setNewReport({ ...newReport, performanceFee: e.target.value })}
                     placeholder="0"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 </div>
               </div>
 
               {/* Notes */}
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Notes (optional)</label>
                 <textarea
                   value={newReport.notes}
                   onChange={(e) => setNewReport({ ...newReport, notes: e.target.value })}
                   placeholder="Any highlights or concerns from the GP letter..."
                   rows={3}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
                 />
               </div>
 
@@ -8919,76 +8922,76 @@ export default function AIPortfolioManager() {
       {/* Add Trip Modal */}
       {showAddTrip && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   ✈️ New Trip
                 </h2>
-                <button onClick={() => setShowAddTrip(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowAddTrip(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Track expenses for a vacation or event</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Track expenses for a vacation or event</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Trip Name</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Trip Name</label>
                 <input
                   type="text"
                   value={newTrip.name}
                   onChange={(e) => setNewTrip({ ...newTrip, name: e.target.value })}
                   placeholder="Hawaii Vacation 2026"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Start Date</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Start Date</label>
                   <input
                     type="date"
                     value={newTrip.startDate}
                     onChange={(e) => setNewTrip({ ...newTrip, startDate: e.target.value })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">End Date</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">End Date</label>
                   <input
                     type="date"
                     value={newTrip.endDate}
                     onChange={(e) => setNewTrip({ ...newTrip, endDate: e.target.value })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Budget (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Budget (optional)</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                   <input
                     type="number"
                     value={newTrip.budget}
                     onChange={(e) => setNewTrip({ ...newTrip, budget: e.target.value })}
                     placeholder="3,000"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Notes (optional)</label>
                 <textarea
                   value={newTrip.notes}
                   onChange={(e) => setNewTrip({ ...newTrip, notes: e.target.value })}
                   placeholder="Anniversary trip, all-inclusive resort..."
                   rows={2}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500 resize-none"
                 />
               </div>
               <button
                 onClick={addTrip}
                 disabled={!newTrip.name}
-                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Create Trip
               </button>
@@ -9000,35 +9003,35 @@ export default function AIPortfolioManager() {
       {/* Add Tracked Item Modal (Phase 11: Cost-Benefit) */}
       {showAddTrackedItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   📊 Track Subscription/Service
                 </h2>
-                <button onClick={() => setShowAddTrackedItem(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowAddTrackedItem(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Track cost-per-use to see if you're getting value</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Track cost-per-use to see if you're getting value</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Name</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Name</label>
                 <input
                   type="text"
                   value={newTrackedItem.name}
                   onChange={(e) => setNewTrackedItem({ ...newTrackedItem, name: e.target.value })}
                   placeholder="Gym Membership, Netflix, Costco..."
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Category</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Category</label>
                 <select
                   value={newTrackedItem.category}
                   onChange={(e) => setNewTrackedItem({ ...newTrackedItem, category: e.target.value })}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                 >
                   <option value="subscription">Streaming/Subscription</option>
                   <option value="gym">Gym/Fitness</option>
@@ -9040,48 +9043,48 @@ export default function AIPortfolioManager() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Monthly Cost</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Monthly Cost</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       step="0.01"
                       value={newTrackedItem.monthlyCost}
                       onChange={(e) => setNewTrackedItem({ ...newTrackedItem, monthlyCost: e.target.value })}
                       placeholder="50"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Target $/Use</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Target $/Use</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       step="0.01"
                       value={newTrackedItem.targetCostPerUse}
                       onChange={(e) => setNewTrackedItem({ ...newTrackedItem, targetCostPerUse: e.target.value })}
                       placeholder="5"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">Leave blank for auto</p>
+                  <p className="text-xs text-[#6b8a76] mt-1">Leave blank for auto</p>
                 </div>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Start Date</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Start Date</label>
                 <input
                   type="date"
                   value={newTrackedItem.startDate}
                   onChange={(e) => setNewTrackedItem({ ...newTrackedItem, startDate: e.target.value })}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               </div>
               <button
                 onClick={addTrackedItem}
                 disabled={!newTrackedItem.name || !newTrackedItem.monthlyCost}
-                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Item to Track
               </button>
@@ -9093,46 +9096,46 @@ export default function AIPortfolioManager() {
       {/* Log Usage Modal (Phase 11: Cost-Benefit) */}
       {showLogUsage && selectedTrackedItem && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   ✅ Log Usage
                 </h2>
-                <button onClick={() => { setShowLogUsage(false); setSelectedTrackedItem(null); }} className="text-slate-400 hover:text-white">
+                <button onClick={() => { setShowLogUsage(false); setSelectedTrackedItem(null); }} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Record when you use <span className="text-white">{selectedTrackedItem.name}</span></p>
+              <p className="text-[#8fa89b] text-sm mt-1">Record when you use <span className="text-white">{selectedTrackedItem.name}</span></p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Date</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Date</label>
                 <input
                   type="date"
                   id="usageDate"
                   defaultValue={new Date().toISOString().split('T')[0]}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Number of Uses</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Number of Uses</label>
                 <input
                   type="number"
                   id="usageCount"
                   min="1"
                   defaultValue="1"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <p className="text-xs text-slate-500 mt-1">E.g., watched 3 shows = 3 uses</p>
+                <p className="text-xs text-[#6b8a76] mt-1">E.g., watched 3 shows = 3 uses</p>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Notes (optional)</label>
                 <input
                   type="text"
                   id="usageNotes"
                   placeholder="Watched The Last of Us S2"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
               </div>
 
@@ -9178,15 +9181,15 @@ export default function AIPortfolioManager() {
 
               {/* Recent Usage History */}
               {usageHistories[selectedTrackedItem.id]?.length > 0 && (
-                <div className="mt-4 pt-4 border-t border-slate-700">
-                  <p className="text-sm text-slate-400 mb-2">Recent Usage</p>
+                <div className="mt-4 pt-4 border-t border-[#2a3f32]">
+                  <p className="text-sm text-[#8fa89b] mb-2">Recent Usage</p>
                   <div className="space-y-2 max-h-32 overflow-y-auto">
                     {usageHistories[selectedTrackedItem.id].slice(-5).reverse().map(entry => (
                       <div key={entry.id} className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
-                          <span className="text-slate-400">{entry.date}</span>
+                          <span className="text-[#8fa89b]">{entry.date}</span>
                           <span className="text-white">×{entry.uses}</span>
-                          {entry.notes && <span className="text-slate-500 text-xs truncate max-w-[120px]">{entry.notes}</span>}
+                          {entry.notes && <span className="text-[#6b8a76] text-xs truncate max-w-[120px]">{entry.notes}</span>}
                         </div>
                         <button
                           onClick={() => removeUsageEntry(selectedTrackedItem.id, entry.id)}
@@ -9207,49 +9210,49 @@ export default function AIPortfolioManager() {
       {/* Add Planned Expense Modal (Phase 12: Cash Flow) */}
       {showAddPlannedExpense && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   📅 Add Planned Expense
                 </h2>
-                <button onClick={() => setShowAddPlannedExpense(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowAddPlannedExpense(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Add upcoming expenses to forecast</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Add upcoming expenses to forecast</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Description</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Description</label>
                 <input
                   type="text"
                   value={newPlannedExpense.description}
                   onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, description: e.target.value })}
                   placeholder="New laptop, vacation, car repair..."
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Date</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Date</label>
                   <input
                     type="date"
                     value={newPlannedExpense.date}
                     onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, date: e.target.value })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-violet-500"
                   />
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Amount</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Amount</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={newPlannedExpense.amount}
                       onChange={(e) => setNewPlannedExpense({ ...newPlannedExpense, amount: e.target.value })}
                       placeholder="500"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
                   </div>
                 </div>
@@ -9257,7 +9260,7 @@ export default function AIPortfolioManager() {
               <button
                 onClick={addPlannedExpense}
                 disabled={!newPlannedExpense.date || !newPlannedExpense.amount}
-                className="w-full bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add Planned Expense
               </button>
@@ -9269,27 +9272,27 @@ export default function AIPortfolioManager() {
       {/* Tax Setup Modal (Phase 13) */}
       {showTaxSetup && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl my-8">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-2xl my-8">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   📋 Tax Profile Setup
                 </h2>
-                <button onClick={() => setShowTaxSetup(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowTaxSetup(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Enter your tax information for estimates</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Enter your tax information for estimates</p>
             </div>
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Basic Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Filing Status</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Filing Status</label>
                   <select
                     value={taxProfile.filingStatus}
                     onChange={(e) => setTaxProfile({ ...taxProfile, filingStatus: e.target.value })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
                     <option value="single">Single</option>
                     <option value="married">Married Filing Jointly</option>
@@ -9297,11 +9300,11 @@ export default function AIPortfolioManager() {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">State</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">State</label>
                   <select
                     value={taxProfile.state}
                     onChange={(e) => setTaxProfile({ ...taxProfile, state: e.target.value })}
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-amber-500"
                   >
                     <option value="CA">California</option>
                     <option value="NY">New York</option>
@@ -9328,28 +9331,28 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Income</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Annual Income (W2/1099)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Annual Income (W2/1099)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.annualIncome || ''}
                         onChange={(e) => setTaxProfile({ ...taxProfile, annualIncome: parseFloat(e.target.value) || 0 })}
                         placeholder="100,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Realized Capital Gains</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Realized Capital Gains</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.realizedGains || ''}
                         onChange={(e) => setTaxProfile({ ...taxProfile, realizedGains: parseFloat(e.target.value) || 0 })}
                         placeholder="0"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
@@ -9361,28 +9364,28 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Tax Payments (YTD)</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">W2 Withholding</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">W2 Withholding</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.w2Withholding || ''}
                         onChange={(e) => setTaxProfile({ ...taxProfile, w2Withholding: parseFloat(e.target.value) || 0 })}
                         placeholder="15,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Estimated Payments</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Estimated Payments</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.estimatedPayments || ''}
                         onChange={(e) => setTaxProfile({ ...taxProfile, estimatedPayments: parseFloat(e.target.value) || 0 })}
                         placeholder="0"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
@@ -9394,9 +9397,9 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Retirement Contributions</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Traditional 401(k)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Traditional 401(k)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.retirementContributions?.traditional401k || ''}
@@ -9405,14 +9408,14 @@ export default function AIPortfolioManager() {
                           retirementContributions: { ...taxProfile.retirementContributions, traditional401k: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="Max: 23,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Traditional IRA</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Traditional IRA</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.retirementContributions?.traditionalIRA || ''}
@@ -9421,14 +9424,14 @@ export default function AIPortfolioManager() {
                           retirementContributions: { ...taxProfile.retirementContributions, traditionalIRA: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="Max: 7,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Roth IRA</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Roth IRA</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.retirementContributions?.rothIRA || ''}
@@ -9437,14 +9440,14 @@ export default function AIPortfolioManager() {
                           retirementContributions: { ...taxProfile.retirementContributions, rothIRA: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="Max: 7,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">HSA</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">HSA</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.retirementContributions?.hsa || ''}
@@ -9453,7 +9456,7 @@ export default function AIPortfolioManager() {
                           retirementContributions: { ...taxProfile.retirementContributions, hsa: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="Max: 4,150/8,300"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
@@ -9465,9 +9468,9 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Itemized Deductions (if itemizing)</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Mortgage Interest</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Mortgage Interest</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.deductions?.mortgage || ''}
@@ -9476,14 +9479,14 @@ export default function AIPortfolioManager() {
                           deductions: { ...taxProfile.deductions, mortgage: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="0"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">State & Local Taxes (SALT)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">State & Local Taxes (SALT)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.deductions?.stateLocal || ''}
@@ -9492,14 +9495,14 @@ export default function AIPortfolioManager() {
                           deductions: { ...taxProfile.deductions, stateLocal: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="Max: 10,000"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Charitable Donations</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Charitable Donations</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.deductions?.charitable || ''}
@@ -9508,14 +9511,14 @@ export default function AIPortfolioManager() {
                           deductions: { ...taxProfile.deductions, charitable: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="0"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Medical Expenses</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Medical Expenses</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={taxProfile.deductions?.medical || ''}
@@ -9524,7 +9527,7 @@ export default function AIPortfolioManager() {
                           deductions: { ...taxProfile.deductions, medical: parseFloat(e.target.value) || 0 }
                         })}
                         placeholder="0"
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-amber-500"
                       />
                     </div>
                   </div>
@@ -9545,25 +9548,25 @@ export default function AIPortfolioManager() {
       {/* Add Goal Modal (Phase 14) */}
       {showAddGoal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   🎯 New Financial Goal
                 </h2>
-                <button onClick={() => setShowAddGoal(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowAddGoal(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Set a savings goal to track</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Set a savings goal to track</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Goal Type</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Goal Type</label>
                 <select
                   value={newGoal.category}
                   onChange={(e) => setNewGoal({ ...newGoal, category: e.target.value })}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 >
                   <option value="emergency_fund">🛡️ Emergency Fund</option>
                   <option value="vacation">✈️ Vacation Fund</option>
@@ -9577,66 +9580,66 @@ export default function AIPortfolioManager() {
                 </select>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Goal Name</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Goal Name</label>
                 <input
                   type="text"
                   value={newGoal.name}
                   onChange={(e) => setNewGoal({ ...newGoal, name: e.target.value })}
                   placeholder="Hawaii Vacation 2026"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Target Amount</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Target Amount</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={newGoal.targetAmount}
                       onChange={(e) => setNewGoal({ ...newGoal, targetAmount: e.target.value })}
                       placeholder="5,000"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="text-sm text-slate-300 mb-1 block">Current Progress</label>
+                  <label className="text-sm text-[#b8c9bd] mb-1 block">Current Progress</label>
                   <div className="relative">
-                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                     <input
                       type="number"
                       value={newGoal.currentAmount}
                       onChange={(e) => setNewGoal({ ...newGoal, currentAmount: e.target.value })}
                       placeholder="0"
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Target Date (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Target Date (optional)</label>
                 <input
                   type="date"
                   value={newGoal.deadline}
                   onChange={(e) => setNewGoal({ ...newGoal, deadline: e.target.value })}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Notes (optional)</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Notes (optional)</label>
                 <input
                   type="text"
                   value={newGoal.notes}
                   onChange={(e) => setNewGoal({ ...newGoal, notes: e.target.value })}
                   placeholder="Anniversary trip, saving for 20% down..."
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                 />
               </div>
               <button
                 onClick={addGoal}
                 disabled={!newGoal.name || !newGoal.targetAmount}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] disabled:opacity-50 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Create Goal
               </button>
@@ -9648,17 +9651,17 @@ export default function AIPortfolioManager() {
       {/* Log Contribution Modal (Phase 14) */}
       {showLogContribution && selectedGoal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   💰 Add to {selectedGoal.name}
                 </h2>
-                <button onClick={() => { setShowLogContribution(false); setSelectedGoal(null); }} className="text-slate-400 hover:text-white">
+                <button onClick={() => { setShowLogContribution(false); setSelectedGoal(null); }} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">
+              <p className="text-[#8fa89b] text-sm mt-1">
                 Current: ${selectedGoal.currentAmount?.toLocaleString()} / ${selectedGoal.targetAmount?.toLocaleString()}
               </p>
             </div>
@@ -9673,24 +9676,24 @@ export default function AIPortfolioManager() {
                       setShowLogContribution(false);
                       setSelectedGoal(null);
                     }}
-                    className="bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 py-3 rounded-lg font-medium"
+                    className="bg-[#c9a84c]/15 hover:bg-[#c9a84c]/25 text-[#d4b96b] py-3 rounded-lg font-medium"
                   >
                     +${amount}
                   </button>
                 ))}
               </div>
 
-              <div className="text-center text-slate-400 text-sm">or enter custom amount</div>
+              <div className="text-center text-[#8fa89b] text-sm">or enter custom amount</div>
 
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Custom Amount</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Custom Amount</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                   <input
                     type="number"
                     id="contributionAmount"
                     placeholder="Enter amount"
-                    className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-[#c9a84c]"
                   />
                 </div>
               </div>
@@ -9704,12 +9707,12 @@ export default function AIPortfolioManager() {
                     setSelectedGoal(null);
                   }
                 }}
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[#c9a84c] to-[#8a6a2d] hover:from-[#b39643] hover:to-[#7a5c28] text-white font-medium py-3 rounded-xl flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Add to Goal
               </button>
 
-              <div className="pt-4 border-t border-slate-700">
+              <div className="pt-4 border-t border-[#2a3f32]">
                 <button
                   onClick={() => {
                     const amount = parseFloat(document.getElementById('contributionAmount').value) || 0;
@@ -9732,17 +9735,17 @@ export default function AIPortfolioManager() {
       {/* Retirement Setup Modal (Phase 15) */}
       {showRetirementSetup && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-2xl my-8">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-2xl my-8">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   🏖️ Retirement Plan Settings
                 </h2>
-                <button onClick={() => setShowRetirementSetup(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowRetirementSetup(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Adjust your retirement planning assumptions</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Adjust your retirement planning assumptions</p>
             </div>
             <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
               {/* Age & Timeline */}
@@ -9750,30 +9753,30 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Timeline</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Current Age</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Current Age</label>
                     <input
                       type="number"
                       value={retirementProfile.currentAge}
                       onChange={(e) => setRetirementProfile({ ...retirementProfile, currentAge: parseInt(e.target.value) || 30 })}
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Retirement Age</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Retirement Age</label>
                     <input
                       type="number"
                       value={retirementProfile.retirementAge}
                       onChange={(e) => setRetirementProfile({ ...retirementProfile, retirementAge: parseInt(e.target.value) || 65 })}
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Life Expectancy</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Life Expectancy</label>
                     <input
                       type="number"
                       value={retirementProfile.lifeExpectancy}
                       onChange={(e) => setRetirementProfile({ ...retirementProfile, lifeExpectancy: parseInt(e.target.value) || 90 })}
-                      className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                      className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                     />
                   </div>
                 </div>
@@ -9784,38 +9787,38 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Savings</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Current Retirement Savings</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Current Retirement Savings</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.currentSavings}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, currentSavings: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Monthly Contribution</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Monthly Contribution</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.monthlyContribution}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, monthlyContribution: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Employer Match</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Employer Match</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.employerMatch}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, employerMatch: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
@@ -9827,29 +9830,29 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Expenses</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Current Monthly Expenses</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Current Monthly Expenses</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.currentExpenses}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, currentExpenses: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Retirement Expense % (of current)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Retirement Expense % (of current)</label>
                     <div className="relative">
                       <input
                         type="number"
                         value={retirementProfile.retirementExpensePct}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, retirementExpensePct: parseFloat(e.target.value) || 80 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">%</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">Typically 70-80% of pre-retirement</p>
+                    <p className="text-xs text-[#6b8a76] mt-1">Typically 70-80% of pre-retirement</p>
                   </div>
                 </div>
               </div>
@@ -9859,38 +9862,38 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Retirement Income Sources</h4>
                 <div className="grid grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Social Security (monthly)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Social Security (monthly)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.socialSecurityMonthly}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, socialSecurityMonthly: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Pension (monthly)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Pension (monthly)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.pensionMonthly}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, pensionMonthly: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Other Income (monthly)</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Other Income (monthly)</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">$</span>
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">$</span>
                       <input
                         type="number"
                         value={retirementProfile.otherIncomeMonthly}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, otherIncomeMonthly: parseFloat(e.target.value) || 0 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg pl-8 pr-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
                     </div>
                   </div>
@@ -9902,32 +9905,32 @@ export default function AIPortfolioManager() {
                 <h4 className="text-sm font-semibold text-white mb-3">Market Assumptions</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Expected Annual Return</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Expected Annual Return</label>
                     <div className="relative">
                       <input
                         type="number"
                         step="0.5"
                         value={retirementProfile.expectedReturn}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, expectedReturn: parseFloat(e.target.value) || 7 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">%</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">Historical S&P 500: ~10%, Conservative: 6-7%</p>
+                    <p className="text-xs text-[#6b8a76] mt-1">Historical S&P 500: ~10%, Conservative: 6-7%</p>
                   </div>
                   <div>
-                    <label className="text-sm text-slate-300 mb-1 block">Expected Inflation</label>
+                    <label className="text-sm text-[#b8c9bd] mb-1 block">Expected Inflation</label>
                     <div className="relative">
                       <input
                         type="number"
                         step="0.5"
                         value={retirementProfile.inflationRate}
                         onChange={(e) => setRetirementProfile({ ...retirementProfile, inflationRate: parseFloat(e.target.value) || 3 })}
-                        className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                        className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 pr-8 py-3 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
                       />
-                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">%</span>
+                      <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8fa89b]">%</span>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">Historical average: 2-3%</p>
+                    <p className="text-xs text-[#6b8a76] mt-1">Historical average: 2-3%</p>
                   </div>
                 </div>
               </div>
@@ -9946,26 +9949,26 @@ export default function AIPortfolioManager() {
       {/* Plaid Setup Modal */}
       {showPlaidSetup && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 w-full max-w-md">
-            <div className="p-6 border-b border-slate-700">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] w-full max-w-md">
+            <div className="p-6 border-b border-[#2a3f32]">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-emerald-400" />
                   Connect Bank Account
                 </h2>
-                <button onClick={() => setShowPlaidSetup(false)} className="text-slate-400 hover:text-white">
+                <button onClick={() => setShowPlaidSetup(false)} className="text-[#8fa89b] hover:text-[#f0ede6]">
                   <X className="w-5 h-5" />
                 </button>
               </div>
-              <p className="text-slate-400 text-sm mt-1">Enter your Plaid API credentials</p>
+              <p className="text-[#8fa89b] text-sm mt-1">Enter your Plaid API credentials</p>
             </div>
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Environment</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Environment</label>
                 <select
                   value={plaidConfig.environment}
                   onChange={(e) => setPlaidConfig({ ...plaidConfig, environment: e.target.value })}
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 >
                   <option value="sandbox">Sandbox (Testing)</option>
                   <option value="development">Development</option>
@@ -9973,30 +9976,30 @@ export default function AIPortfolioManager() {
                 </select>
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Client ID</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Client ID</label>
                 <input
                   type="text"
                   value={plaidConfig.clientId}
                   onChange={(e) => setPlaidConfig({ ...plaidConfig, clientId: e.target.value })}
                   placeholder="Enter your Plaid Client ID"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
               <div>
-                <label className="text-sm text-slate-300 mb-1 block">Secret</label>
+                <label className="text-sm text-[#b8c9bd] mb-1 block">Secret</label>
                 <input
                   type="password"
                   value={plaidConfig.secret}
                   onChange={(e) => setPlaidConfig({ ...plaidConfig, secret: e.target.value })}
                   placeholder="Enter your Plaid Secret"
-                  className="w-full bg-slate-700/50 border border-slate-600 rounded-lg px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                  className="w-full bg-[#1e3328]/50 border border-[#3a5442] rounded-lg px-4 py-3 text-white placeholder-[#6b8a76] focus:outline-none focus:ring-2 focus:ring-emerald-500"
                 />
               </div>
 
-              <div className="bg-slate-700/30 rounded-lg p-4 text-sm">
-                <p className="text-slate-300 font-medium mb-2">📋 Sandbox Testing</p>
-                <p className="text-slate-400 text-xs mb-2">For sandbox mode, use these test credentials when Plaid Link opens:</p>
-                <div className="bg-slate-800 rounded p-2 font-mono text-xs text-slate-300">
+              <div className="bg-[#1e3328]/30 rounded-lg p-4 text-sm">
+                <p className="text-[#b8c9bd] font-medium mb-2">📋 Sandbox Testing</p>
+                <p className="text-[#8fa89b] text-xs mb-2">For sandbox mode, use these test credentials when Plaid Link opens:</p>
+                <div className="bg-[#152019] rounded p-2 font-mono text-xs text-[#b8c9bd]">
                   <p>Username: <span className="text-emerald-400">user_good</span></p>
                   <p>Password: <span className="text-emerald-400">pass_good</span></p>
                 </div>
@@ -10014,7 +10017,7 @@ export default function AIPortfolioManager() {
                 )}
               </button>
 
-              <p className="text-xs text-slate-500 text-center">
+              <p className="text-xs text-[#6b8a76] text-center">
                 Get free API keys at{' '}
                 <a href="https://dashboard.plaid.com/signup" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">
                   dashboard.plaid.com
@@ -10028,15 +10031,15 @@ export default function AIPortfolioManager() {
       {/* Trade Confirmation Modal */}
       {tradeConfirmation && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-800 rounded-2xl border border-slate-700 p-6 max-w-md w-full">
+          <div className="bg-[#152019] rounded-2xl border border-[#2a3f32] p-6 max-w-md w-full">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${tradeConfirmation.success ? 'bg-green-500/20' : 'bg-red-500/20'}`}>
               <Check className={`w-6 h-6 ${tradeConfirmation.success ? 'text-green-400' : 'text-red-400'}`} />
             </div>
             <h3 className={`text-xl font-bold text-center mb-2 ${tradeConfirmation.success ? 'text-green-400' : 'text-red-400'}`}>
               {tradeConfirmation.success ? 'Order Placed!' : 'Failed'}
             </h3>
-            <p className="text-slate-300 text-center mb-6">{tradeConfirmation.message}</p>
-            <button onClick={() => setTradeConfirmation(null)} className="w-full bg-slate-700 hover:bg-slate-600 text-white py-3 rounded-xl">Close</button>
+            <p className="text-[#b8c9bd] text-center mb-6">{tradeConfirmation.message}</p>
+            <button onClick={() => setTradeConfirmation(null)} className="w-full bg-[#1e3328] hover:bg-[#2a4035] text-white py-3 rounded-xl">Close</button>
           </div>
         </div>
       )}
